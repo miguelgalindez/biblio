@@ -14,8 +14,10 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(0.0),
       margin: EdgeInsets.symmetric(horizontal: 50.0),
-      child: Column(
+      child: Column(        
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Form(

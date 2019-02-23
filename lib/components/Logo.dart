@@ -8,6 +8,8 @@ class Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(0.0),
+      margin: EdgeInsets.all(0.0),
       width: 250.0,
       height: 250.0,
       alignment: Alignment.center,

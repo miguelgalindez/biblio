@@ -9,7 +9,7 @@ class TextInput extends StatelessWidget {
 
   TextInput(
       {Key key,
-      this.keyboardType,
+      this.keyboardType = TextInputType.text,
       @required this.obscureText,
       @required this.label,
       this.icon,
@@ -20,23 +20,24 @@ class TextInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle =
-        Theme.of(context).textTheme.subhead.copyWith(color: Colors.white);
+    final themeData = Theme.of(context);
+    var textStyle = themeData.textTheme.subhead.copyWith(color: Colors.white);
+    var errorStyle = textStyle.copyWith(color: themeData.errorColor);
 
     return TextFormField(
         maxLines: 1,
-        keyboardType:
-            this.keyboardType != null ? this.keyboardType : TextInputType.text,
+        keyboardType: this.keyboardType,
         obscureText: this.obscureText,
         style: textStyle,
         decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-          ),
-          prefixIcon: Icon(this.icon, color: Colors.white),
-          labelText: this.label,
-          labelStyle: textStyle,
-        ),
+            border: OutlineInputBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            ),
+            prefixIcon: Icon(this.icon, color: Colors.white),
+            labelText: this.label,
+            labelStyle: textStyle,
+            errorStyle: errorStyle,
+            errorMaxLines: 2),
         validator: this.validator);
   }
 }

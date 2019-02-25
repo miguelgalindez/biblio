@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/components/Logo.dart';
-import 'package:biblio/components/LoginForm.dart';
+import 'package:biblio/components/logo.dart';
+import 'package:biblio/screens/login/loginForm.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);

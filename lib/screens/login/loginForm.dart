@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/components/TextInput.dart';
+import 'package:biblio/components/textInput.dart';
+import 'package:biblio/validators/userValidator.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -29,21 +30,22 @@ class _LoginFormState extends State<LoginForm> {
                   obscureText: false,
                   label: "Usuario institucional",
                   icon: Icons.person,
-                  validator: null,
+                  validator: validateUsername,
                 ),
-                
-                SizedBox(height: 40.0),
+
+                SizedBox(height: 20.0),
 
                 TextInput(
                   obscureText: true,
                   label: "Contraseña",
                   icon: Icons.lock,
-                  validator: null,
-                  ),
-                
-                SizedBox(height: 40.0),
+                  validator: validatePassword,
+                ),
 
-                Container(
+                SizedBox(height: 20.0),
+
+                /*
+                Container(                  
                   width: 320.0,
                   height: 60.0,
                   alignment: FractionalOffset.center,
@@ -60,6 +62,14 @@ class _LoginFormState extends State<LoginForm> {
                         letterSpacing: 0.3),
                   ),
                 )
+                */
+                RaisedButton(
+                  child: Text("Sign in"),
+                  onPressed: (){
+                    if(_formKey.currentState.validate()){
+                      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Processing data..."),));
+                    }
+                },)
               ],
             ),
           )

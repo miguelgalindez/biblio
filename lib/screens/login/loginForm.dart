@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:biblio/components/textInput.dart';
 import 'package:biblio/validators/userValidator.dart';
-import 'package:biblio/models/User.dart';
+import 'package:biblio/screens/login/signInButton.dart';
 import 'package:biblio/services/userServices.dart';
 
 /**
@@ -99,26 +99,9 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                 ),
                 SizedBox(height: 20.0),
 
-                /*
-                Container(                  
-                  width: 320.0,
-                  height: 60.0,
-                  alignment: FractionalOffset.center,
-                  decoration: BoxDecoration(
-                      color: const Color.fromRGBO(166, 22, 24, 1.0),
-                      borderRadius:
-                          BorderRadius.all(const Radius.circular(15.0))),
-                  child: Text(
-                    "Sign in",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w300,
-                        letterSpacing: 0.3),
-                  ),
-                )
-                */
-                RaisedButton(
+                SignInButton(),
+
+                /*RaisedButton(
                   child: Text("Sign in"),
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
@@ -130,6 +113,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                     }
                   },
                 ),
+                */
                 Text(username),
                 Text(password),
               ],

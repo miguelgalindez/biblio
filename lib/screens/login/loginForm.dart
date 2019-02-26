@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:biblio/components/textInput.dart';
 import 'package:biblio/validators/userValidator.dart';
 import 'package:biblio/models/User.dart';
+import 'package:biblio/services/userServices.dart';
 
 /**
  * TODO: use shared preferences to store the state before
@@ -68,7 +69,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 24.0),
@@ -124,7 +125,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text("Processing data..."),
                       ));
-                      var user=await User.signIn(username, password);
+                      var user=await UserServices.signIn(username, password, context);
                       print(user.username+" "+user.isAuthenticated.toString());
                     }
                   },

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:biblio/components/textInput.dart';
 import 'package:biblio/validators/userValidator.dart';
+import 'package:biblio/models/User.dart';
 
 /**
  * TODO: use shared preferences to store the state before
  * the widget is disposed (Screen rotation, app killing or app leaving)
  * 
  * TODO: Check what other lifecycle events should be tracked
+ * 
+ * TODO: handle http exceptions 
  */
 
 class LoginForm extends StatefulWidget {
@@ -51,9 +54,6 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   @override void didChangeMetrics() {
     print("Screen was rotated. Width ${window.physicalSize.width}. Height: ${window.physicalSize.height}");    
   }
-
-  
-
 
   _updateUsername() {
     setState(() {
@@ -119,11 +119,13 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                 */
                 RaisedButton(
                   child: Text("Sign in"),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text("Processing data..."),
                       ));
+                      var user=await User.signIn(username, password);
+                      print(user.username+" "+user.isAuthenticated.toString());
                     }
                   },
                 ),

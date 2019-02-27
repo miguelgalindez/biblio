@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 import 'package:biblio/components/logo.dart';
 import 'package:biblio/screens/login/loginForm.dart';
 import 'package:biblio/screens/login/animatedButton.dart';
+import 'package:biblio/models/User.dart';
+import 'package:biblio/services/userServices.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -17,22 +18,16 @@ class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   String username;
   String password;
-  bool buttonClicked;
-  AnimationController buttonAnimationController;
 
   @override
   void initState() {
     super.initState();
     username = "";
     password = "";
-    buttonClicked = false;
-    buttonAnimationController =
-        AnimationController(duration: Duration(seconds: 3), vsync: this);
   }
 
   @override
   void dispose() {
-    buttonAnimationController.dispose();
     super.dispose();
   }
 
@@ -43,13 +38,13 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
-  Future<Null> _playAnimation() async {
-    await buttonAnimationController.forward();    
-  }
-
   @override
   Widget build(BuildContext context) {
-    var media = MediaQuery.of(context);
+    loginFunction() async {
+      return UserServices.signIn(username, password, context);
+    }
+
+    //var media = MediaQuery.of(context);
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomPadding: true,
@@ -68,34 +63,10 @@ class _LoginScreenState extends State<LoginScreen>
                     SizedBox(height: 80.0),
                   ],
                 ),
-                AnimatedButton()                
+                AnimatedButton(onTap: loginFunction),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class SignIn extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      margin: EdgeInsets.all(0.0),
-      width: 320.0,
-      height: 60.0,
-      decoration: BoxDecoration(
-          color: Colors.red[700],
-          borderRadius: BorderRadius.all(const Radius.circular(30.0))),
-      child: Text(
-        "Sign in",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20.0,
-          fontWeight: FontWeight.w300,
-          letterSpacing: 0.3,
         ),
       ),
     );

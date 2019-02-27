@@ -15,10 +15,7 @@ class ShrinkButtonAnimation extends StatelessWidget {
         super(key: key);
 
   Widget _buildAnimation(BuildContext context, Widget child) {
-    return PlainButton(
-      shrinkButtonAnimation: shrinkAnimation,
-      text: "Sign in",
-    );
+    return PlainButton(shrinkButtonAnimation: shrinkAnimation);
   }
 
   @override

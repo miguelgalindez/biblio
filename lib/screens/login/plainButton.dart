@@ -17,7 +17,7 @@ class PlainButton extends StatelessWidget {
       this.initWidth = 320,
       this.compresssedWidth = 70,
       this.height = 60,
-      @required this.text});
+      this.text=""});
 
   final Widget progressIndicator = CircularProgressIndicator(
       strokeWidth: 3.0,

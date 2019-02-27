@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:biblio/components/textInput.dart';
 import 'package:biblio/validators/userValidator.dart';
-import 'package:biblio/screens/login/signInButton.dart';
 import 'package:biblio/services/userServices.dart';
 
 /**
@@ -12,9 +11,13 @@ import 'package:biblio/services/userServices.dart';
  * TODO: Check what other lifecycle events should be tracked
  * 
  * TODO: handle http exceptions 
+ * TOTO: remove username and password and put them into index.
  */
 
 class LoginForm extends StatefulWidget {
+  final Function onFormChange;
+  LoginForm({Key key, @required this.onFormChange}):super(key: key);
+
   @override
   _LoginFormState createState() => _LoginFormState();
 }
@@ -22,21 +25,19 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
-  
-  String username;
-  String password;
+    
+  TextEditingController _usernameController;
+  TextEditingController _passwordController;
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = new TextEditingController();
-  final TextEditingController _passwordController = new TextEditingController();
 
   @override
   void initState() {
-    super.initState();
-    username = "";
-    password = "";
-    _usernameController.addListener(_updateUsername);
-    _passwordController.addListener(_updatePassword);
+    super.initState();    
+    _usernameController=new TextEditingController(text: "");
+    _passwordController=new TextEditingController(text: "");
+    _usernameController.addListener(handleFieldChange);
+    _passwordController.addListener(handleFieldChange);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -49,6 +50,10 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  void handleFieldChange(){    
+    widget.onFormChange(_usernameController.text, _passwordController.text);
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state){    
     print("State: "+state.toString());
@@ -56,18 +61,6 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
 
   @override void didChangeMetrics() {
     print("Screen was rotated. Width ${window.physicalSize.width}. Height: ${window.physicalSize.height}");    
-  }
-
-  _updateUsername() {
-    setState(() {
-      username = _usernameController.text;
-    });
-  }
-
-  _updatePassword() {
-    setState(() {
-      password = _passwordController.text;
-    });
   }
 
   @override

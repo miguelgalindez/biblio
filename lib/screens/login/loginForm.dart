@@ -22,9 +22,11 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
-  final _formKey = GlobalKey<FormState>();
+  
   String username;
   String password;
+
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = new TextEditingController();
   final TextEditingController _passwordController = new TextEditingController();
 
@@ -89,18 +91,14 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                   controller: _usernameController,
                   validator: validateUsername,
                 ),
-                SizedBox(height: 20.0),
+                SizedBox(height: 10.0),
                 TextInput(
                   obscureText: true,
                   label: "Contraseña",
                   icon: Icons.lock,
                   controller: _passwordController,
                   validator: validatePassword,
-                ),
-                SizedBox(height: 20.0),
-
-                SignInButton(),
-
+                ),                            
                 /*RaisedButton(
                   child: Text("Sign in"),
                   onPressed: () async {
@@ -113,9 +111,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                     }
                   },
                 ),
-                */
-                Text(username),
-                Text(password),
+                */                
               ],
             ),
           )

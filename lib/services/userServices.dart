@@ -1,32 +1,45 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/models/User.dart';
 
 final String authURI = 'users/auth';
 
-class UserServices {
-  static Future<User> signIn(String username, String password, BuildContext context) async {
-    var appConfig = AppConfig.of(context);
+/*
+  TODO: Implement the better way to log messages
+*/
 
+class UserServices {
+  static Future<User> signIn(
+      String username, String password, AppConfig appConfig) async {
+    final String url = appConfig.apiBaseUrl + authURI;
     final response = await http.post(
-      appConfig.apiBaseUrl + authURI,
+      url,
       body: {'username': username, 'password': password},
     );
 
     var responseBody = json.decode(response.body);
-    if (response.statusCode == 200) {
-      User user = User.fromJson(responseBody);
-      if (user.isAuthenticated) {
-        return user;
-      } else {
-        throw "Usuario o contraseña inválidos";
-      }
-    } else {
-      print("Error: " + responseBody.error);
-      throw ("Error al intentar conectar con el servidor");
+    switch (response.statusCode) {
+      // OK
+      case 200:
+        User user = User.fromJson(responseBody);
+        if (user.isAuthenticated) {
+          return user;
+        } else {
+          throw "Usuario o contraseña inválidos";
+        }
+        break;
+      // BAD REQUEST
+      case 400:
+        throw (responseBody["error"]);
+        break;
+
+      // UNKNOWN ERROR - Show generic message to user and log the specific error.
+      default:
+        print("Error: " + responseBody["error"]);
+        throw "Error al intentar conectar con el servidor";
+        break;
     }
   }
 }

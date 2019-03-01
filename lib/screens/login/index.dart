@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:biblio/components/logo.dart';
 import 'package:biblio/screens/login/loginForm.dart';
 import 'package:biblio/screens/login/animatedButton.dart';
-import 'package:biblio/models/User.dart';
 import 'package:biblio/services/userServices.dart';
+import 'package:biblio/models/User.dart';
+import 'package:biblio/models/appConfig.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -18,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   String username;
   String password;
+  Future<User> user;
 
   @override
   void initState() {
@@ -40,11 +43,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    loginFunction() async {
-      return UserServices.signIn(username, password, context);
-    }
-
-    //var media = MediaQuery.of(context);
+    var appConfig = AppConfig.of(context);
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomPadding: true,
@@ -57,13 +56,16 @@ class _LoginScreenState extends State<LoginScreen>
                 Column(
                   children: <Widget>[
                     widget.logo,
-                    SizedBox(height: 20.0),
-                    Text("Username: " + username + " Password: " + password),
+                    SizedBox(height: 20.0),                    
                     LoginForm(onFormChange: handleFormChange),
                     SizedBox(height: 80.0),
                   ],
                 ),
-                AnimatedButton(onTap: loginFunction),
+                AnimatedButton(
+                  username: username,
+                  password: password,
+                  appConfig: appConfig,
+                ),
               ],
             ),
           ),

@@ -1,11 +1,20 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:biblio/screens/login/plainButton.dart';
 import 'package:biblio/screens/login/shrinkButtonAnimation.dart';
+import 'package:biblio/models/User.dart';
+import 'package:biblio/services/userServices.dart';
+import 'package:biblio/models/appConfig.dart';
 
 class AnimatedButton extends StatefulWidget {
-  final Function onTap;
-
-  AnimatedButton({Key key, this.onTap});
+  final String username;
+  final String password;
+  final AppConfig appConfig;
+  AnimatedButton(
+      {Key key,
+      @required this.username,
+      @required this.password,
+      @required this.appConfig});
 
   @override
   _AnimatedButtonState createState() => _AnimatedButtonState();
@@ -15,6 +24,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
     with TickerProviderStateMixin {
   AnimationController shrinkButtonAnimationController;
   bool buttonClicked;
+  Future<User> loginPromise;
 
   @override
   void initState() {
@@ -28,40 +38,43 @@ class _AnimatedButtonState extends State<AnimatedButton>
   void dispose() {
     shrinkButtonAnimationController.dispose();
     super.dispose();
-  }
+  }  
 
   Future<void> _playShrinkAnimation() async {
-    await shrinkButtonAnimationController.forward().orCancel;
+    await shrinkButtonAnimationController.forward();
   }
 
   Future<void> _rewindShrinkAnimation() async {
-    await shrinkButtonAnimationController.reverse().orCancel;
+    await shrinkButtonAnimationController.reverse();
+    setState(() {
+      buttonClicked = false;
+    });
   }
 
-  _getOnTap() async {
-    setState(() {
-      buttonClicked = true;
-    });
-
-    _playShrinkAnimation();
-
+  signIn() async {
+    print("Trying to sign in");
     try {
-      await widget.onTap(); 
-      print("OK");
+      User user = await UserServices.signIn(
+          widget.username, widget.password, widget.appConfig);
+      print("ok " + user.username + " " + user.isAuthenticated.toString());
     } catch (e) {
-      print(e.toString());
       _rewindShrinkAnimation();
-    } finally {
-      setState(() {
-        buttonClicked = false;
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return !buttonClicked
-        ? PlainButton(text: "Sign in", onTap: _getOnTap())
+        ? PlainButton(
+            text: "Sign in",
+            onTap: () async {
+              setState(() {
+                buttonClicked = true;
+              });
+              _playShrinkAnimation();
+              signIn();
+            },
+          )
         : ShrinkButtonAnimation(
             animationController: shrinkButtonAnimationController,
           );

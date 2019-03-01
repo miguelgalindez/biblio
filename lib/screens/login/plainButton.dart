@@ -4,8 +4,10 @@ class PlainButton extends StatelessWidget {
   final Animation shrinkButtonAnimation;
   final Animation zoomButtonAnimation;
   final Function onTap;
-  final double initWidth;
-  final double compresssedWidth;
+  final double initialWidth;
+  final double finalWidth;
+  final double initialBorderRadius;
+  final double finalBorderRadius;
   final double height;
   final String text;
 
@@ -14,10 +16,15 @@ class PlainButton extends StatelessWidget {
       this.shrinkButtonAnimation,
       this.zoomButtonAnimation,
       this.onTap,
-      this.initWidth = 320,
-      this.compresssedWidth = 70,
+      this.initialWidth = 320,
+      this.finalWidth = 70,
+      this.initialBorderRadius = 10.0,
+      this.finalBorderRadius = 30.0,
       this.height = 60,
-      this.text=""});
+      this.text = ""})
+      : assert(initialWidth > finalWidth),
+        assert(initialBorderRadius < finalBorderRadius),
+        super(key: key);
 
   final Widget progressIndicator = CircularProgressIndicator(
       strokeWidth: 3.0,
@@ -29,7 +36,7 @@ class PlainButton extends StatelessWidget {
     } else if (zoomButtonAnimation != null) {
       return zoomButtonAnimation.value;
     }
-    return initWidth;
+    return initialWidth;
   }
 
   double _getHeight() {
@@ -37,6 +44,14 @@ class PlainButton extends StatelessWidget {
       return zoomButtonAnimation.value;
     }
     return height;
+  }
+
+  double _getBorderRadius() {
+    double incrementRate =
+        (finalBorderRadius - initialBorderRadius) / (initialWidth - finalWidth);
+    double t = initialWidth - _getWidth();
+    double increment = incrementRate*t;
+    return initialBorderRadius+increment;
   }
 
   Decoration _getDecoration() {
@@ -50,7 +65,7 @@ class PlainButton extends StatelessWidget {
     } else {
       return BoxDecoration(
           color: Colors.red[700],
-          borderRadius: BorderRadius.all(const Radius.circular(30.0)));
+          borderRadius: BorderRadius.all(Radius.circular(_getBorderRadius())));
     }
   }
 

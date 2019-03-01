@@ -59,9 +59,14 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
     print("State: "+state.toString());
   }
 
+  /*
+    The event handled here is fired when the screen changes its size,
+    for example, when it is rotated or in other situations such as 
+    keyboard display
   @override void didChangeMetrics() {
-    print("Screen was rotated. Width ${window.physicalSize.width}. Height: ${window.physicalSize.height}");    
+    
   }
+  */
 
   @override
   Widget build(BuildContext context) {    

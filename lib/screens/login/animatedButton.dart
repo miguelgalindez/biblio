@@ -51,8 +51,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
     });
   }
 
-  signIn() async {
-    print("Trying to sign in");
+  signIn() async {    
     try {
       User user = await UserServices.signIn(
           widget.username, widget.password, widget.appConfig);

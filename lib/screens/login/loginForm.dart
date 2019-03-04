@@ -16,26 +16,23 @@ import 'package:biblio/services/userServices.dart';
 
 class LoginForm extends StatefulWidget {
   final Function onFormChange;
-  LoginForm({Key key, @required this.onFormChange}):super(key: key);
+  final GlobalKey<FormState> formKey;
+
+  LoginForm({Key key, @required this.onFormChange, this.formKey}) : super(key: key);
 
   @override
   _LoginFormState createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
-  // Create a global key that will uniquely identify the Form widget and allow
-  // us to validate the form
-    
+class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {  
   TextEditingController _usernameController;
   TextEditingController _passwordController;
 
-  final _formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
-    super.initState();    
-    _usernameController=new TextEditingController(text: "");
-    _passwordController=new TextEditingController(text: "");
+    super.initState();
+    _usernameController = new TextEditingController(text: "");
+    _passwordController = new TextEditingController(text: "");
     _usernameController.addListener(handleFieldChange);
     _passwordController.addListener(handleFieldChange);
     WidgetsBinding.instance.addObserver(this);
@@ -50,13 +47,13 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  void handleFieldChange(){    
+  void handleFieldChange() {
     widget.onFormChange(_usernameController.text, _passwordController.text);
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state){    
-    print("State: "+state.toString());
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("State: " + state.toString());
   }
 
   /*
@@ -69,7 +66,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   */
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 24.0),
@@ -77,7 +74,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Form(
-            key: _formKey,
+            key: widget.formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
@@ -96,20 +93,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
                   icon: Icons.lock,
                   controller: _passwordController,
                   validator: validatePassword,
-                ),                            
-                /*RaisedButton(
-                  child: Text("Sign in"),
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("Processing data..."),
-                      ));
-                      var user=await UserServices.signIn(username, password, context);
-                      print(user.username+" "+user.isAuthenticated.toString());
-                    }
-                  },
                 ),
-                */                
               ],
             ),
           )

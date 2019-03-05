@@ -12,12 +12,15 @@ class AnimatedButton extends StatefulWidget {
   final String password;
   final GlobalKey<FormState> formKey;
   final Function onAnimationCompleted;
+  final MediaQueryData mediaQueryData;
+
   AnimatedButton(
       {Key key,
       @required this.username,
       @required this.password,
       this.formKey,
-      this.onAnimationCompleted})
+      this.onAnimationCompleted,
+      @required this.mediaQueryData})
       : super(key: key);
 
   @override
@@ -41,7 +44,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
     shrinkButtonAnimationController =
         AnimationController(duration: const Duration(seconds: 2), vsync: this);
     zoomButtonAnimationController =
-        AnimationController(duration: const Duration(seconds: 8), vsync: this);
+        AnimationController(duration: const Duration(seconds: 1), vsync: this);
   }
 
   @override
@@ -128,6 +131,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
       return ZoomButtonAnimation(
         animationController: zoomButtonAnimationController,
         onAnimationCompleted: _handleAnimationCompleted,
+        mediaQueryData: widget.mediaQueryData,
       );
     } else if (showShrinkButtonAnimation != null && showShrinkButtonAnimation) {
       return ShrinkButtonAnimation(

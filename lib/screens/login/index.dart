@@ -51,7 +51,9 @@ class _LoginScreenState extends State<LoginScreen>
   };
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
+    var mediaQueryData=MediaQuery.of(context);
+    print("Height: "+mediaQueryData.size.height.toString()+" Width: "+mediaQueryData.size.width.toString());
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomPadding: true,
@@ -77,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen>
                   password: password,                  
                   formKey: widget._formKey,
                   onAnimationCompleted: _handleAnimationCompleted(context),
+                  mediaQueryData: mediaQueryData,
                 ),
               ],
             ),

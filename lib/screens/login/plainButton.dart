@@ -4,6 +4,7 @@ class PlainButton extends StatelessWidget {
   final Animation shrinkButtonAnimation;
   final Animation zoomButtonAnimation;
   final Function onTap;
+  final MediaQueryData mediaQueryData;
   final double initialWidth;
   final double finalWidth;
   final double initialBorderRadius;
@@ -16,6 +17,7 @@ class PlainButton extends StatelessWidget {
       this.shrinkButtonAnimation,
       this.zoomButtonAnimation,
       this.onTap,
+      this.mediaQueryData,
       this.initialWidth = 320,
       this.finalWidth = 70,
       this.initialBorderRadius = 10.0,
@@ -24,7 +26,9 @@ class PlainButton extends StatelessWidget {
       this.text = ""})
       : assert(initialWidth > finalWidth),
         assert(initialBorderRadius < finalBorderRadius),
-        super(key: key);
+        assert((shrinkButtonAnimation!=null && zoomButtonAnimation==null) || (shrinkButtonAnimation==null && zoomButtonAnimation!=null) || (shrinkButtonAnimation==null && zoomButtonAnimation==null)),
+        assert(zoomButtonAnimation==null || mediaQueryData!=null),
+        super(key: key); 
 
   final Widget progressIndicator = CircularProgressIndicator(
       strokeWidth: 3.0,
@@ -40,19 +44,26 @@ class PlainButton extends StatelessWidget {
   }
 
   double _getHeight() {
-    if (zoomButtonAnimation != null && (zoomButtonAnimation.status==AnimationStatus.forward || zoomButtonAnimation.status==AnimationStatus.completed)) {
-      double incrementRate=zoomButtonAnimation.value/height;
-      double t=zoomButtonAnimation.value-finalWidth;
-      double increment=incrementRate*t;
-      return height+increment;
+    if (zoomButtonAnimation != null &&
+        (zoomButtonAnimation.status == AnimationStatus.forward ||
+            zoomButtonAnimation.status == AnimationStatus.completed)) {
+      double incrementRate = zoomButtonAnimation.value / height;
+      double t = zoomButtonAnimation.value - finalWidth;
+      double increment = incrementRate * t;
+      return height + increment;
     }
     return height;
   }
 
   double _getBorderRadius() {
     if (zoomButtonAnimation != null &&
-        zoomButtonAnimation.status == AnimationStatus.forward) {      
-      return finalBorderRadius;
+        (zoomButtonAnimation.status == AnimationStatus.forward ||
+            zoomButtonAnimation.status == AnimationStatus.completed)) {
+              double target=mediaQueryData.orientation==Orientation.portrait ? mediaQueryData.size.height : mediaQueryData.size.width;
+              double decrementRate=finalBorderRadius/(target-finalWidth);
+              double t=_getWidth()-finalWidth;
+              double decrement=decrementRate*t;
+      return finalBorderRadius - decrement;
     } else {
       double incrementRate = (finalBorderRadius - initialBorderRadius) /
           (initialWidth - finalWidth);
@@ -63,18 +74,9 @@ class PlainButton extends StatelessWidget {
   }
 
   Decoration _getDecoration() {
-    if (zoomButtonAnimation != null && zoomButtonAnimation.value > 300) {
-      return BoxDecoration(
-        shape: zoomButtonAnimation.value < 600
-            ? BoxShape.circle
-            : BoxShape.rectangle,
+    return BoxDecoration(
         color: Colors.red[700],
-      );
-    } else {
-      return BoxDecoration(
-          color: Colors.red[700],
-          borderRadius: BorderRadius.all(Radius.circular(_getBorderRadius())));
-    }
+        borderRadius: BorderRadius.all(Radius.circular(_getBorderRadius())));
   }
 
   Widget _getChild() {

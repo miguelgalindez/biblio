@@ -7,7 +7,7 @@ class ShrinkButtonAnimation extends StatelessWidget {
 
   ShrinkButtonAnimation({Key key, @required this.animationController})
       : shrinkAnimation = Tween(
-          // TODO: dynamic begin and end
+          // TODO: dynamic begin and end. These must be a parameter
           begin: 320.0,
           end: 70.0,
         ).animate(CurvedAnimation(

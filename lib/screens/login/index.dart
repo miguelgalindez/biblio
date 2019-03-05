@@ -4,6 +4,7 @@ import 'package:biblio/components/logo.dart';
 import 'package:biblio/screens/login/loginForm.dart';
 import 'package:biblio/screens/login/animatedButton.dart';
 import 'package:biblio/models/User.dart';
+import 'package:biblio/screens/home/index.dart';
 
 class LoginScreen extends StatefulWidget {
   final Widget logo = Logo(image: AssetImage("assets/appLogo.png"));
@@ -42,6 +43,13 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
+  Function _handleAnimationCompleted(BuildContext context)=>(){
+    // TODO: check if the user is authenticated. (How to use context here?)
+    // TODO: Ensure that this is the best way to define routes
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
+      
+  };
+
   @override
   Widget build(BuildContext context) {    
     return SafeArea(
@@ -68,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen>
                   username: username,
                   password: password,                  
                   formKey: widget._formKey,
+                  onAnimationCompleted: _handleAnimationCompleted(context),
                 ),
               ],
             ),

@@ -40,18 +40,26 @@ class PlainButton extends StatelessWidget {
   }
 
   double _getHeight() {
-    if (zoomButtonAnimation != null) {
-      return zoomButtonAnimation.value;
+    if (zoomButtonAnimation != null && (zoomButtonAnimation.status==AnimationStatus.forward || zoomButtonAnimation.status==AnimationStatus.completed)) {
+      double incrementRate=zoomButtonAnimation.value/height;
+      double t=zoomButtonAnimation.value-finalWidth;
+      double increment=incrementRate*t;
+      return height+increment;
     }
     return height;
   }
 
   double _getBorderRadius() {
-    double incrementRate =
-        (finalBorderRadius - initialBorderRadius) / (initialWidth - finalWidth);
-    double t = initialWidth - _getWidth();
-    double increment = incrementRate*t;
-    return initialBorderRadius+increment;
+    if (zoomButtonAnimation != null &&
+        zoomButtonAnimation.status == AnimationStatus.forward) {      
+      return finalBorderRadius;
+    } else {
+      double incrementRate = (finalBorderRadius - initialBorderRadius) /
+          (initialWidth - finalWidth);
+      double t = initialWidth - _getWidth();
+      double increment = incrementRate * t;
+      return initialBorderRadius + increment;
+    }
   }
 
   Decoration _getDecoration() {
@@ -84,7 +92,7 @@ class PlainButton extends StatelessWidget {
     if (shrinkButtonAnimation != null) {
       return shrinkButtonAnimation.value > 75 ? buttonText : progressIndicator;
     } else if (zoomButtonAnimation != null) {
-      if (zoomButtonAnimation.value < 300) {
+      if (zoomButtonAnimation.value < 100) {
         return progressIndicator;
       }
     }

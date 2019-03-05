@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:biblio/screens/login/plainButton.dart';
 import 'package:biblio/screens/login/shrinkButtonAnimation.dart';
+import 'package:biblio/screens/login/zoomButtonAnimation.dart';
 import 'package:biblio/models/User.dart';
 import 'package:biblio/services/userServices.dart';
 import 'package:biblio/models/appConfig.dart';
@@ -10,8 +11,13 @@ class AnimatedButton extends StatefulWidget {
   final String username;
   final String password;
   final GlobalKey<FormState> formKey;
+  final Function onAnimationCompleted;
   AnimatedButton(
-      {Key key, @required this.username, @required this.password, this.formKey})
+      {Key key,
+      @required this.username,
+      @required this.password,
+      this.formKey,
+      this.onAnimationCompleted})
       : super(key: key);
 
   @override
@@ -21,7 +27,9 @@ class AnimatedButton extends StatefulWidget {
 class _AnimatedButtonState extends State<AnimatedButton>
     with TickerProviderStateMixin {
   AnimationController shrinkButtonAnimationController;
+  AnimationController zoomButtonAnimationController;
   bool showShrinkButtonAnimation;
+  bool showZoomButtonAnimation;
   Future<User> loginPromise;
   AppConfig appConfig;
 
@@ -29,8 +37,11 @@ class _AnimatedButtonState extends State<AnimatedButton>
   void initState() {
     super.initState();
     showShrinkButtonAnimation = false;
-    shrinkButtonAnimationController = AnimationController(
-        duration: const Duration(milliseconds: 250), vsync: this);
+    showZoomButtonAnimation = false;
+    shrinkButtonAnimationController =
+        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    zoomButtonAnimationController =
+        AnimationController(duration: const Duration(seconds: 8), vsync: this);
   }
 
   @override
@@ -40,6 +51,9 @@ class _AnimatedButtonState extends State<AnimatedButton>
   }
 
   Future<void> _playShrinkAnimation() async {
+    setState(() {
+      showShrinkButtonAnimation = true;
+    });
     await shrinkButtonAnimationController.forward();
   }
 
@@ -48,6 +62,13 @@ class _AnimatedButtonState extends State<AnimatedButton>
     setState(() {
       showShrinkButtonAnimation = false;
     });
+  }
+
+  Future<void> _playZoomButtonAnimation() async {
+    setState(() {
+      showZoomButtonAnimation = true;
+    });
+    await zoomButtonAnimationController.forward();
   }
 
   AppConfig _getAppConfig(BuildContext context) {
@@ -63,13 +84,12 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   Future<void> _signIn(BuildContext context) async {
     if (widget.formKey == null || widget.formKey.currentState.validate()) {
-      setState(() {
-        showShrinkButtonAnimation = true;
-      });
       _playShrinkAnimation();
       try {
         User user = await UserServices.signIn(
             widget.username, widget.password, _getAppConfig(context));
+        _playZoomButtonAnimation();
+
         print("ok " + user.username + " " + user.isAuthenticated.toString());
       } catch (e) {
         await _rewindShrinkAnimation();
@@ -93,15 +113,35 @@ class _AnimatedButtonState extends State<AnimatedButton>
     Scaffold.of(context).showSnackBar(snackbar);
   }
 
+  void _handleAnimationCompleted() {
+    widget.onAnimationCompleted();
+    zoomButtonAnimationController.reset();
+    shrinkButtonAnimationController.reset();
+    setState(() {
+      showZoomButtonAnimation = false;
+      showShrinkButtonAnimation = false;
+    });
+  }
+
+  Widget _getAnimationWidget(BuildContext context) {
+    if (showZoomButtonAnimation != null && showZoomButtonAnimation) {
+      return ZoomButtonAnimation(
+        animationController: zoomButtonAnimationController,
+        onAnimationCompleted: _handleAnimationCompleted,
+      );
+    } else if (showShrinkButtonAnimation != null && showShrinkButtonAnimation) {
+      return ShrinkButtonAnimation(
+          animationController: shrinkButtonAnimationController);
+    } else {
+      return PlainButton(
+        text: "Sign in",
+        onTap: () async => _signIn(context),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return !showShrinkButtonAnimation
-        ? PlainButton(
-            text: "Sign in",
-            onTap: () async => _signIn(context),
-          )
-        : ShrinkButtonAnimation(
-            animationController: shrinkButtonAnimationController,
-          );
+    return _getAnimationWidget(context);
   }
 }

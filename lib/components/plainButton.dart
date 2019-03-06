@@ -10,6 +10,7 @@ class PlainButton extends StatelessWidget {
   final double finalBorderRadius;
   final double height;
   final String text;
+  final Size screenSize;
 
   PlainButton(
       {Key key,
@@ -21,7 +22,8 @@ class PlainButton extends StatelessWidget {
       this.initialBorderRadius = 10.0,
       this.finalBorderRadius = 30.0,
       this.height = 60,
-      this.text = ""})
+      this.text = "",
+      this.screenSize})
       : assert((shrinkButtonAnimation != null &&
                 zoomButtonAnimation == null &&
                 finalWidth > 0 &&
@@ -29,7 +31,8 @@ class PlainButton extends StatelessWidget {
             (shrinkButtonAnimation == null &&
                 zoomButtonAnimation != null &&
                 finalWidth > 0 &&
-                finalWidth > initialWidth) ||
+                finalWidth > initialWidth &&
+                screenSize != null) ||
             (shrinkButtonAnimation == null && zoomButtonAnimation == null)),
         assert(initialBorderRadius < finalBorderRadius),
         super(key: key);
@@ -51,7 +54,7 @@ class PlainButton extends StatelessWidget {
     if (zoomButtonAnimation != null &&
         (zoomButtonAnimation.status == AnimationStatus.forward ||
             zoomButtonAnimation.status == AnimationStatus.completed)) {
-      double incrementRate = zoomButtonAnimation.value / height;
+      double incrementRate = screenSize.height / screenSize.width;
       double t = zoomButtonAnimation.value - initialWidth;
       double increment = incrementRate * t;
       return height + increment;
@@ -82,16 +85,15 @@ class PlainButton extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(_getBorderRadius())));
   }
 
-  Widget _getChild() {
-    // TODO: Change this to use TextTheme
+  Widget _getChild(BuildContext context) {
+    TextStyle textTheme = Theme.of(context).textTheme.headline.copyWith(
+          color: Colors.white,
+          letterSpacing: 0.3,
+        );
+
     Widget buttonText = Text(
       text,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 20.0,
-        fontWeight: FontWeight.w300,
-        letterSpacing: 0.3,
-      ),
+      style: textTheme,
     );
 
     if (shrinkButtonAnimation == null && zoomButtonAnimation == null) {
@@ -118,7 +120,7 @@ class PlainButton extends StatelessWidget {
           width: _getWidth(),
           height: _getHeight(),
           decoration: _getDecoration(),
-          child: _getChild()),
+          child: _getChild(context)),
       onTap: onTap,
     );
   }

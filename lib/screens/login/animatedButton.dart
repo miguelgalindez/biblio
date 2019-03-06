@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:biblio/screens/login/plainButton.dart';
+import 'package:biblio/components/plainButton.dart';
 import 'package:biblio/screens/login/shrinkButtonAnimation.dart';
 import 'package:biblio/screens/login/zoomButtonAnimation.dart';
 import 'package:biblio/models/User.dart';
@@ -10,25 +10,25 @@ import 'package:biblio/models/appConfig.dart';
 class AnimatedButton extends StatefulWidget {
   final double horizontalPadding;
   final double width;
-  final double shrunkButtonWidth;
+  final double widthAfterShrinking;
   final String text;
   final String username;
   final String password;
   final GlobalKey<FormState> formKey;
   final Function onAnimationCompleted;
-  final MediaQueryData mediaQueryData;
+  final Size screenSize;
 
   AnimatedButton(
       {Key key,
       this.horizontalPadding = 0,
       this.width,
-      this.shrunkButtonWidth = 70.0,
+      this.widthAfterShrinking = 70.0,
       @required this.text,
       @required this.username,
       @required this.password,
       this.formKey,
       this.onAnimationCompleted,
-      @required this.mediaQueryData})
+      @required this.screenSize})
       : super(key: key);
 
   @override
@@ -52,7 +52,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
     shrinkButtonAnimationController =
         AnimationController(duration: const Duration(seconds: 2), vsync: this);
     zoomButtonAnimationController =
-        AnimationController(duration: const Duration(seconds: 1), vsync: this);
+        AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
   }
 
   @override
@@ -134,13 +134,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
       showZoomButtonAnimation = false;
       showShrinkButtonAnimation = false;
     });
-  }
-
-  double _getLengthOfLargestSideOfScreen() {
-    return widget.mediaQueryData.orientation == Orientation.portrait
-        ? widget.mediaQueryData.size.height
-        : widget.mediaQueryData.size.width;
-  }
+  }  
 
   double _getInitialWidth(BoxConstraints boxConstraints) {
     return widget.width != null && widget.width > 0
@@ -153,8 +147,8 @@ class _AnimatedButtonState extends State<AnimatedButton>
         builder: (BuildContext context, BoxConstraints boxConstraints) {
       if (showZoomButtonAnimation != null && showZoomButtonAnimation) {
         return ZoomButtonAnimation(
-          begin: widget.shrunkButtonWidth,
-          end: _getLengthOfLargestSideOfScreen(),
+          begin: widget.widthAfterShrinking,
+          screenSize: widget.screenSize,
           animationController: zoomButtonAnimationController,
           onAnimationCompleted: _handleAnimationCompleted,
         );
@@ -162,7 +156,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
           showShrinkButtonAnimation) {
         return ShrinkButtonAnimation(
             begin: _getInitialWidth(boxConstraints),
-            end: widget.shrunkButtonWidth,
+            end: widget.widthAfterShrinking,
             animationController: shrinkButtonAnimationController);
       } else {
         return PlainButton(

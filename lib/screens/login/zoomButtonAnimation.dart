@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/screens/login/plainButton.dart';
+import 'package:biblio/components/plainButton.dart';
 
 class ZoomButtonAnimation extends StatelessWidget {
   final double begin;
-  final double end;
+  final Size screenSize;  
   final AnimationController animationController;
   final Animation zoomAnimation;
   final Function onAnimationCompleted;
@@ -11,12 +11,12 @@ class ZoomButtonAnimation extends StatelessWidget {
   ZoomButtonAnimation(
       {Key key,
       @required this.begin,
-      @required this.end,
+      @required this.screenSize,
       @required this.animationController,
       this.onAnimationCompleted})
       : zoomAnimation = Tween(
           begin: begin,
-          end: end,
+          end: screenSize.width,
         ).animate(CurvedAnimation(
             parent: animationController, curve: Curves.fastOutSlowIn)),
         super(key: key);
@@ -25,7 +25,8 @@ class ZoomButtonAnimation extends StatelessWidget {
     return PlainButton(
       zoomButtonAnimation: zoomAnimation,
       initialWidth: begin,
-      finalWidth: end,
+      finalWidth: screenSize.width,
+      screenSize: screenSize,
     );
   }
 

@@ -4,7 +4,6 @@ class PlainButton extends StatelessWidget {
   final Animation shrinkButtonAnimation;
   final Animation zoomButtonAnimation;
   final Function onTap;
-  final MediaQueryData mediaQueryData;
   final double initialWidth;
   final double finalWidth;
   final double initialBorderRadius;
@@ -17,18 +16,23 @@ class PlainButton extends StatelessWidget {
       this.shrinkButtonAnimation,
       this.zoomButtonAnimation,
       this.onTap,
-      this.mediaQueryData,
-      this.initialWidth = 320,
-      this.finalWidth = 70,
+      @required this.initialWidth,
+      this.finalWidth = 0,
       this.initialBorderRadius = 10.0,
       this.finalBorderRadius = 30.0,
       this.height = 60,
       this.text = ""})
-      : assert(initialWidth > finalWidth),
+      : assert((shrinkButtonAnimation != null &&
+                zoomButtonAnimation == null &&
+                finalWidth > 0 &&
+                initialWidth > finalWidth) ||
+            (shrinkButtonAnimation == null &&
+                zoomButtonAnimation != null &&
+                finalWidth > 0 &&
+                finalWidth > initialWidth) ||
+            (shrinkButtonAnimation == null && zoomButtonAnimation == null)),
         assert(initialBorderRadius < finalBorderRadius),
-        assert((shrinkButtonAnimation!=null && zoomButtonAnimation==null) || (shrinkButtonAnimation==null && zoomButtonAnimation!=null) || (shrinkButtonAnimation==null && zoomButtonAnimation==null)),
-        assert(zoomButtonAnimation==null || mediaQueryData!=null),
-        super(key: key); 
+        super(key: key);
 
   final Widget progressIndicator = CircularProgressIndicator(
       strokeWidth: 3.0,
@@ -48,7 +52,7 @@ class PlainButton extends StatelessWidget {
         (zoomButtonAnimation.status == AnimationStatus.forward ||
             zoomButtonAnimation.status == AnimationStatus.completed)) {
       double incrementRate = zoomButtonAnimation.value / height;
-      double t = zoomButtonAnimation.value - finalWidth;
+      double t = zoomButtonAnimation.value - initialWidth;
       double increment = incrementRate * t;
       return height + increment;
     }
@@ -59,10 +63,9 @@ class PlainButton extends StatelessWidget {
     if (zoomButtonAnimation != null &&
         (zoomButtonAnimation.status == AnimationStatus.forward ||
             zoomButtonAnimation.status == AnimationStatus.completed)) {
-              double target=mediaQueryData.orientation==Orientation.portrait ? mediaQueryData.size.height : mediaQueryData.size.width;
-              double decrementRate=finalBorderRadius/(target-finalWidth);
-              double t=_getWidth()-finalWidth;
-              double decrement=decrementRate*t;
+      double decrementRate = finalBorderRadius / (finalWidth - initialWidth);
+      double t = _getWidth() - initialWidth;
+      double decrement = decrementRate * t;
       return finalBorderRadius - decrement;
     } else {
       double incrementRate = (finalBorderRadius - initialBorderRadius) /
@@ -80,13 +83,16 @@ class PlainButton extends StatelessWidget {
   }
 
   Widget _getChild() {
-    Widget buttonText = Text(text,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20.0,
-          fontWeight: FontWeight.w300,
-          letterSpacing: 0.3,
-        ));
+    // TODO: Change this to use TextTheme
+    Widget buttonText = Text(
+      text,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 20.0,
+        fontWeight: FontWeight.w300,
+        letterSpacing: 0.3,
+      ),
+    );
 
     if (shrinkButtonAnimation == null && zoomButtonAnimation == null) {
       return buttonText;
@@ -106,8 +112,9 @@ class PlainButton extends StatelessWidget {
     return InkWell(
       splashColor: Colors.red,
       child: Container(
-          alignment: Alignment.center,
+          padding: EdgeInsets.all(0.0),
           margin: EdgeInsets.all(0.0),
+          alignment: Alignment.center,
           width: _getWidth(),
           height: _getHeight(),
           decoration: _getDecoration(),

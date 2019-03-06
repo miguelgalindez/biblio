@@ -15,10 +15,11 @@ import 'package:biblio/services/userServices.dart';
  */
 
 class LoginForm extends StatefulWidget {
+  final double horizontalPadding;
   final Function onFormChange;
   final GlobalKey<FormState> formKey;
 
-  LoginForm({Key key, @required this.onFormChange, this.formKey}) : super(key: key);
+  LoginForm({Key key, @required this.onFormChange, this.formKey, this.horizontalPadding=0.0}) : super(key: key);
 
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -69,7 +70,7 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 24.0),
+      padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[

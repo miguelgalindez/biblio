@@ -8,6 +8,10 @@ import 'package:biblio/services/userServices.dart';
 import 'package:biblio/models/appConfig.dart';
 
 class AnimatedButton extends StatefulWidget {
+  final double horizontalPadding;
+  final double width;
+  final double shrunkButtonWidth;
+  final String text;
   final String username;
   final String password;
   final GlobalKey<FormState> formKey;
@@ -16,6 +20,10 @@ class AnimatedButton extends StatefulWidget {
 
   AnimatedButton(
       {Key key,
+      this.horizontalPadding = 0,
+      this.width,
+      this.shrunkButtonWidth = 70.0,
+      @required this.text,
       @required this.username,
       @required this.password,
       this.formKey,
@@ -86,6 +94,8 @@ class _AnimatedButtonState extends State<AnimatedButton>
   }
 
   Future<void> _signIn(BuildContext context) async {
+    Scaffold.of(context).removeCurrentSnackBar();
+
     if (widget.formKey == null || widget.formKey.currentState.validate()) {
       _playShrinkAnimation();
       try {
@@ -112,7 +122,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
       action: action,
       duration: Duration(seconds: 8),
     );
-    Scaffold.of(context).removeCurrentSnackBar();
+
     Scaffold.of(context).showSnackBar(snackbar);
   }
 
@@ -126,26 +136,50 @@ class _AnimatedButtonState extends State<AnimatedButton>
     });
   }
 
+  double _getLengthOfLargestSideOfScreen() {
+    return widget.mediaQueryData.orientation == Orientation.portrait
+        ? widget.mediaQueryData.size.height
+        : widget.mediaQueryData.size.width;
+  }
+
+  double _getInitialWidth(BoxConstraints boxConstraints) {
+    return widget.width != null && widget.width > 0
+        ? widget.width
+        : boxConstraints.maxWidth;
+  }
+
   Widget _getAnimationWidget(BuildContext context) {
-    if (showZoomButtonAnimation != null && showZoomButtonAnimation) {
-      return ZoomButtonAnimation(
-        animationController: zoomButtonAnimationController,
-        onAnimationCompleted: _handleAnimationCompleted,
-        mediaQueryData: widget.mediaQueryData,
-      );
-    } else if (showShrinkButtonAnimation != null && showShrinkButtonAnimation) {
-      return ShrinkButtonAnimation(
-          animationController: shrinkButtonAnimationController);
-    } else {
-      return PlainButton(
-        text: "Sign in",
-        onTap: () async => _signIn(context),
-      );
-    }
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints boxConstraints) {
+      if (showZoomButtonAnimation != null && showZoomButtonAnimation) {
+        return ZoomButtonAnimation(
+          begin: widget.shrunkButtonWidth,
+          end: _getLengthOfLargestSideOfScreen(),
+          animationController: zoomButtonAnimationController,
+          onAnimationCompleted: _handleAnimationCompleted,
+        );
+      } else if (showShrinkButtonAnimation != null &&
+          showShrinkButtonAnimation) {
+        return ShrinkButtonAnimation(
+            begin: _getInitialWidth(boxConstraints),
+            end: widget.shrunkButtonWidth,
+            animationController: shrinkButtonAnimationController);
+      } else {
+        return PlainButton(
+          initialWidth: _getInitialWidth(boxConstraints),
+          text: widget.text,
+          onTap: () async => _signIn(context),
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return _getAnimationWidget(context);
+    return Container(
+        padding: showZoomButtonAnimation
+            ? EdgeInsets.all(0.0)
+            : EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+        child: _getAnimationWidget(context));
   }
 }

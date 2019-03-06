@@ -8,11 +8,10 @@ import 'package:biblio/screens/home/index.dart';
 
 class LoginScreen extends StatefulWidget {
   final Widget logo = Logo(image: AssetImage("assets/appLogo.png"));
-  final double horizontalPadding=24.0;
+  final double horizontalPadding = 24.0;
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final GlobalKey _formKey = GlobalKey<FormState>();
-
 
   LoginScreen({Key key}) : super(key: key);
 
@@ -45,17 +44,14 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
-  Function _handleAnimationCompleted(BuildContext context)=>(){
-    // TODO: check if the user is authenticated. (How to use context here?)
-    // TODO: Ensure that this is the best way to define routes
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
-      
-  };
+  Function _handleAnimationCompleted(BuildContext context) => () {
+    Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Home()));
+    };
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData mediaQueryData=MediaQuery.of(context);
-    //print("Height: "+mediaQueryData.size.height.toString()+" Width: "+mediaQueryData.size.width.toString());
+    MediaQueryData mediaQueryData = MediaQuery.of(context);
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomPadding: true,
@@ -65,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen>
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
-                Column(                  
+                Column(
                   children: <Widget>[
                     widget.logo,
                     SizedBox(height: 20.0),
@@ -73,7 +69,6 @@ class _LoginScreenState extends State<LoginScreen>
                       horizontalPadding: widget.horizontalPadding,
                       onFormChange: handleFormChange,
                       formKey: widget._formKey,
-
                     ),
                     SizedBox(height: 80.0),
                   ],
@@ -82,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen>
                   text: "Iniciar sesión",
                   horizontalPadding: widget.horizontalPadding,
                   username: username,
-                  password: password,                  
+                  password: password,
                   formKey: widget._formKey,
                   onAnimationCompleted: _handleAnimationCompleted(context),
                   screenSize: mediaQueryData.size,

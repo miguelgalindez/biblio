@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:biblio/screens/login/index.dart';
 import 'package:biblio/models/appConfig.dart';
 
-ThemeData buildTheme() {
+ThemeData buildTheme(AppConfig appConfig) {
   final ThemeData base = ThemeData();
-  return base.copyWith(hintColor: Colors.white70);
+
+  return base.copyWith(
+      hintColor: Colors.white70,
+      primaryColor: appConfig.primaryColor,
+      primaryIconTheme: base.primaryIconTheme.copyWith(color: Colors.white));
 }
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var config = AppConfig.of(context);
+    var appConfig = AppConfig.of(context);
     return MaterialApp(
       debugShowCheckedModeBanner:
-          config.projectStage == ProjectStages.development,
-      title: config.appName,
-      theme: buildTheme(),
+          appConfig.projectStage == ProjectStages.development,
+      title: appConfig.appName,
+      theme: buildTheme(appConfig),
       home: LoginScreen(),
     );
   }

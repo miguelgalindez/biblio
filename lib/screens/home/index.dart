@@ -3,12 +3,15 @@ import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/services/ciudades.dart';
 
 class Home extends StatelessWidget {
+  
   @override
   Widget build(BuildContext context) {
+    AppConfig appConfig=AppConfig.of(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(AppConfig.of(context).appName),
+          backgroundColor: appConfig.primaryColor,
+          title: Text(appConfig.appName),
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.search),
@@ -25,16 +28,19 @@ class Home extends StatelessWidget {
 }
 
 class DataSearch extends SearchDelegate<String> {
+  
   @override
   List<Widget> buildActions(BuildContext context) {
-    return query.isNotEmpty ? [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = "";
-        },
-      )
-    ] : [];
+    return query.isNotEmpty
+        ? [
+            IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                query = "";
+              },
+            )
+          ]
+        : [];
   }
 
   @override
@@ -58,11 +64,24 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final suggestionList = query.isEmpty ? recentCities : cities;
+    AppConfig appConfig=AppConfig.of(context);
+    final suggestionList = query.isEmpty
+        ? recentCities
+        : cities.where((city) => city.startsWith(query)).toList();
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(
             leading: Icon(Icons.location_city),
-            title: Text(suggestionList[index]),
+            title: RichText(
+              text: TextSpan(
+                  text: suggestionList[index].substring(0, query.length),
+                  style: TextStyle(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                  children: [
+                    TextSpan(
+                        text: suggestionList[index].substring(query.length),
+                        style: TextStyle(color: Colors.black),),                        
+                  ]),
+            ),
           ),
       itemCount: suggestionList.length,
     );

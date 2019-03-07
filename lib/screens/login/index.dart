@@ -6,6 +6,7 @@ import 'package:biblio/screens/login/animatedButton.dart';
 import 'package:biblio/models/User.dart';
 import 'package:biblio/screens/home/index.dart';
 
+
 class LoginScreen extends StatefulWidget {
   final Widget logo = Logo(image: AssetImage("assets/appLogo.png"));
   final double horizontalPadding = 24.0;
@@ -52,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     MediaQueryData mediaQueryData = MediaQuery.of(context);
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomPadding: true,

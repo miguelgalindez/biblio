@@ -9,11 +9,15 @@ class AppConfig extends InheritedWidget {
   final String appName;
   final String projectStage;
   final String apiBaseUrl;  
+  final Color primaryColor;
+  final Color secondaryColor;
 
   AppConfig({
     @required this.appName,
     @required this.projectStage,
     @required this.apiBaseUrl,
+    @required this.primaryColor,
+    @required this.secondaryColor,
     @required Widget child,
   }) : super(child: child);
 

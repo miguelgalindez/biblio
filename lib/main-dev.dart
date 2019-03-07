@@ -16,7 +16,9 @@ class ConfiguredApp extends StatelessWidget {
       //primaryColor: Color(0xff4285F4),
       //primaryColor: Color(0xff01305c),
       primaryColor: Colors.blue[900],
-      secondaryColor: Color(0xffA41617),
+      secondaryColor: Colors.red[700],
+      //secondaryColor: Color(0xffA41617),
+
       child: App(),
     );
   }

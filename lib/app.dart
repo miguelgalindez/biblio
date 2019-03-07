@@ -7,7 +7,7 @@ ThemeData buildTheme(AppConfig appConfig) {
 
   return base.copyWith(
       hintColor: Colors.white70,
-      primaryColor: appConfig.primaryColor,
+      primaryColor: appConfig.primaryColor,      
       primaryIconTheme: base.primaryIconTheme.copyWith(color: Colors.white));
 }
 

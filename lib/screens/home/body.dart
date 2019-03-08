@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/page.dart';
 import 'package:biblio/components/tabBar.dart';
+import 'package:biblio/screens/home/tabs/main.dart';
 
 List<Page> _allPages = <Page>[
-  Page(icon: Icons.usb, text: 'Tecnología y ciencias aplicadas', category: 'category-name'),
+  Page(icon: Icons.explore, text: 'Recomendados', category: 'for-you'),
+  Page(icon: Icons.usb, text: 'Tecnología', category: 'category-name'),
   Page(icon: Icons.group, text: 'Ciencias sociales', category: 'category-name'),
   Page(icon: Icons.import_contacts, text: 'Literatura', category: 'category-name'),  
   Page(icon: Icons.wallpaper, text: 'Artes', category: 'category-name'),
@@ -33,10 +35,14 @@ class _HomeBodyState extends State<HomeBody> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  _goToTab(String categoryId){
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    //final List<Widget> tabChildrenPages=<Widget>[];
-    //_allPages.forEach((Page page)=>tabChildrenPages.add());
+    final List<Widget> tabChildrenPages=<Widget>[];
+    _allPages.forEach((Page page)=>tabChildrenPages.add(MainTab(goToTab: _goToTab,)));
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -51,7 +57,7 @@ class _HomeBodyState extends State<HomeBody> with SingleTickerProviderStateMixin
               key: _key,
               controller: _tabController,
               physics: NeverScrollableScrollPhysics(),
-              children: [],
+              children: tabChildrenPages,
             ),
           ),
         ),

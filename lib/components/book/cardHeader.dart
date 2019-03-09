@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/models/sections.dart';
+import 'package:biblio/models/category.dart';
 
 class CardHeader extends StatelessWidget {
-  final Sections section;
+  final Category category;
   final Function goToTab;
 
-  CardHeader({@required this.section, this.goToTab});
+  CardHeader({@required this.category, this.goToTab});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class CardHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            section.type,
+            category.name,
             style: TextStyle(
                 fontSize: 14.0,
                 fontWeight: FontWeight.bold,
@@ -29,7 +29,7 @@ class CardHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.green),
             ),
-            onTap: goToTab(section.moreUrl),
+            onTap: goToTab(category.id),
           ),
         ],
       ),

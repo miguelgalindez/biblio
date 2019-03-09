@@ -2,30 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/page.dart';
 import 'package:biblio/components/tabBar.dart';
 import 'package:biblio/screens/home/tabs/main.dart';
-
-List<Page> _allPages = <Page>[
-  Page(icon: Icons.explore, text: 'Recomendados', category: 'for-you'),
-  Page(icon: Icons.usb, text: 'Tecnología', category: 'category-name'),
-  Page(icon: Icons.group, text: 'Ciencias sociales', category: 'category-name'),
-  Page(icon: Icons.import_contacts, text: 'Literatura', category: 'category-name'),  
-  Page(icon: Icons.wallpaper, text: 'Artes', category: 'category-name'),
-  Page(icon: Icons.public, text: 'Historia y geografía', category: 'category-name'),
-  Page(icon: Icons.account_balance, text: 'Filosofía', category: 'category-name'),
-];
+import 'package:biblio/models/category.dart';
+import 'package:biblio/services/categories-mock-data.dart';
 
 class HomeBody extends StatefulWidget {
+
+  List<Category> bookCategories;
+
+  HomeBody({@required this.bookCategories});
+
   @override
   _HomeBodyState createState() => _HomeBodyState();
 }
 
 class _HomeBodyState extends State<HomeBody> with SingleTickerProviderStateMixin {
   Key _key;
-  TabController _tabController;
+  TabController _tabController;  
 
   @override
-  void initState() {
-    _key = new PageStorageKey({});
-    _tabController=new TabController(vsync: this, length: _allPages.length);    
+  void initState() {    
+    _key = new PageStorageKey({});    
+    _tabController=new TabController(vsync: this, length: widget.bookCategories.length);    
     super.initState();
   }
 
@@ -42,13 +39,13 @@ class _HomeBodyState extends State<HomeBody> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final List<Widget> tabChildrenPages=<Widget>[];
-    _allPages.forEach((Page page)=>tabChildrenPages.add(MainTab(goToTab: _goToTab,)));
+    widget.bookCategories.forEach((Category category)=>tabChildrenPages.add(MainTab(categories: widget.bookCategories, goToTab: _goToTab,)));
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         TabBarWidget(
           controller: _tabController,
-          allPages: _allPages,
+          categories: widget.bookCategories,
         ),
         Expanded(
           child: Padding(

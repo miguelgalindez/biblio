@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/page.dart';
+import '../models/category.dart';
 import 'package:biblio/models/appConfig.dart';
 
 class TabBarWidget extends StatelessWidget {
   final TabController controller;
-  final List<Page> allPages;
-  TabBarWidget({this.controller, this.allPages});
+  final List<Category> categories;
+  TabBarWidget({this.controller, this.categories});
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -21,10 +21,10 @@ class TabBarWidget extends StatelessWidget {
         indicatorColor: AppConfig.of(context).secondaryColor,
         labelColor: AppConfig.of(context).primaryColor,
         unselectedLabelColor: Colors.grey,
-        tabs: allPages.map((Page page) {
+        tabs: categories.map((Category category) {
           return Tab(
-            text: page.text,
-            icon: new Icon(page.icon, size: 18.0),
+            text: category.name,
+            icon: new Icon(category.icon, size: 18.0),
           );
         }).toList(),
       ),

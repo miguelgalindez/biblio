@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/models/page.dart';
 import 'package:biblio/components/tabBar.dart';
-import 'package:biblio/screens/home/tabs/main.dart';
+import 'package:biblio/screens/home/tabs/mainTabView.dart';
+import 'package:biblio/screens/home/tabs/secondaryTabView.dart';
 import 'package:biblio/models/category.dart';
-import 'package:biblio/services/categories-mock-data.dart';
 
 class HomeBody extends StatefulWidget {
-
-  List<Category> bookCategories;
+  final List<Category> bookCategories;
+  final double tabsIconSize = 18.0;
 
   HomeBody({@required this.bookCategories});
 
@@ -15,37 +14,76 @@ class HomeBody extends StatefulWidget {
   _HomeBodyState createState() => _HomeBodyState();
 }
 
-class _HomeBodyState extends State<HomeBody> with SingleTickerProviderStateMixin {
+class _HomeBodyState extends State<HomeBody>
+    with SingleTickerProviderStateMixin {
   Key _key;
-  TabController _tabController;  
+  TabController _tabController;
 
   @override
-  void initState() {    
-    _key = new PageStorageKey({});    
-    _tabController=new TabController(vsync: this, length: widget.bookCategories.length);    
+  void initState() {
+    _key = new PageStorageKey({});
+    _tabController =
+        new TabController(vsync: this, length: widget.bookCategories.length+1);
     super.initState();
   }
 
   @override
   void dispose() {
-    
     super.dispose();
   }
 
-  _goToTab(String categoryId){
+  List<Tab> _getTabs() {
+    final List<Tab> tabs = [];
 
+    final Tab mainTab = Tab(
+      text: "Explorar",
+      icon: Icon(Icons.explore, size: widget.tabsIconSize),
+    );
+
+    final List<Tab> tabsForCategories =
+        widget.bookCategories.map((Category category) {
+      return Tab(
+        text: category.name,
+        icon: Icon(category.icon, size: widget.tabsIconSize),
+      );
+    }).toList();
+
+    tabs.add(mainTab);
+    tabs.addAll(tabsForCategories);
+    print("tabs.length "+tabs.length.toString());
+    return tabs;
   }
+
+  List<Widget> _getTabsViews() {
+    final List<Widget> tabsViews = <Widget>[];
+    final MainTabView mainTabView = MainTabView(
+      categories: widget.bookCategories,
+      goToTab: _goToTab,
+    );
+
+    final List<SecondaryTabView> secondaryTabsViews = widget.bookCategories
+        .map((Category category) => SecondaryTabView(
+              categories: widget.bookCategories,
+              goToTab: _goToTab,
+            ))
+        .toList();
+
+    tabsViews.add(mainTabView);
+    tabsViews.addAll(secondaryTabsViews);
+    print("tabsViews.length "+tabsViews.length.toString());
+    return tabsViews;
+  }
+
+  _goToTab(String categoryId) {}
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> tabChildrenPages=<Widget>[];
-    widget.bookCategories.forEach((Category category)=>tabChildrenPages.add(MainTab(categories: widget.bookCategories, goToTab: _goToTab,)));
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         TabBarWidget(
           controller: _tabController,
-          categories: widget.bookCategories,
+          tabs: _getTabs(),
         ),
         Expanded(
           child: Padding(
@@ -54,7 +92,7 @@ class _HomeBodyState extends State<HomeBody> with SingleTickerProviderStateMixin
               key: _key,
               controller: _tabController,
               physics: NeverScrollableScrollPhysics(),
-              children: tabChildrenPages,
+              children: _getTabsViews(),
             ),
           ),
         ),

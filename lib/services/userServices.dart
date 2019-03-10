@@ -13,7 +13,9 @@ final String authURI = 'users/auth';
 class UserServices {
   static Future<User> signIn(
       String username, String password, AppConfig appConfig) async {
-    final String url = appConfig.apiBaseUrl + authURI;
+        
+      return User(name: username, isAuthenticated: true);        
+    /*final String url = appConfig.apiBaseUrl + authURI;
     var response;
     try {
       response = await http.post(
@@ -52,5 +54,6 @@ class UserServices {
         throw "Error al intentar conectar con el servidor";
         break;
     }
+    */
   }
 }

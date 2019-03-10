@@ -18,7 +18,7 @@ class BookThumbnail extends StatelessWidget {
         placeholder: AssetImage('assets/x.jpg'),
         height: 90.0,
         width: 90.0,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
       ),
     );
   }

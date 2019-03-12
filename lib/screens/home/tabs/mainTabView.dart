@@ -15,19 +15,18 @@ class MainTabView extends StatelessWidget {
       padding: EdgeInsets.all(5.0),
       physics: ClampingScrollPhysics(),
       itemCount: categories.length,
-      
       itemBuilder: (context, index) {
         return Card(
           elevation: 3.0,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(2.0))),
           child: Container(
-            padding: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 10.0),
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Column(children: <Widget>[
               CardHeader(category: categories[index], goToTab: goToTab),
-              Padding(
-                padding: EdgeInsets.only(left: 15.0, top: 20.0),
-                child: CardSection(books: categories[index].books,),
+              SizedBox(height: 10.0),
+              CardSection(
+                books: categories[index].books,
               ),
             ]),
           ),

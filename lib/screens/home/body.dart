@@ -50,7 +50,6 @@ class _HomeBodyState extends State<HomeBody>
 
     tabs.add(mainTab);
     tabs.addAll(tabsForCategories);
-    print("tabs.length " + tabs.length.toString());
     return tabs;
   }
 
@@ -69,11 +68,17 @@ class _HomeBodyState extends State<HomeBody>
 
     tabsViews.add(mainTabView);
     tabsViews.addAll(secondaryTabsViews);
-    print("tabsViews.length " + tabsViews.length.toString());
     return tabsViews;
   }
 
-  _goToTab(String categoryId) {}
+  _goToTab(String categoryId) {
+    int categoryIndex = widget.bookCategories
+        .indexWhere((Category category) => category.id == categoryId);
+    int newTabIndex = categoryIndex + 1;
+    if (newTabIndex < _tabController.length) {
+      _tabController.index = newTabIndex;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

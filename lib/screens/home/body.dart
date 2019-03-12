@@ -22,8 +22,8 @@ class _HomeBodyState extends State<HomeBody>
   @override
   void initState() {
     _key = new PageStorageKey({});
-    _tabController =
-        new TabController(vsync: this, length: widget.bookCategories.length+1);
+    _tabController = new TabController(
+        vsync: this, length: widget.bookCategories.length + 1);
     super.initState();
   }
 
@@ -50,7 +50,7 @@ class _HomeBodyState extends State<HomeBody>
 
     tabs.add(mainTab);
     tabs.addAll(tabsForCategories);
-    print("tabs.length "+tabs.length.toString());
+    print("tabs.length " + tabs.length.toString());
     return tabs;
   }
 
@@ -63,14 +63,13 @@ class _HomeBodyState extends State<HomeBody>
 
     final List<SecondaryTabView> secondaryTabsViews = widget.bookCategories
         .map((Category category) => SecondaryTabView(
-              categories: widget.bookCategories,
-              goToTab: _goToTab,
+              category: category,
             ))
         .toList();
 
     tabsViews.add(mainTabView);
     tabsViews.addAll(secondaryTabsViews);
-    print("tabsViews.length "+tabsViews.length.toString());
+    print("tabsViews.length " + tabsViews.length.toString());
     return tabsViews;
   }
 

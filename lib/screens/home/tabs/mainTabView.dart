@@ -15,6 +15,7 @@ class MainTabView extends StatelessWidget {
       padding: EdgeInsets.all(5.0),
       physics: ClampingScrollPhysics(),
       itemCount: categories.length,
+      
       itemBuilder: (context, index) {
         return Card(
           elevation: 3.0,

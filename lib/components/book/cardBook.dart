@@ -36,38 +36,31 @@ class CardBook extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: 10.0),
+      margin: EdgeInsets.all(0.0),
+      padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
       child: Column(
         // mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          GestureDetector(
-            //onTap: () => Navigator.pushNamed(context, '/product/' + book.id),
-            child: BookThumbnail(
-              thumbnailUrl: book.smallThumbnail,
-              isbn13: book.isbn13,
-              isbn10: book.isbn10,
-            ),
+          BookThumbnail(
+            thumbnailUrl: book.smallThumbnail,
+            isbn13: book.isbn13,
+            isbn10: book.isbn10,
           ),
           SizedBox(height: 10.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _getCardChildren(book)),
-                    ),
-                  ],
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Flexible(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _getCardChildren(book)),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

@@ -43,11 +43,13 @@ Future<List<Category>> getCategories(context) async {
       name: "Ciencias",
       books: books));
 
+  /*
   categories.add(Category(
       id: "philosophy",
       icon: Icons.account_balance,
       name: "Filosofía",
       books: books));
+  */
 
   return categories;
 }

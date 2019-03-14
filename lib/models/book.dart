@@ -31,7 +31,14 @@ class Book {
       this.thumbnail});
 
   // TODO Change this. get id from mongoose db
-  String getId() => isbn13 != null ? isbn13 : isbn10;
+  String getId(){
+    if(isbn13 != null)
+      return isbn13;
+    else if(isbn10!=null) 
+      return isbn10;
+    else
+    return title;
+  } 
 
   factory Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> bookJson = json['items'][0]['volumeInfo'];

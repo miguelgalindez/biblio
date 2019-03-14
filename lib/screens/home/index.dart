@@ -26,7 +26,8 @@ class Home extends StatelessWidget {
                     FlatButton(
                       onPressed: () {
                         Navigator.of(context).pop(true);
-                        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                        SystemChannels.platform
+                            .invokeMethod('SystemNavigator.pop');
                       },
                       child: Text('Si'),
                     ),
@@ -36,19 +37,21 @@ class Home extends StatelessWidget {
           false;
     }
 
+    AppBar appBar = AppBar(
+      backgroundColor: appConfig.primaryColor,
+      title: Text(appConfig.appName),
+      actions: <Widget>[
+        IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(context: context, delegate: BookSearchDelegate());
+            }),
+      ],
+    );
+
     return WillPopScope(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: appConfig.primaryColor,
-          title: Text(appConfig.appName),
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  showSearch(context: context, delegate: BookSearchDelegate());
-                }),
-          ],
-        ),
+        appBar: appBar,
         drawer: Drawer(),
         body: FutureBuilder(
           future: getCategories(context),

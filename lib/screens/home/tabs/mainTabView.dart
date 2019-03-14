@@ -28,6 +28,7 @@ class MainTabView extends StatelessWidget {
               CardSection(
                 books: categories[index].books,
               ),
+              SizedBox(height: 5.0),
             ]),
           ),
         );

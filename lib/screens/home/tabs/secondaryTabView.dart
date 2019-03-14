@@ -19,9 +19,8 @@ class SecondaryTabView extends StatelessWidget {
           crossAxisSpacing: 5.0,
           childAspectRatio: 0.55),
       itemBuilder: (BuildContext context, int index) {
-        return SizedBox(          
-            height: 150.0,
-            child: CardBook(category.books[index]));
+        return SizedBox(
+            height: 150.0, child: CardBook(book: category.books[index]));
       },
     );
   }

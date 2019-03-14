@@ -30,9 +30,12 @@ class Book {
       this.smallThumbnail,
       this.thumbnail});
 
-  factory Book.fromJson(Map<String, dynamic> json) {    
+  // TODO Change this. get id from mongoose db
+  String getId() => isbn13 != null ? isbn13 : isbn10;
+
+  factory Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> bookJson = json['items'][0]['volumeInfo'];
-    
+
     String isbn10, isbn13;
     List<dynamic> identifiers = bookJson['industryIdentifiers'];
     if (identifiers != null) {

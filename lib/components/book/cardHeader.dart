@@ -8,7 +8,6 @@ class CardHeader extends StatelessWidget {
 
   CardHeader({@required this.category, this.goToTab});
 
-//padding: EdgeInsets.only(left: 10.0, top: 20.0),
   @override
   Widget build(BuildContext context) {
     final AppConfig appConfig = AppConfig.of(context);

@@ -15,7 +15,7 @@ class CardSection extends StatelessWidget {
         itemCount: books.length,
         itemExtent: 110.0,
         itemBuilder: (BuildContext context, int index) {
-          return CardBook(books[index]);
+          return CardBook(book: books[index]);
         },
       ),
     );

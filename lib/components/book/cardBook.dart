@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import './bookThumbnail.dart';
+import 'package:biblio/screens/details/index.dart';
+import 'package:biblio/models/appConfig.dart';
 
 class CardBook extends StatelessWidget {
   final Book book;
 
-  CardBook(this.book);
+  CardBook({this.book});
 
   List<Widget> _getCardChildren(Book book) {
     bool bookHasAuthors = book.authors != null && book.authors.length > 0;
@@ -35,34 +37,40 @@ class CardBook extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(0.0),
-      padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          BookThumbnail(
-            thumbnailUrl: book.smallThumbnail,
-            isbn13: book.isbn13,
-            isbn10: book.isbn10,
-          ),
-          SizedBox(height: 10.0),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Flexible(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: _getCardChildren(book)),
-                ),
-              ],
+    return InkWell(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => BookDetails(book: book)));
+      },
+      splashColor: AppConfig.of(context).secondaryColor,
+      child: Container(
+        margin: EdgeInsets.all(0.0),
+        padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+        child: Column(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            BookThumbnail(
+              thumbnailUrl: book.smallThumbnail,
+              heroTag: book.getId(),
             ),
-          ),
-        ],
+            SizedBox(height: 10.0),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  Flexible(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _getCardChildren(book)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -40,6 +40,13 @@ class Book {
     return title;
   } 
 
+  String getInlineAuthors(){
+    if(authors!=null && authors.isNotEmpty){
+      return authors.join(", ");
+    }
+    return null;
+  }
+
   factory Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> bookJson = json['items'][0]['volumeInfo'];
 
@@ -67,6 +74,7 @@ class Book {
       publishedDate: JsonHelpers.parseDateTime(bookJson['publishedDate']),
       description: bookJson['description'],
       language: bookJson['language'],
+      // TODO: watch out !! What happens if here comes a null?
       pageCount: bookJson['pageCount'],
       previewLink: bookJson['previewLink'],
       smallThumbnail: imageLinks != null ? imageLinks['smallThumbnail'] : null,

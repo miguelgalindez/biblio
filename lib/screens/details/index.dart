@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/hero_photo_viewer.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
+import 'package:biblio/screens/details/bookStats.dart';
 
 class BookDetails extends StatelessWidget {
   final Book book;
@@ -13,16 +14,18 @@ class BookDetails extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => HeroPhotoViewWrapper(
-                        heroTag: book.getId(),
-                        imageProvider: NetworkImage(book.thumbnail),
-                      )));
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => HeroPhotoViewWrapper(
+                    heroTag: book.getId(),
+                    imageProvider: NetworkImage(book.thumbnail),
+                  ),
+            ),
+          );
         },
         child: Container(
           child: BookThumbnail(
-            thumbnailUrl: book.thumbnail,
+            thumbnailUrl: book.smallThumbnail,
             heroTag: book.getId(),
           ),
         ),
@@ -56,16 +59,61 @@ class BookDetails extends StatelessWidget {
     );
   }
 
-  TextStyle _getBookTitleTextStyle(ThemeData themeData) {
-    return themeData.textTheme.title.copyWith(fontWeight: FontWeight.bold);
+  Widget _getBookTitleText(ThemeData themeData) {
+    String title = book.title;
+    if (title != null && title.isNotEmpty) {
+      return Text(
+        book.title,
+        style: themeData.textTheme.title.copyWith(fontWeight: FontWeight.bold),
+      );
+    }
+    return null;
   }
 
-  TextStyle _getBookAuthorsTextStyle(ThemeData themeData) {
-    return themeData.textTheme.body1.copyWith(color: themeData.primaryColor);
+  Widget _getBookAuthorsText(ThemeData themeData) {
+    String authors = book.getInlineAuthors();
+    if (authors != null) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 5.0),
+        child: Text(
+          authors,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style:
+              themeData.textTheme.body1.copyWith(color: themeData.primaryColor),
+        ),
+      );
+    }
+    return null;
   }
 
-  TextStyle _getBookPublisherTextStyle(ThemeData themeData) {
-    return themeData.textTheme.caption.copyWith(color: Colors.grey);
+  Widget _getBookPublisherText(ThemeData themeData) {
+    String publisher = book.publisher;
+    if (publisher != null && publisher.isNotEmpty) {
+      return Text(
+        book.publisher,
+        style: themeData.textTheme.caption.copyWith(color: Colors.grey),
+      );
+    }
+    return null;
+  }
+
+  Widget _getReserveBookButton(ThemeData themeData) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        RaisedButton(
+          elevation: 0.0,
+          color: themeData.primaryColor,
+          textColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 30.0),
+          child: Text("Reservar"),
+          onPressed: () {
+            print("[details-index] Reserve book button tapped");
+          },
+        ),
+      ],
+    );
   }
 
   @override
@@ -88,63 +136,24 @@ class BookDetails extends StatelessWidget {
                             children: <Widget>[
                               ListTile(
                                 leading: _thumbnailWithPhotoView(context),
-                                title: Text(
-                                  book.title,
-                                  style: _getBookTitleTextStyle(themeData),
-                                ),
+                                title: _getBookTitleText(themeData),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 5.0),
-                                      // TODO: fix this !!
-                                      child: Text(
-                                        "Authors....",
-                                        style:
-                                            _getBookAuthorsTextStyle(themeData),
-                                      ),
-                                    ),
-                                    Text(
-                                      book.publisher ?? '',
-                                      style:
-                                          _getBookPublisherTextStyle(themeData),
-                                    ),
+                                    _getBookAuthorsText(themeData),
+                                    _getBookPublisherText(themeData),
                                   ].where((widget) => widget != null).toList(),
                                 ),
                               ),
-                              // TODO: fix this !!
                               Container(
                                 padding:
                                     EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: <Widget>[
-                                            RaisedButton(
-                                              elevation: 0.0,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              textColor: Colors.white,
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 30.0),
-                                              child: Text("Reservar"),
-                                              onPressed: () {
-                                                print(
-                                                    "[details-index] Reserve book button tapped");
-                                              },
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    )
+                                    _getReserveBookButton(themeData),
+                                    Divider(height: 20.0),
+                                    BookStats(book: book)
                                   ],
                                 ),
                               )

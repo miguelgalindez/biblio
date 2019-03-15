@@ -14,9 +14,11 @@ class SecondaryTabView extends StatelessWidget {
       itemCount: category.books.length,
       scrollDirection: Axis.vertical,
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          // TODO make this a parameter
           maxCrossAxisExtent: 110.0,
           mainAxisSpacing: 5.0,
           crossAxisSpacing: 5.0,
+          // TODO make this dynamic
           childAspectRatio: 0.55),
       itemBuilder: (BuildContext context, int index) {
         return SizedBox(

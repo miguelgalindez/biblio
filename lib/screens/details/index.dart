@@ -74,7 +74,7 @@ class BookDetails extends StatelessWidget {
     String authors = book.getInlineAuthors();
     if (authors != null) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.0),
+        padding: EdgeInsets.only(top: 7.0),
         child: Text(
           authors,
           maxLines: 1,
@@ -153,7 +153,8 @@ class BookDetails extends StatelessWidget {
                                   children: <Widget>[
                                     _getReserveBookButton(themeData),
                                     Divider(height: 20.0),
-                                    BookStats(book: book)
+                                    BookStats(book: book),
+                                    Divider(height: 20.0),
                                   ],
                                 ),
                               )

@@ -11,6 +11,8 @@ class Book {
   final String description;
   final String language;
   final int pageCount;
+  final double averageRating;
+  final int ratingsCount;
   final String previewLink;
   final String smallThumbnail;
   final String thumbnail;
@@ -26,9 +28,12 @@ class Book {
       this.description,
       this.language,
       this.pageCount,
+      this.averageRating,
+      this.ratingsCount,
       this.previewLink,
       this.smallThumbnail,
-      this.thumbnail});
+      this.thumbnail,
+      });
 
   // TODO Change this. get id from mongoose db
   String getId(){
@@ -76,6 +81,8 @@ class Book {
       language: bookJson['language'],
       // TODO: watch out !! What happens if here comes a null?
       pageCount: bookJson['pageCount'],
+      averageRating: bookJson['averageRating'],
+      ratingsCount: bookJson['ratingsCount'],
       previewLink: bookJson['previewLink'],
       smallThumbnail: imageLinks != null ? imageLinks['smallThumbnail'] : null,
       thumbnail: imageLinks != null ? imageLinks['thumbnail'] : null,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
+import 'package:biblio/services/acronyms.dart';
 
 class BookStats extends StatelessWidget {
   final Book book;
@@ -16,46 +17,68 @@ class BookStats extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: headerWidgets,
         ),
+        SizedBox(height: 2.0),
         Row(children: footerWidgets),
       ],
     );
   }
 
-  Widget _getStars(TextStyle textStyle) {
-    List<Widget> headerWidgets = [
-      Text("4.1", style: textStyle),
-      SizedBox(width: 5.0),
-      Icon(Icons.star),
-    ];
+  Widget _getStars(TextStyle headerTextStyle, TextStyle footerTextStyle) {
+    double averageRating = book.averageRating;
+    int ratingsCount = book.ratingsCount;
+    String headerText = averageRating != null ? averageRating.toString() : "";
 
-    List<Widget> footerWidgets = [Text("3M revisiones")];
+    List<Widget> headerWidgets = [];
+    if (averageRating != null) {
+      headerWidgets.addAll([
+        Text(headerText, style: headerTextStyle),
+        SizedBox(width: 5.0),
+      ]);
+    }
+
+    headerWidgets.add(Icon(Icons.star));
+
+    String footerText = ratingsCount != null
+        ? ratingsCount.toString() + " revisiones"
+        : "Sin revisiones";
+
+    List<Widget> footerWidgets = [Text(footerText, style: footerTextStyle)];
+
     return _getStat(headerWidgets, footerWidgets);
   }
 
-  Widget _getTimesAsked(TextStyle textStyle) {
+  // TODO: Fix this to get true data from db. Don't forget to handle null data
+  Widget _getTimesAsked(TextStyle headerTextStyle, TextStyle footerTextStyle) {
     List<Widget> headerWidgets = [
-      Text("12M", style: textStyle),
+      Text("12M", style: headerTextStyle),
     ];
 
-    List<Widget> footerWidgets = [Text("Veces pedido")];
+    List<Widget> footerWidgets = [Text("veces pedido", style: footerTextStyle)];
+
     return _getStat(headerWidgets, footerWidgets);
   }
 
-  Widget _getNumberOfPages() {
+  Widget _getNumberOfPages(TextStyle footerTextStyle) {
     int numberOfPages = book.pageCount;
+    String footerText = numberOfPages.toString() + " páginas";
     if (numberOfPages != null && numberOfPages > 0) {
-      List<Widget> headerWidgets = [
-        //Icon(Icons.burst_mode),
-        //Icon(Icons.content_copy),
-        //Icon(Icons.filter),
-        //Icon(Icons.layers),
-        Icon(Icons.library_books),
-      ];
+      List<Widget> headerWidgets = [Icon(Icons.content_copy)];
 
-      List<Widget> footerWidgets = [Text(numberOfPages.toString()+" páginas")];
+      List<Widget> footerWidgets = [Text(footerText, style: footerTextStyle)];
       return _getStat(headerWidgets, footerWidgets);
     }
     return null;
+  }
+
+  Widget _getLanguage(TextStyle footerTextStyle) {
+    String language = Acronyms.getLanguageFromAcronym(book.language);
+    List<Widget> headerWidgets = [Icon(Icons.language)];
+    List<Widget> footerWidgets = [Text(language, style: footerTextStyle)];
+    return _getStat(headerWidgets, footerWidgets);
+  }
+
+  Widget _getDivider() {
+    return SizedBox(width: 20.0);
   }
 
   @override
@@ -65,18 +88,22 @@ class BookStats extends StatelessWidget {
       color: Colors.black,
       fontWeight: FontWeight.bold,
     );
+    TextStyle footerTextStyle =
+        themeData.textTheme.caption.copyWith(color: Colors.grey);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          _getStars(headerTextStyle),
-          SizedBox(width: 24.0),
-          _getNumberOfPages(),
-          SizedBox(width: 24.0),
-          _getTimesAsked(headerTextStyle),
-          
+          _getStars(headerTextStyle, footerTextStyle),
+          _getDivider(),
+          _getTimesAsked(headerTextStyle, footerTextStyle),
+          _getDivider(),
+          _getNumberOfPages(footerTextStyle),
+          _getDivider(),
+          _getLanguage(footerTextStyle)
         ].where((widget) => widget != null).toList(),
       ),
     );

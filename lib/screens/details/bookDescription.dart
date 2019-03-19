@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/simpleListTile.dart';
 import 'package:biblio/models/appConfig.dart';
+import 'package:biblio/components/book/bookThumbnail.dart';
 
 class BookDescription extends StatelessWidget {
   final Book book;
@@ -15,8 +16,25 @@ class BookDescription extends StatelessWidget {
     return SliverAppBar(
       expandedHeight: 56.0,
       pinned: false,
-      floating: false,
+      floating: true,
       snap: false,
+      centerTitle: false,
+      titleSpacing: 0.0,
+      title: ListTile(
+        contentPadding: EdgeInsets.all(0.0),
+        leading: BookThumbnail(
+          heroTag: book.getId(),
+          thumbnailUrl: book.smallThumbnail,
+          height: 46.0,
+          width: 32.0,
+        ),
+        title: Text(
+          book.title,
+          maxLines: 1,          
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: Colors.white)
+        ),
+      ),
     );
   }
 
@@ -92,7 +110,7 @@ class BookDescription extends StatelessWidget {
   }
 
   List<Widget> _getMoreInfoWidgets(BuildContext context) {
-    AppConfig appConfig=AppConfig.of(context);
+    AppConfig appConfig = AppConfig.of(context);
     Color iconColor = appConfig.primaryColor;
     double iconSize = 32.0;
     TextStyle titleStyle =
@@ -102,7 +120,7 @@ class BookDescription extends StatelessWidget {
     List<Widget> widgets = [];
     if (book.previewLink != null && book.previewLink.isNotEmpty) {
       widgets.add(InkWell(
-        onTap: (){
+        onTap: () {
           print("link preview clicked");
         },
         splashColor: appConfig.secondaryColor,
@@ -161,7 +179,7 @@ class BookDescription extends StatelessWidget {
   }
 
   List<Widget> _getBookDescriptionWidgets(BuildContext context) {
-    ThemeData themeData = Theme.of(context);    
+    ThemeData themeData = Theme.of(context);
     List<Widget> widgets = [];
     Widget descriptionTextWidget = _getDescriptionTextWidget();
 

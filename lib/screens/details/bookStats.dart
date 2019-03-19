@@ -6,6 +6,8 @@ class BookStats extends StatelessWidget {
   final Book book;
   BookStats({@required this.book});
 
+  // TODO Test all stats agains null values
+
   Widget _getStat(List<Widget> headerWidgets, List<Widget> footerWidgets) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,8 +62,8 @@ class BookStats extends StatelessWidget {
 
   Widget _getNumberOfPages(TextStyle footerTextStyle) {
     int numberOfPages = book.pageCount;
-    String footerText = numberOfPages.toString() + " páginas";
     if (numberOfPages != null && numberOfPages > 0) {
+      String footerText = numberOfPages.toString() + " páginas";
       List<Widget> headerWidgets = [Icon(Icons.content_copy)];
 
       List<Widget> footerWidgets = [Text(footerText, style: footerTextStyle)];
@@ -69,7 +71,7 @@ class BookStats extends StatelessWidget {
     }
     return null;
   }
-
+  
   Widget _getLanguage(TextStyle footerTextStyle) {
     String language = Acronyms.getLanguageFromAcronym(book.language);
     List<Widget> headerWidgets = [Icon(Icons.language)];

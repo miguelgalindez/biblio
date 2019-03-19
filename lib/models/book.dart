@@ -16,6 +16,7 @@ class Book {
   final String previewLink;
   final String smallThumbnail;
   final String thumbnail;
+  final String textSnippet;
 
   Book(
       {this.isbn10,
@@ -33,20 +34,20 @@ class Book {
       this.previewLink,
       this.smallThumbnail,
       this.thumbnail,
-      });
+      this.textSnippet});
 
   // TODO Change this. get id from mongoose db
-  String getId(){
-    if(isbn13 != null)
+  String getId() {
+    if (isbn13 != null)
       return isbn13;
-    else if(isbn10!=null) 
+    else if (isbn10 != null)
       return isbn10;
     else
-    return title;
-  } 
+      return title;
+  }
 
-  String getInlineAuthors(){
-    if(authors!=null && authors.isNotEmpty){
+  String getInlineAuthors() {
+    if (authors != null && authors.isNotEmpty) {
       return authors.join(", ");
     }
     return null;
@@ -54,6 +55,7 @@ class Book {
 
   factory Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> bookJson = json['items'][0]['volumeInfo'];
+    Map<String, dynamic> searchInfo = json['items'][0]['searchInfo'];
 
     String isbn10, isbn13;
     List<dynamic> identifiers = bookJson['industryIdentifiers'];
@@ -84,8 +86,11 @@ class Book {
       averageRating: bookJson['averageRating'],
       ratingsCount: bookJson['ratingsCount'],
       previewLink: bookJson['previewLink'],
+
       smallThumbnail: imageLinks != null ? imageLinks['smallThumbnail'] : null,
       thumbnail: imageLinks != null ? imageLinks['thumbnail'] : null,
+
+      textSnippet: searchInfo != null ? searchInfo['textSnippet'] : null,
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:biblio/models/book.dart';
 import 'package:biblio/components/hero_photo_viewer.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/screens/details/bookStats.dart';
+import 'package:biblio/screens/details/bookDescription.dart';
 
 class BookDetails extends StatelessWidget {
   final Book book;
@@ -151,11 +152,14 @@ class BookDetails extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
+                                    // TODO: move these to a function that check for null values
                                     _getReserveBookButton(themeData),
-                                    Divider(height: 20.0),
+                                    Divider(height: 30.0),
                                     BookStats(book: book),
-                                    Divider(height: 20.0),
-                                  ],
+                                    Divider(height: 30.0),
+                                    BookDescription.getIntro(book, context),
+                                    Divider(height: 0.0),
+                                  ].where((widget)=>widget!=null).toList(),
                                 ),
                               )
                             ],

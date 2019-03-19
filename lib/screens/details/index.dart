@@ -154,11 +154,11 @@ class BookDetails extends StatelessWidget {
                                   children: <Widget>[
                                     // TODO: move these to a function that check for null values
                                     _getReserveBookButton(themeData),
-                                    Divider(height: 30.0),
+                                    Divider(height: 30.0, color: Colors.grey),
                                     BookStats(book: book),
-                                    Divider(height: 30.0),
+                                    Divider(height: 30.0, color: Colors.grey),
                                     BookDescription.getIntro(book, context),
-                                    Divider(height: 0.0),
+                                    Divider(height: 0.0, color: Colors.grey),
                                   ].where((widget)=>widget!=null).toList(),
                                 ),
                               )

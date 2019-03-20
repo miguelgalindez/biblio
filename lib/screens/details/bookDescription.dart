@@ -4,6 +4,7 @@ import 'package:biblio/models/book.dart';
 import 'package:biblio/components/simpleListTile.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BookDescription extends StatelessWidget {
   final Book book;
@@ -28,12 +29,10 @@ class BookDescription extends StatelessWidget {
           height: 46.0,
           width: 32.0,
         ),
-        title: Text(
-          book.title,
-          maxLines: 1,          
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Colors.white)
-        ),
+        title: Text(book.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -109,6 +108,15 @@ class BookDescription extends StatelessWidget {
     return null;
   }
 
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      // TODO: Show an error message
+      throw 'Could not launch $url';
+    }
+  }
+
   List<Widget> _getMoreInfoWidgets(BuildContext context) {
     AppConfig appConfig = AppConfig.of(context);
     Color iconColor = appConfig.primaryColor;
@@ -121,7 +129,7 @@ class BookDescription extends StatelessWidget {
     if (book.previewLink != null && book.previewLink.isNotEmpty) {
       widgets.add(InkWell(
         onTap: () {
-          print("link preview clicked");
+          _launchURL(book.previewLink + "#v=onepage&q&f=true");
         },
         splashColor: appConfig.secondaryColor,
         child: SimpleListTile(

@@ -6,6 +6,7 @@ import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
 class BookDescription extends StatelessWidget {
   final Book book;
   final DateFormat dateFormat;
@@ -52,7 +53,9 @@ class BookDescription extends StatelessWidget {
     } else if (book.description != null && book.description.isNotEmpty) {
       text = book.description;
     }
-
+    // TODO: if there's no text then call _getMoreInfoWidgets to know if there are
+    // some info about the book. In that case, display the button with the message "ver detalles"
+    // otherwise, return null to not render the button.
     if (text != null && text.isNotEmpty) {
       return Column(
         children: <Widget>[
@@ -99,11 +102,13 @@ class BookDescription extends StatelessWidget {
     }
 
     if (description != null && description.isNotEmpty) {
-      return Text(description,
-          textAlign: TextAlign.justify,
-          style: TextStyle(
-            color: Colors.grey[800],
-          ));
+      return Text(
+        description,
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          color: Colors.grey[800],
+        ),
+      );
     }
     return null;
   }
@@ -191,15 +196,22 @@ class BookDescription extends StatelessWidget {
     List<Widget> widgets = [];
     Widget descriptionTextWidget = _getDescriptionTextWidget();
 
-    widgets.add(Text("Acerca de este libro",
-        textAlign: TextAlign.left, style: themeData.textTheme.title));
+    widgets.add(Text(
+      "Acerca de este libro",
+      textAlign: TextAlign.left,
+      style: themeData.textTheme.title,
+    ));
+
     widgets.add(SizedBox(height: 24.0));
+
     if (descriptionTextWidget != null) {
       widgets.add(descriptionTextWidget);
-      widgets.add(Divider(
-        height: 30.0,
-        color: Colors.grey,
-      ));
+      widgets.add(
+        Divider(
+          height: 30.0,
+          color: Colors.grey,
+        ),
+      );
     }
 
     widgets.addAll(_getMoreInfoWidgets(context));
@@ -215,11 +227,13 @@ class BookDescription extends StatelessWidget {
           _getAppbar(),
           SliverToBoxAdapter(
             child: Padding(
-                padding: EdgeInsets.all(24.0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _getBookDescriptionWidgets(context))),
-          )
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _getBookDescriptionWidgets(context),
+              ),
+            ),
+          ),
         ],
       ),
     );

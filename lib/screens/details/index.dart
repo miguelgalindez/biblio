@@ -4,6 +4,7 @@ import 'package:biblio/components/hero_photo_viewer.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/screens/details/bookStats.dart';
 import 'package:biblio/screens/details/bookDescription.dart';
+import 'package:biblio/screens/details/bookRatingAndReviews.dart';
 
 class BookDetails extends StatelessWidget {
   final Book book;
@@ -159,6 +160,8 @@ class BookDetails extends StatelessWidget {
                                     Divider(height: 30.0, color: Colors.grey),
                                     BookDescription.getIntro(book, context),
                                     Divider(height: 0.0, color: Colors.grey),
+                                    Divider(height: 30.0, color: Colors.transparent),
+                                    BookRatingAndReviews(book: book),
                                   ].where((widget)=>widget!=null).toList(),
                                 ),
                               )

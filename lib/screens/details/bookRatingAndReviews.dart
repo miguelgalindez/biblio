@@ -8,14 +8,33 @@ class BookRatingAndReviews extends StatelessWidget {
   final Book book;
   BookRatingAndReviews({@required this.book});
 
-  Widget _getRatingByStar(int star, double percent, BuildContext context) {
+  bool _bookHasRatings() {
+    return book.averageRating != null &&
+        book.ratingsCount != null &&
+        book.ratingsCount > 0;
+  }
+
+  bool _bookHasRatingByStars() {
+    // TODO: get this value from book
+    return true;
+  }
+
+  bool _bookHasComments() {
+    // TODO: get this value from book
+    return true;
+  }
+
+  Widget _getRatingProgressBar(int star, double percent, BuildContext context) {
     ThemeData themeData = Theme.of(context);
     return Row(
       children: <Widget>[
-        Column(
-          children: <Widget>[
-            Text(star.toString()),
-          ],
+        Padding(
+          padding: EdgeInsets.only(right: 6.0),
+          child: Column(
+            children: <Widget>[
+              Text(star.toString()),
+            ],
+          ),
         ),
         Expanded(
           child: Column(
@@ -38,20 +57,17 @@ class BookRatingAndReviews extends StatelessWidget {
     );
   }
 
-  Widget _getRatingWidgets(
+  Widget _getRatingWidget(
       BuildContext context, ThemeData themeData, AppConfig appConfig) {
     TextStyle averageRatingTextStyle =
-        themeData.textTheme.display2.copyWith(color: Colors.black);
+        themeData.textTheme.display3.copyWith(color: Colors.black);
     TextStyle ratingsCountTextStyle =
         themeData.textTheme.body1.copyWith(color: Colors.grey);
 
     List<Widget> widgets = [];
-    if (book.averageRating != null &&
-        book.ratingsCount != null &&
-        book.ratingsCount > 0) {
-      Widget averageRatingWidget = Flexible(
-        flex: 1,
-        fit: FlexFit.loose,
+    if (_bookHasRatings()) {
+      Widget averageRatingWidget = Expanded(
+        flex: 2,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,52 +97,106 @@ class BookRatingAndReviews extends StatelessWidget {
       widgets.add(averageRatingWidget);
 
       // TODO: make this dynamic. Watch if the book has the values
-      if (appConfig.projectStage.toLowerCase() == 'dev') {
+      if (_bookHasRatingByStars()) {
         Widget ratingByStarsWidget = Expanded(
-          flex: 3,
-          child: Padding(
-            padding: EdgeInsets.only(left: 48.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                _getRatingByStar(5, 0.6, context),
-                _getRatingByStar(4, 0.3, context),
-                _getRatingByStar(3, 0.1, context),
-                _getRatingByStar(2, 0.05, context),
-                _getRatingByStar(1, 0.05, context),
-              ],
-            ),
+          flex: 2,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              _getRatingProgressBar(5, 0.6, context),
+              _getRatingProgressBar(4, 0.3, context),
+              _getRatingProgressBar(3, 0.1, context),
+              _getRatingProgressBar(2, 0.05, context),
+              _getRatingProgressBar(1, 0.05, context),
+            ],
           ),
         );
         widgets.add(ratingByStarsWidget);
       }
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: widgets,
-    );
+
+    if (widgets.isNotEmpty) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: widgets,
+      );
+    }
+
+    return null;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> _getCommentsWidgets(AppConfig appConfig) {
+    List<Widget> widgets = [];
+
+    Widget topPositiveReviewWidget = InkWell(
+      splashColor: appConfig.secondaryColor,
+      onTap: () {
+        print("More positive reviews tapped");
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(8.0),
+            topRight: const Radius.circular(8.0),
+          ),
+        ),
+        height: 40.0,
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text("Top positive review"),
+            Text(
+              "MÁS",
+              style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                  color: appConfig.primaryColor),
+            ),
+          ],
+        ),
+      ),
+    );
+    widgets.add(topPositiveReviewWidget);
+    return widgets;
+  }
+
+  List<Widget> _getWidgets(BuildContext context) {
     ThemeData themeData = Theme.of(context);
     AppConfig appConfig = AppConfig.of(context);
     TextStyle titleStyle = themeData.textTheme.subtitle;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
+
+    List<Widget> widgets = [];
+
+    if (_bookHasRatings() || _bookHasComments()) {
+      widgets.add(
         Text(
           "Calificaciones y comentarios",
           textAlign: TextAlign.start,
           style: titleStyle,
         ),
+      );
+
+      widgets.add(
         Padding(
-          padding: EdgeInsets.all(12.0),
-          child: _getRatingWidgets(context, themeData, appConfig),
+          padding: EdgeInsets.symmetric(vertical: 12.0),
+          child: _getRatingWidget(context, themeData, appConfig),
         ),
-      ],
+      );
+
+      widgets.addAll(_getCommentsWidgets(appConfig));
+    }
+    return widgets.where((widget) => widget != null).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: _getWidgets(context),
     );
   }
 }

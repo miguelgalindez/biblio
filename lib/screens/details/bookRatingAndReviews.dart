@@ -3,6 +3,8 @@ import 'package:biblio/models/book.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:biblio/components/book/bookReview.dart';
+import 'package:biblio/components/book/bookReviewHeader.dart';
 
 class BookRatingAndReviews extends StatelessWidget {
   final Book book;
@@ -130,35 +132,31 @@ class BookRatingAndReviews extends StatelessWidget {
   List<Widget> _getCommentsWidgets(AppConfig appConfig) {
     List<Widget> widgets = [];
 
-    Widget topPositiveReviewWidget = InkWell(
-      splashColor: appConfig.secondaryColor,
-      onTap: () {
-        print("More positive reviews tapped");
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(8.0),
-            topRight: const Radius.circular(8.0),
-          ),
-        ),
-        height: 40.0,
-        padding: EdgeInsets.symmetric(horizontal: 12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    Widget topPositiveReviewWidget = Column(
+      children: [
+        BookReviewHeader(
+          primaryColor: appConfig.primaryColor,
+          secondaryColor: appConfig.secondaryColor,
+          onTap: () {
+            print("More positive reviews tapped");
+          },
           children: <Widget>[
             Text("Top positive review"),
             Text(
               "MÁS",
               style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                  color: appConfig.primaryColor),
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold,
+                color: appConfig.primaryColor,
+              ),
             ),
           ],
         ),
-      ),
+        BookReview(
+          book: book,
+          starsColor: appConfig.primaryColor,
+        ),
+      ],
     );
     widgets.add(topPositiveReviewWidget);
     return widgets;

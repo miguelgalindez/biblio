@@ -41,8 +41,8 @@ class BookStats extends StatelessWidget {
     headerWidgets.add(Icon(Icons.star));
 
     String footerText = ratingsCount != null
-        ? ratingsCount.toString() + " revisiones"
-        : "Sin revisiones";
+        ? ratingsCount.toString() + " valoraciones"
+        : "Sin valoraciones";
 
     List<Widget> footerWidgets = [Text(footerText, style: footerTextStyle)];
 

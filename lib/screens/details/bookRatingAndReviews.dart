@@ -4,7 +4,6 @@ import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:biblio/components/book/bookReview.dart';
-import 'package:biblio/components/book/bookReviewHeader.dart';
 
 class BookRatingAndReviews extends StatelessWidget {
   final Book book;
@@ -17,11 +16,6 @@ class BookRatingAndReviews extends StatelessWidget {
   }
 
   bool _bookHasRatingByStars() {
-    // TODO: get this value from book
-    return true;
-  }
-
-  bool _bookHasComments() {
     // TODO: get this value from book
     return true;
   }
@@ -67,56 +61,54 @@ class BookRatingAndReviews extends StatelessWidget {
         themeData.textTheme.body1.copyWith(color: Colors.grey);
 
     List<Widget> widgets = [];
-    if (_bookHasRatings()) {
-      Widget averageRatingWidget = Expanded(
+    Widget averageRatingWidget = Expanded(
+      flex: 2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            book.averageRating.toString(),
+            style: averageRatingTextStyle,
+            textAlign: TextAlign.center,
+          ),
+          SmoothStarRating(
+            rating: book.averageRating,
+            starCount: 5,
+            allowHalfRating: false,
+            borderColor: themeData.primaryColor,
+            color: themeData.primaryColor,
+            size: 16.0,
+          ),
+          Text(
+            book.ratingsCount.toString(),
+            style: ratingsCountTextStyle,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+
+    widgets.add(averageRatingWidget);
+
+    // TODO: make this dynamic. Watch if the book has the values
+    if (_bookHasRatingByStars()) {
+      Widget ratingByStarsWidget = Expanded(
         flex: 2,
         child: Column(
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text(
-              book.averageRating.toString(),
-              style: averageRatingTextStyle,
-              textAlign: TextAlign.center,
-            ),
-            SmoothStarRating(
-              rating: book.averageRating,
-              starCount: 5,
-              allowHalfRating: false,
-              borderColor: themeData.primaryColor,
-              color: themeData.primaryColor,
-              size: 16.0,
-            ),
-            Text(
-              book.ratingsCount.toString(),
-              style: ratingsCountTextStyle,
-              textAlign: TextAlign.center,
-            ),
+            _getRatingProgressBar(5, 0.6, context),
+            _getRatingProgressBar(4, 0.1, context),
+            _getRatingProgressBar(3, 0.2, context),
+            _getRatingProgressBar(2, 0.07, context),
+            _getRatingProgressBar(1, 0.03, context),
           ],
         ),
       );
-
-      widgets.add(averageRatingWidget);
-
-      // TODO: make this dynamic. Watch if the book has the values
-      if (_bookHasRatingByStars()) {
-        Widget ratingByStarsWidget = Expanded(
-          flex: 2,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              _getRatingProgressBar(5, 0.6, context),
-              _getRatingProgressBar(4, 0.3, context),
-              _getRatingProgressBar(3, 0.1, context),
-              _getRatingProgressBar(2, 0.05, context),
-              _getRatingProgressBar(1, 0.05, context),
-            ],
-          ),
-        );
-        widgets.add(ratingByStarsWidget);
-      }
+      widgets.add(ratingByStarsWidget);
     }
 
     if (widgets.isNotEmpty) {
@@ -132,47 +124,44 @@ class BookRatingAndReviews extends StatelessWidget {
   List<Widget> _getCommentsWidgets(AppConfig appConfig) {
     List<Widget> widgets = [];
 
-    Widget topPositiveReviewWidget = Column(
-      children: [
-        BookReviewHeader(
-          primaryColor: appConfig.primaryColor,
-          secondaryColor: appConfig.secondaryColor,
-          onTap: () {
-            print("More positive reviews tapped");
-          },
-          children: <Widget>[
-            Text("Top positive review"),
-            Text(
-              "MÁS",
-              style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.bold,
-                color: appConfig.primaryColor,
-              ),
-            ),
-          ],
-        ),
-        BookReview(
-          book: book,
-          starsColor: appConfig.primaryColor,
-        ),
-      ],
+    Widget topPositiveReviewWidget = BookReview(
+      book: book,
+      headerTitle: "Mejor valoración",
+      headerOnTapMore: () {
+        print("More positive reviews tapped");
+      },
+      primaryColor: appConfig.primaryColor,
+      secondaryColor: appConfig.secondaryColor,
     );
+
+    Widget topNegativeReviewWidget = BookReview(
+      review: ,
+      headerTitle: "Peor valoración",
+      headerOnTapMore: () {
+        print("More negative reviews tapped");
+      },
+      primaryColor: appConfig.primaryColor,
+      secondaryColor: appConfig.secondaryColor,
+    );
+
+    widgets.add(SizedBox(height: 12.0));
     widgets.add(topPositiveReviewWidget);
+    widgets.add(SizedBox(height: 24.0));
+    widgets.add(topNegativeReviewWidget);
+
     return widgets;
   }
 
   List<Widget> _getWidgets(BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    AppConfig appConfig = AppConfig.of(context);
-    TextStyle titleStyle = themeData.textTheme.subtitle;
-
     List<Widget> widgets = [];
+    if (_bookHasRatings()) {
+      ThemeData themeData = Theme.of(context);
+      AppConfig appConfig = AppConfig.of(context);
+      TextStyle titleStyle = themeData.textTheme.subtitle;
 
-    if (_bookHasRatings() || _bookHasComments()) {
       widgets.add(
         Text(
-          "Calificaciones y comentarios",
+          "Valoraciones y comentarios",
           textAlign: TextAlign.start,
           style: titleStyle,
         ),

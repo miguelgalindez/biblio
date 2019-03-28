@@ -2,18 +2,35 @@ import 'dart:math';
 import 'package:biblio/models/review.dart';
 import 'package:biblio/models/User.dart';
 
-Random random;
+Random random = new Random();
+int topPositiveReviewIndex;
+int topNegativeReviewIndex;
 
 List<User> mockUsers = [
-  User(id: 1, name: "Maria Córdoba", username: "maria", photo: "avatar-1.png"),
   User(
-      id: 2,
-      name: "Camilo Cifuentes",
-      username: "pepito",
-      photo: "avatar-2.png"),
+    id: 1,
+    name: "Maria Córdoba",
+    username: "maria",
+    photo: "assets/avatar-1.png",
+  ),
   User(
-      id: 3, name: "Laura Contreras", username: "laura", photo: "avatar-3.png"),
-  User(id: 4, name: "Steve", username: "steve", photo: "avatar-4.png"),
+    id: 2,
+    name: "Camilo Cifuentes",
+    username: "pepito",
+    photo: "assets/avatar-2.png",
+  ),
+  User(
+    id: 3,
+    name: "Laura Contreras",
+    username: "laura",
+    photo: "assets/avatar-3.png",
+  ),
+  User(
+    id: 4,
+    name: "Steve",
+    username: "steve",
+    photo: "assets/avatar-4.png",
+  ),
 ];
 
 List<String> mockComments = [
@@ -54,24 +71,38 @@ List<Review> getAllReviews() {
   return mockReviews;
 }
 
-Review getTopReview() {
-  int number = random.nextInt(3);
+Review getTopPositiveReview() {
+  topPositiveReviewIndex = random.nextInt(4);
   return Review(
-    id: number.toString(),
-    user: mockUsers[number],
-    comment: mockComments[number],
-    date: DateTime(2010 + number, 1 + number, 18 + number),
-    rating: 3.0+random.nextInt(2).toDouble(),
+    id: topPositiveReviewIndex.toString(),
+    user: mockUsers[topPositiveReviewIndex],
+    comment: mockComments[topPositiveReviewIndex],
+    date: DateTime(2010 + topPositiveReviewIndex, 1 + topPositiveReviewIndex, 18 + topPositiveReviewIndex),
+    rating: 3.0 + random.nextInt(3).toDouble(),
+  );
+}
+
+Review getTopNegativeReview() {
+  do{
+  topNegativeReviewIndex  = random.nextInt(4);    
+  } while(topPositiveReviewIndex==topNegativeReviewIndex);
+
+  return Review(
+    id: topNegativeReviewIndex.toString(),
+    user: mockUsers[topNegativeReviewIndex],
+    comment: mockComments[topNegativeReviewIndex],
+    date: DateTime(2010 + topNegativeReviewIndex, 1 + topNegativeReviewIndex, 18 + topNegativeReviewIndex),
+    rating: random.nextInt(3).toDouble(),
   );
 }
 
 Review getReview() {
-  int number = random.nextInt(3);
+  int number = random.nextInt(4);
   return Review(
     id: number.toString(),
     user: mockUsers[number],
     comment: mockComments[number],
     date: DateTime(2010 + number, 1 + number, 18 + number),
-    rating: 3.0+random.nextInt(2).toDouble(),
+    rating: 3.0 + random.nextInt(3).toDouble(),
   );
 }

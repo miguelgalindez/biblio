@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:biblio/components/book/bookReviewHeader.dart';
 import 'package:biblio/models/review.dart';
+import 'package:intl/intl.dart';
 
 class BookReview extends StatelessWidget {
   final Review review;
@@ -9,6 +10,9 @@ class BookReview extends StatelessWidget {
   final Function headerOnTapMore;
   final Color primaryColor;
   final Color secondaryColor;
+
+  final DateFormat dateFormat = DateFormat("dd/MM/yyyy");
+
   BookReview(
       {Key key,
       @required this.review,
@@ -20,30 +24,50 @@ class BookReview extends StatelessWidget {
 
   Widget _getUserPhoto() {
     if (review.user.photo != null && review.user.photo.isNotEmpty) {
-      // TODO: use network image to fetch from remote service
-      return DecoratedBox(
+      return Container(
+        height: 40.0,
+        width: 40.0,
+        padding: EdgeInsets.all(0.0),
         decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.transparent,
           image: DecorationImage(
+            fit: BoxFit.cover,
+            // TODO: use network image to fetch from remote service
             image: AssetImage(review.user.photo),
           ),
         ),
       );
+    } else {
+      return Container(
+        height: 40.0,
+        width: 40.0,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: primaryColor,
+        ),
+        child: Icon(
+          Icons.person,
+          color: Colors.white,
+        ),
+      );
     }
-    return Icon(Icons.person);
   }
 
-  Widget _getReviewListTile() {
+  Widget _getReviewListTile(BuildContext context) {
     if (review.user != null) {
+      TextStyle nameTextStyle = Theme.of(context)
+          .textTheme
+          .subhead
+          .copyWith(fontWeight: FontWeight.bold);
       return ListTile(
         contentPadding: EdgeInsets.all(0.0),
-        leading: CircleAvatar(
-          backgroundColor: primaryColor,
-          child: _getUserPhoto(),
-        ),
+        leading: _getUserPhoto(),
         title: Text(
           review.user.name ?? '',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          style: nameTextStyle,
         ),
         trailing: IconButton(
           padding: EdgeInsets.all(0.0),
@@ -60,7 +84,7 @@ class BookReview extends StatelessWidget {
     return ListTile();
   }
 
-  Widget _getReviewDetails() {
+  Widget _getReviewDetails(BuildContext context) {
     List<Widget> widgets = [];
     if (review.rating != null || review.date != null) {
       if (review.rating != null) {
@@ -70,15 +94,15 @@ class BookReview extends StatelessWidget {
           color: primaryColor,
         ));
       }
-
+      widgets.add(SizedBox(width: 12.0));
       if (review.date != null) {
-        widgets.add(Text(review.date.toString()));
+        widgets.add(Text(dateFormat.format(review.date), style: Theme.of(context).textTheme.caption,));
       }
     }
     return Row(children: widgets);
   }
 
-  List<Widget> _getWidgets() {
+  List<Widget> _getWidgets(BuildContext context) {
     List<Widget> widgets = [];
     if ((headerTitle != null && headerTitle.isNotEmpty) ||
         headerOnTapMore != null) {
@@ -103,8 +127,10 @@ class BookReview extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _getReviewListTile(),
-            _getReviewDetails(),
+            _getReviewListTile(context),
+            SizedBox(height: 6.0),
+            _getReviewDetails(context),
+            SizedBox(height: 12.0),
             Text(
               review.comment ?? '',
               textAlign: TextAlign.justify,
@@ -127,7 +153,7 @@ class BookReview extends StatelessWidget {
         print("review comment tapped");
       },
       child: Column(
-        children: _getWidgets(),
+        children: _getWidgets(context),
       ),
     );
   }

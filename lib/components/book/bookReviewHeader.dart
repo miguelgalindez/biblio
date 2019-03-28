@@ -19,6 +19,9 @@ class BookReviewHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle titleTextStyle = Theme.of(context).textTheme.subtitle.copyWith(
+      fontWeight: FontWeight.bold
+    );
     return InkWell(
       splashColor: secondaryColor,
       borderRadius: borderRadius,
@@ -33,7 +36,10 @@ class BookReviewHeader extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title),
+            Text(
+              title,
+              style: titleTextStyle,
+            ),
             Text(
               "MÁS",
               style: TextStyle(

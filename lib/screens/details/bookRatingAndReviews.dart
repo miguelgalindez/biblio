@@ -4,6 +4,7 @@ import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:biblio/components/book/bookReview.dart';
+import 'package:biblio/services/reviews-mock-data.dart';
 
 class BookRatingAndReviews extends StatelessWidget {
   final Book book;
@@ -125,8 +126,8 @@ class BookRatingAndReviews extends StatelessWidget {
     List<Widget> widgets = [];
 
     Widget topPositiveReviewWidget = BookReview(
-      book: book,
-      headerTitle: "Mejor valoración",
+      review: getTopPositiveReview(),
+      headerTitle: "Valoración más alta",
       headerOnTapMore: () {
         print("More positive reviews tapped");
       },
@@ -135,8 +136,8 @@ class BookRatingAndReviews extends StatelessWidget {
     );
 
     Widget topNegativeReviewWidget = BookReview(
-      review: ,
-      headerTitle: "Peor valoración",
+      review: getTopNegativeReview(),
+      headerTitle: "Valoración más baja",
       headerOnTapMore: () {
         print("More negative reviews tapped");
       },
@@ -144,7 +145,7 @@ class BookRatingAndReviews extends StatelessWidget {
       secondaryColor: appConfig.secondaryColor,
     );
 
-    widgets.add(SizedBox(height: 12.0));
+    widgets.add(SizedBox(height: 24.0));
     widgets.add(topPositiveReviewWidget);
     widgets.add(SizedBox(height: 24.0));
     widgets.add(topNegativeReviewWidget);
@@ -157,7 +158,8 @@ class BookRatingAndReviews extends StatelessWidget {
     if (_bookHasRatings()) {
       ThemeData themeData = Theme.of(context);
       AppConfig appConfig = AppConfig.of(context);
-      TextStyle titleStyle = themeData.textTheme.subtitle;
+      TextStyle titleStyle =
+          themeData.textTheme.subhead.copyWith(fontWeight: FontWeight.bold);
 
       widgets.add(
         Text(

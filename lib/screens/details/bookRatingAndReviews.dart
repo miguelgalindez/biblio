@@ -5,6 +5,7 @@ import 'package:biblio/models/appConfig.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:biblio/components/book/bookReview.dart';
 import 'package:biblio/services/reviews-mock-data.dart';
+import 'package:biblio/screens/details/bookAllReviews.dart';
 
 class BookRatingAndReviews extends StatelessWidget {
   final Book book;
@@ -122,7 +123,8 @@ class BookRatingAndReviews extends StatelessWidget {
     return null;
   }
 
-  List<Widget> _getCommentsWidgets(AppConfig appConfig) {
+  List<Widget> _getTopCommentsWidgets(
+      BuildContext context, AppConfig appConfig) {
     List<Widget> widgets = [];
 
     Widget topPositiveReviewWidget = BookReview(
@@ -130,6 +132,11 @@ class BookRatingAndReviews extends StatelessWidget {
       headerTitle: "Valoración más alta",
       headerOnTapMore: () {
         print("More positive reviews tapped");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => BookAllReviews(book: book)),
+        );
       },
       primaryColor: appConfig.primaryColor,
       secondaryColor: appConfig.secondaryColor,
@@ -140,6 +147,11 @@ class BookRatingAndReviews extends StatelessWidget {
       headerTitle: "Valoración más baja",
       headerOnTapMore: () {
         print("More negative reviews tapped");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => BookAllReviews(book: book)),
+        );
       },
       primaryColor: appConfig.primaryColor,
       secondaryColor: appConfig.secondaryColor,
@@ -176,7 +188,7 @@ class BookRatingAndReviews extends StatelessWidget {
         ),
       );
 
-      widgets.addAll(_getCommentsWidgets(appConfig));
+      widgets.addAll(_getTopCommentsWidgets(context, appConfig));
     }
     return widgets.where((widget) => widget != null).toList();
   }

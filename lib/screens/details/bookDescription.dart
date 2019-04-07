@@ -5,7 +5,7 @@ import 'package:biblio/components/simpleListTile.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:biblio/components/customListTile.dart';
 
 class BookDescription extends StatelessWidget {
   final Book book;
@@ -13,7 +13,7 @@ class BookDescription extends StatelessWidget {
   BookDescription({@required this.book})
       : dateFormat = DateFormat("dd/MM/yyyy");
 
-  Widget _getAppbar() {
+  Widget _getAppbar(BuildContext context) {
     // TODO make this a dynamic value (Global state)
     return SliverAppBar(
       expandedHeight: 56.0,
@@ -22,18 +22,25 @@ class BookDescription extends StatelessWidget {
       snap: false,
       centerTitle: false,
       titleSpacing: 0.0,
-      title: ListTile(
-        contentPadding: EdgeInsets.all(0.0),
+      title: CustomListTile(
         leading: BookThumbnail(
           heroTag: book.getId(),
           thumbnailUrl: book.smallThumbnail,
           height: 46.0,
           width: 32.0,
         ),
-        title: Text(book.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.white)),
+        title: Text(
+          book.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: CustomListTile.getSuggestedTextStyleForTitle(context),
+        ),
+        subtitle: Text(
+          "Descripción",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: CustomListTile.getSuggestedTextStyleForSubtitle(context),
+        ),
       ),
     );
   }
@@ -224,7 +231,7 @@ class BookDescription extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          _getAppbar(),
+          _getAppbar(context),
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(24.0),

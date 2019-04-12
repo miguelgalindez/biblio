@@ -17,6 +17,8 @@ class BookDescription extends StatelessWidget {
     // TODO make this a dynamic value (Global state)
     return SliverAppBar(
       expandedHeight: 56.0,
+      elevation: 8.0,
+      forceElevated: true,
       pinned: false,
       floating: true,
       snap: false,

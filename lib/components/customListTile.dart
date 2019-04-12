@@ -83,11 +83,11 @@ class CustomListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flex(
+    return Flex(      
       direction: Axis.horizontal,
       children: <Widget>[
         Expanded(
-          child: Row(
+          child: Row(            
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: _getWidgets(),

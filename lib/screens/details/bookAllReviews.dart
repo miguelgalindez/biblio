@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/components/customListTile.dart';
+import 'package:biblio/components/clickableChip.dart';
+import 'package:biblio/models/appConfig.dart';
 
 class BookAllReviews extends StatelessWidget {
   final Book book;
@@ -30,18 +32,22 @@ class BookAllReviews extends StatelessWidget {
 
   Widget _getAppBar(BuildContext context) {
     Color ratingTextColor = Colors.white;
-    TextStyle titleTextStyle=CustomListTile.getSuggestedTextStyleForTitle(context);
+    TextStyle titleTextStyle =
+        CustomListTile.getSuggestedTextStyleForTitle(context);
     TextStyle ratingTextStyle = titleTextStyle.copyWith(color: ratingTextColor);
-    TextStyle subTitleTextStyle = CustomListTile.getSuggestedTextStyleForSubtitle(context);
+    TextStyle subTitleTextStyle =
+        CustomListTile.getSuggestedTextStyleForSubtitle(context);
 
     return SliverAppBar(
       expandedHeight: 56.0,
+      elevation: 8.0,
+      forceElevated: true,      
       pinned: false,
       floating: true,
       snap: false,
       centerTitle: false,
       titleSpacing: 0.0,
-      title: CustomListTile(
+      title: CustomListTile(        
         leading: BookThumbnail(
           heroTag: book.getId(),
           thumbnailUrl: book.smallThumbnail,
@@ -66,11 +72,38 @@ class BookAllReviews extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
+    Color primaryColor = Theme.of(context).primaryColor;    
+    Function onChipTapped = () {
+      print("Chip tapped");
+    };
+
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
           _getAppBar(context),
+          SliverToBoxAdapter(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                child: Row(
+                  children: <Widget>[
+                    ClickableChip(
+                      clickedBackgroundColor: primaryColor,
+                      text: "Todas",
+                      onTap: onChipTapped,                      
+                    ),
+                    ClickableChip(
+                      clickedBackgroundColor: primaryColor,
+                      text: "Positivas",
+                      onTap: onChipTapped,
+                      clicked: true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

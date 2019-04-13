@@ -2,33 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/components/customListTile.dart';
-import 'package:biblio/components/clickableChip.dart';
+import 'package:biblio/enums/bookReviewsFilter.dart';
+import 'package:biblio/screens/details/BookReviewsFiltersBar.dart';
 
-class BookAllReviews extends StatelessWidget {
+class BookAllReviews extends StatefulWidget {
   final Book book;
 
   BookAllReviews({@required this.book});
 
-  Widget _getStarWidget(int numberOfStar) {
-    return Row(
-      children: <Widget>[
-        Text(numberOfStar.toString()),
-        SizedBox(width: 2),
-        Icon(
-          Icons.star,
-          size: 12.0,
-        ),
-      ],
-    );
+  @override
+  _BookAllReviewsState createState() => _BookAllReviewsState();
+}
+
+class _BookAllReviewsState extends State<BookAllReviews> {
+  BookReviewsFilter filter;
+
+  @override
+  void initState() {
+    filter = BookReviewsFilter.all;
+    super.initState();
   }
+
+  Function changeFilter(BookReviewsFilter newFilter) => () {
+        setState(() {
+          filter = newFilter != filter ? newFilter : BookReviewsFilter.all;
+        });
+      };
 
   Widget _getBookAverageRatingWidget(
       TextStyle ratingTextStyle, Color ratingTextColor) {
-    if (book.averageRating != null) {
+    if (widget.book.averageRating != null) {
       return Row(
         children: <Widget>[
           Text(
-            book.averageRating.toString(),
+            widget.book.averageRating.toString(),
             style: ratingTextStyle,
           ),
           SizedBox(width: 2),
@@ -62,13 +69,13 @@ class BookAllReviews extends StatelessWidget {
       titleSpacing: 0.0,
       title: CustomListTile(
         leading: BookThumbnail(
-          heroTag: book.getId(),
-          thumbnailUrl: book.smallThumbnail,
+          heroTag: widget.book.getId(),
+          thumbnailUrl: widget.book.smallThumbnail,
           height: 46.0,
           width: 32.0,
         ),
         title: Text(
-          book.title,
+          widget.book.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: titleTextStyle,
@@ -87,11 +94,6 @@ class BookAllReviews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color primaryColor = Theme.of(context).primaryColor;
-    Function onChipTapped = () {
-      print("Chip tapped");
-    };
-
-    const EdgeInsetsGeometry chipLeftMargin = EdgeInsets.only(left: 8.0);
 
     return Scaffold(
       body: CustomScrollView(
@@ -101,62 +103,13 @@ class BookAllReviews extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Container(
-                margin: EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  children: <Widget>[
-                    ClickableChip(
+                margin: EdgeInsets.symmetric(vertical: 12.0),
+                child: Column(
+                  children: [
+                    BookReviewsFiltersBar(
+                      filter: filter,
+                      onChangeFilter: changeFilter,
                       clickedBackgroundColor: primaryColor,
-                      child: Text("Todas"),
-                      onTap: onChipTapped,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: Text("Positivas"),
-                      onTap: onChipTapped,
-                      clicked: true,
-                      margin: chipLeftMargin,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: Text("Negativas"),
-                      onTap: onChipTapped,
-                      clicked: false,
-                      margin: chipLeftMargin,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: _getStarWidget(5),
-                      onTap: onChipTapped,
-                      clicked: false,
-                      margin: chipLeftMargin,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: _getStarWidget(4),
-                      onTap: onChipTapped,
-                      clicked: false,
-                      margin: chipLeftMargin,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: _getStarWidget(3),
-                      onTap: onChipTapped,
-                      clicked: false,
-                      margin: chipLeftMargin,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: _getStarWidget(2),
-                      onTap: onChipTapped,
-                      clicked: false,
-                      margin: chipLeftMargin,
-                    ),
-                    ClickableChip(
-                      clickedBackgroundColor: primaryColor,
-                      child: _getStarWidget(1),
-                      onTap: onChipTapped,
-                      clicked: false,
-                      margin: chipLeftMargin,
                     ),
                   ],
                 ),

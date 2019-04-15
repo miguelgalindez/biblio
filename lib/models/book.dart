@@ -1,22 +1,22 @@
 import 'package:biblio/services/jsonHelpers.dart';
 
 class Book {
-  final String isbn10;
-  final String isbn13;
-  final String title;
-  final String subtitle;
-  final List<String> authors;
-  final String publisher;
-  final DateTime publishedDate;
-  final String description;
-  final String language;
-  final int pageCount;
-  final double averageRating;
-  final int ratingsCount;
-  final String previewLink;
-  final String smallThumbnail;
-  final String thumbnail;
-  final String textSnippet;
+  String isbn10;
+  String isbn13;
+  String title;
+  String subtitle;
+  List<String> authors;
+  String publisher;
+  DateTime publishedDate;
+  String description;
+  String language;
+  int pageCount;
+  double averageRating;
+  int ratingsCount;
+  String previewLink;
+  String smallThumbnail;
+  String thumbnail;
+  String textSnippet;
 
   Book(
       {this.isbn10,

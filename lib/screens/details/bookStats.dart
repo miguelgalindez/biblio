@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/services/acronyms.dart';
+import 'package:biblio/components/rating.dart';
 
 class BookStats extends StatelessWidget {
   final Book book;
@@ -25,20 +26,17 @@ class BookStats extends StatelessWidget {
     );
   }
 
-  Widget _getStars(TextStyle headerTextStyle, TextStyle footerTextStyle) {
-    double averageRating = book.averageRating;
+  Widget _getRating(TextStyle headerTextStyle, TextStyle footerTextStyle) {
     int ratingsCount = book.ratingsCount;
-    String headerText = averageRating != null ? averageRating.toString() : "";
 
-    List<Widget> headerWidgets = [];
-    if (averageRating != null) {
-      headerWidgets.addAll([
-        Text(headerText, style: headerTextStyle),
-        SizedBox(width: 5.0),
-      ]);
-    }
-
-    headerWidgets.add(Icon(Icons.star));
+    List<Widget> headerWidgets = [
+      Rating(
+        numberOfStar: book.averageRating,
+        textStyle: headerTextStyle,
+        spaceBetween: 5.0,
+        alwaysShowIcon: true,
+      )
+    ];
 
     String footerText = ratingsCount != null
         ? ratingsCount.toString() + " valoraciones"
@@ -71,7 +69,7 @@ class BookStats extends StatelessWidget {
     }
     return null;
   }
-  
+
   Widget _getLanguage(TextStyle footerTextStyle) {
     String language = Acronyms.getLanguageFromAcronym(book.language);
     List<Widget> headerWidgets = [Icon(Icons.language)];
@@ -99,7 +97,7 @@ class BookStats extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          _getStars(headerTextStyle, footerTextStyle),
+          _getRating(headerTextStyle, footerTextStyle),
           _getDivider(),
           _getTimesAsked(headerTextStyle, footerTextStyle),
           _getDivider(),

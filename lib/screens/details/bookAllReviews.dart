@@ -4,6 +4,8 @@ import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/components/customListTile.dart';
 import 'package:biblio/enums/bookReviewsFilter.dart';
 import 'package:biblio/screens/details/BookReviewsFiltersBar.dart';
+import 'package:biblio/components/listHeader.dart';
+import 'package:biblio/components/rating.dart';
 
 class BookAllReviews extends StatefulWidget {
   final Book book;
@@ -29,27 +31,6 @@ class _BookAllReviewsState extends State<BookAllReviews> {
         });
       };
 
-  Widget _getBookAverageRatingWidget(
-      TextStyle ratingTextStyle, Color ratingTextColor) {
-    if (widget.book.averageRating != null) {
-      return Row(
-        children: <Widget>[
-          Text(
-            widget.book.averageRating.toString(),
-            style: ratingTextStyle,
-          ),
-          SizedBox(width: 2),
-          Icon(
-            Icons.star,
-            size: 12.0,
-            color: ratingTextColor,
-          ),
-        ],
-      );
-    }
-    return null;
-  }
-
   Widget _getAppBar(BuildContext context) {
     Color ratingTextColor = Colors.white;
     TextStyle titleTextStyle =
@@ -68,52 +49,96 @@ class _BookAllReviewsState extends State<BookAllReviews> {
       centerTitle: false,
       titleSpacing: 0.0,
       title: CustomListTile(
-        leading: BookThumbnail(
-          heroTag: widget.book.getId(),
-          thumbnailUrl: widget.book.smallThumbnail,
-          height: 46.0,
-          width: 32.0,
-        ),
-        title: Text(
-          widget.book.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: titleTextStyle,
-        ),
-        subtitle: Text(
-          "Revisiones y calificaciones",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: subTitleTextStyle,
-        ),
-        trailing: _getBookAverageRatingWidget(ratingTextStyle, ratingTextColor),
-      ),
+          leading: BookThumbnail(
+            heroTag: widget.book.getId(),
+            thumbnailUrl: widget.book.smallThumbnail,
+            height: 46.0,
+            width: 32.0,
+          ),
+          title: Text(
+            widget.book.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: titleTextStyle,
+          ),
+          subtitle: Text(
+            "Revisiones y calificaciones",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: subTitleTextStyle,
+          ),
+          trailing: Rating(
+            numberOfStar: widget.book.averageRating,
+            textStyle: ratingTextStyle,
+            iconColor: ratingTextColor,
+            iconSize: 15.0,
+          )),
     );
+  }
+
+  Widget _getListHeaderTitle(ThemeData themeData) {
+    double iconSize = 15.0;
+    TextStyle titleTextStyle = themeData.textTheme.subhead;
+
+    switch (filter) {
+      case BookReviewsFilter.all:
+        return Text('Todas', style: titleTextStyle);
+
+      case BookReviewsFilter.positive:
+        return Text('Positivas', style: titleTextStyle);
+
+      case BookReviewsFilter.negative:
+        return Text('Negativas', style: titleTextStyle);
+
+      case BookReviewsFilter.star5:
+        return Rating(
+            numberOfStar: 5, iconSize: iconSize, textStyle: titleTextStyle);
+
+      case BookReviewsFilter.star4:
+        return Rating(
+            numberOfStar: 4, iconSize: iconSize, textStyle: titleTextStyle);
+
+      case BookReviewsFilter.star3:
+        return Rating(
+            numberOfStar: 3, iconSize: iconSize, textStyle: titleTextStyle);
+
+      case BookReviewsFilter.star2:
+        return Rating(
+            numberOfStar: 2, iconSize: iconSize, textStyle: titleTextStyle);
+
+      case BookReviewsFilter.star1:
+        return Rating(
+            numberOfStar: 1, iconSize: iconSize, textStyle: titleTextStyle);
+
+      default:
+        return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Color primaryColor = Theme.of(context).primaryColor;
+    ThemeData themeData = Theme.of(context);
+    Color primaryColor = themeData.primaryColor;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
           _getAppBar(context),
           SliverToBoxAdapter(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 12.0),
-                child: Column(
-                  children: [
-                    BookReviewsFiltersBar(
-                      filter: filter,
-                      onChangeFilter: changeFilter,
-                      clickedBackgroundColor: primaryColor,
-                    ),
-                  ],
+            child: Column(
+              children: <Widget>[
+                BookReviewsFiltersBar(
+                  filter: filter,
+                  onChangeFilter: changeFilter,
+                  clickedBackgroundColor: primaryColor,
                 ),
-              ),
+                ListHeader(
+                  title: _getListHeaderTitle(themeData),
+                  selectedSortingCriteria: null,
+                  sortingCriterias: null,
+                  onSortingCriteriaChage: null,
+                )
+              ],
             ),
           ),
         ],

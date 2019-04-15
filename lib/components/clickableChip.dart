@@ -44,7 +44,7 @@ class ClickableChip extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(10.0),
           child: IconTheme(
-            data: IconThemeData(color: textColor),
+            data: IconThemeData(color: textColor, size: 12.0),
             child: DefaultTextStyle(
               style: textStyle,
               child: child,

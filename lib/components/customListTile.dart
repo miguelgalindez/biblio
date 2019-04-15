@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/components/book/bookThumbnail.dart';
 
 class CustomListTile extends StatelessWidget {
   final Widget leading;

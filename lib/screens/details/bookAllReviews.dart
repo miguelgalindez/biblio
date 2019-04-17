@@ -6,9 +6,12 @@ import 'package:biblio/enums/bookReviewsFilter.dart';
 import 'package:biblio/screens/details/BookReviewsFiltersBar.dart';
 import 'package:biblio/components/listHeader.dart';
 import 'package:biblio/components/rating.dart';
+import 'package:biblio/models/sortingCriteria.dart';
+import 'package:biblio/models/review.dart';
 
 class BookAllReviews extends StatefulWidget {
   final Book book;
+  final List<SortingCriteria> sortingCriterias = Review.sortingCriterias;
 
   BookAllReviews({@required this.book});
 
@@ -18,10 +21,14 @@ class BookAllReviews extends StatefulWidget {
 
 class _BookAllReviewsState extends State<BookAllReviews> {
   BookReviewsFilter filter;
+  SortingCriteria selectedSortingCriteria;
 
   @override
   void initState() {
     filter = BookReviewsFilter.all;
+    if (widget.sortingCriterias != null && widget.sortingCriterias.isNotEmpty) {
+      selectedSortingCriteria = widget.sortingCriterias[0];
+    }
     super.initState();
   }
 
@@ -30,6 +37,12 @@ class _BookAllReviewsState extends State<BookAllReviews> {
           filter = newFilter != filter ? newFilter : BookReviewsFilter.all;
         });
       };
+
+  void changeSortingCriteria(SortingCriteria criteria) {
+    setState(() {
+      selectedSortingCriteria = criteria;
+    });
+  }
 
   Widget _getAppBar(BuildContext context) {
     Color ratingTextColor = Colors.white;
@@ -134,9 +147,9 @@ class _BookAllReviewsState extends State<BookAllReviews> {
                 ),
                 ListHeader(
                   title: _getListHeaderTitle(themeData),
-                  selectedSortingCriteria: null,
-                  sortingCriterias: null,
-                  onSortingCriteriaChage: null,
+                  selectedSortingCriteria: selectedSortingCriteria,
+                  sortingCriterias: widget.sortingCriterias,
+                  onSortingCriteriaChage: changeSortingCriteria,
                 )
               ],
             ),

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:biblio/models/sortingCriteria.dart';
+import 'package:biblio/components/sortingDialog.dart';
 
 class ListHeader extends StatelessWidget {
   final Widget title;
@@ -15,29 +17,42 @@ class ListHeader extends StatelessWidget {
       : assert(title != null ||
             (sortingCriterias != null && sortingCriterias.isNotEmpty));
 
-  List<Widget> _getWidgets(BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    
+  Future<void> showSortingDialog(BuildContext context) async {
+    String dialogTitle = "Ordenar valoraciones por";
 
-    TextStyle sortingCaptionTextStyle = themeData.textTheme.caption
-        .copyWith(fontWeight: FontWeight.normal, color: Colors.black);
+    SortingCriteria sortingCriteria = await showDialog<SortingCriteria>(
+      context: context,
+      builder: (BuildContext context) {
+        return SortingDialog(
+          title: dialogTitle,
+          sortingCriterias: sortingCriterias,
+          selectedSortingCriteria: selectedSortingCriteria,
+        );
+      },
+    );
 
-    List<Widget> widgets = [];
-    if (title != null) {
-      widgets.add(title);
-    } else {
-      widgets.add(SizedBox(width: 1.0));
+    if (sortingCriteria != null) {
+      onSortingCriteriaChage(sortingCriteria);
     }
+  }
+
+  List<Widget> _getWidgets(BuildContext context) {
+    List<Widget> widgets = [];
+    widgets.add(title != null ? title : SizedBox(width: 1.0));
 
     if (selectedSortingCriteria != null ||
         (sortingCriterias != null && sortingCriterias.isNotEmpty)) {
-      String selectedSortingCriteriaDescription = "";
+      ThemeData themeData = Theme.of(context);
 
-      if (selectedSortingCriteria != null) {
-        selectedSortingCriteriaDescription =
-            selectedSortingCriteria.description ?? "";
-      }
-      widgets.add(Row(
+      TextStyle sortingCaptionTextStyle = themeData.textTheme.caption
+          .copyWith(fontWeight: FontWeight.normal, color: Colors.black);
+
+      String selectedSortingCriteriaDescription =
+          selectedSortingCriteria != null
+              ? selectedSortingCriteria.description ?? ""
+              : "";
+
+      Widget sortingWidget = Row(
         children: <Widget>[
           Text(selectedSortingCriteriaDescription,
               style: sortingCaptionTextStyle),
@@ -47,7 +62,15 @@ class ListHeader extends StatelessWidget {
             child: Icon(Icons.sort),
           ),
         ],
-      ));
+      );
+
+      if (sortingCriterias == null || sortingCriterias.isEmpty) {
+        widgets.add(sortingWidget);
+      } else {
+        widgets.add(InkWell(
+            child: sortingWidget,
+            onTap: () async => showSortingDialog(context)));
+      }
     }
     return widgets;
   }

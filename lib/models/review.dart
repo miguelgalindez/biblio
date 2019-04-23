@@ -7,6 +7,7 @@ class Review {
   double rating;
   String comment;
   DateTime date;
+
   static List<SortingCriteria> sortingCriterias = _loadSortingCriterias();
 
   Review({this.id, this.user, this.rating, this.comment, this.date});
@@ -19,4 +20,15 @@ class Review {
       SortingCriteria(id: "lowest", description: "Más baja"),
     ];
   }
+}
+
+enum BookReviewsFilter {
+  all,
+  positive,
+  negative,
+  star5,
+  star4,
+  star3,
+  star2,
+  star1,
 }

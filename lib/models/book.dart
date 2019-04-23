@@ -53,6 +53,17 @@ class Book {
     return null;
   }
 
+  bool hasRatings() {
+    return averageRating != null &&
+        ratingsCount != null &&
+        ratingsCount > 0;
+  }
+
+  bool hasRatingByStars() {
+    // TODO: get this value from book
+    return true;
+  }
+
   factory Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> bookJson = json['items'][0]['volumeInfo'];
     Map<String, dynamic> searchInfo = json['items'][0]['searchInfo'];

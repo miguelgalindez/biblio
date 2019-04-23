@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
-import 'package:biblio/components/book/bookReviewHeader.dart';
 import 'package:biblio/models/review.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:intl/intl.dart';
 
 class BookReview extends StatelessWidget {
   final Review review;
-  final String headerTitle;
-  final Function headerOnTapMore;
   final Color primaryColor;
-  final Color secondaryColor;
-
+  final Color secondaryColor;  
   final DateFormat dateFormat = DateFormat("dd/MM/yyyy");
 
   BookReview(
-      {Key key,
-      @required this.review,
-      this.headerTitle,
-      this.headerOnTapMore,
-      @required this.primaryColor,
-      @required this.secondaryColor})
-      : super(key: key);
+      {@required this.primaryColor,
+      @required this.secondaryColor,
+      @required this.review});
+
+  final BorderRadius borderRadius = BorderRadius.only(
+    topLeft: const Radius.circular(8.0),
+    topRight: const Radius.circular(8.0),
+  );
+
 
   Widget _getUserPhoto() {
     if (review.user.photo != null && review.user.photo.isNotEmpty) {
@@ -102,20 +100,9 @@ class BookReview extends StatelessWidget {
     return Row(children: widgets);
   }
 
-  List<Widget> _getWidgets(BuildContext context) {
-    List<Widget> widgets = [];
-    if ((headerTitle != null && headerTitle.isNotEmpty) ||
-        headerOnTapMore != null) {
-      widgets.add(BookReviewHeader(
-        title: headerTitle,
-        onTapMore: headerOnTapMore,
-        primaryColor: primaryColor,
-        secondaryColor: secondaryColor,
-      ));
-    }
-
-    widgets.add(
-      Container(
+  @override
+  Widget build(BuildContext context) {
+    return Container(
         padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey[300]),
@@ -137,24 +124,6 @@ class BookReview extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-
-    return widgets.where((widget) => widget != null).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: This widget must receive a review instead of a book.
-    // If review is null, then nothing must be displayed
-    return GestureDetector(
-      onTap: () {
-        // TODO this has to make the comment full readable
-        print("review comment tapped");
-      },
-      child: Column(
-        children: _getWidgets(context),
-      ),
-    );
+      );
   }
 }

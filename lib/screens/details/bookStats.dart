@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/services/acronyms.dart';
-import 'package:biblio/components/rating.dart';
+import 'package:biblio/components/basicRating.dart';
 
 class BookStats extends StatelessWidget {
   final Book book;
@@ -30,7 +30,7 @@ class BookStats extends StatelessWidget {
     int ratingsCount = book.ratingsCount;
 
     List<Widget> headerWidgets = [
-      Rating(
+      BasicRating(
         numberOfStar: book.averageRating,
         textStyle: headerTextStyle,
         spaceBetween: 5.0,

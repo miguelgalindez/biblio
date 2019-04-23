@@ -40,11 +40,9 @@ class _SortingDialogState extends State<SortingDialog> {
     setState(() {
       _radioValue = value;
     });
-  }  
+  }
 
-  List<Widget> _buildSortingCriteriaRadios(BuildContext context) {
-    Color primaryColor = Theme.of(context).primaryColor;
-
+  List<Widget> _buildSortingCriteriaRadios(Color primaryColor) {
     List<Widget> radios = [];
     if (widget.sortingCriterias != null && widget.sortingCriterias.isNotEmpty) {
       for (int i = 0; i < widget.sortingCriterias.length; i++) {
@@ -60,29 +58,36 @@ class _SortingDialogState extends State<SortingDialog> {
     return radios;
   }
 
-  Widget _buildOptions() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        // TODO: make these look alike flat buttons
-        SimpleDialogOption(
-          child: Text("Cancelar"),
-          onPressed: () => Navigator.pop(context, null),
-        ),
-        SimpleDialogOption(
-          child: Text("Aplicar"),
-          onPressed: () =>
-              Navigator.pop(context, widget.sortingCriterias[_radioValue]),
-        ),
-      ],
+  Widget _buildActions(Color primaryColor, TextTheme textTheme) {
+    TextStyle textStyle = textTheme.subtitle
+        .copyWith(color: primaryColor, fontWeight: FontWeight.bold);
+    return Padding(
+      padding: EdgeInsets.only(right: 12.0),
+          child: Row(      
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          FlatButton(
+            child: Text("CANCELAR", style: textStyle),          
+            splashColor: primaryColor,
+            onPressed: () => Navigator.pop(context, null),
+          ),
+          FlatButton(
+            child: Text("APLICAR", style: textStyle),
+            splashColor: primaryColor,
+            onPressed: () => Navigator.pop(context, widget.sortingCriterias[_radioValue]),
+          ),
+        ],
+      ),
     );
   }
 
-
   List<Widget> _buildWidgets(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    Color primaryColor = themeData.primaryColor;
+    TextTheme textTheme = themeData.textTheme;
     List<Widget> widgets = [];
-    widgets.addAll(_buildSortingCriteriaRadios(context));
-    widgets.add(_buildOptions());
+    widgets.addAll(_buildSortingCriteriaRadios(primaryColor));
+    widgets.add(_buildActions(primaryColor, textTheme));
 
     return widgets;
   }

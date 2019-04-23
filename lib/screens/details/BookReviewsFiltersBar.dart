@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/components/clickableChip.dart';
-import 'package:biblio/components/rating.dart';
-import 'package:biblio/enums/bookReviewsFilter.dart';
+import 'package:biblio/components/basicRating.dart';
+import 'package:biblio/models/review.dart';
 
 class BookReviewsFiltersBar extends StatelessWidget {
   final BookReviewsFilter filter;
@@ -46,35 +46,35 @@ class BookReviewsFiltersBar extends StatelessWidget {
               ),
               ClickableChip(
                 clickedBackgroundColor: clickedBackgroundColor,
-                child: Rating(numberOfStar: 5),
+                child: BasicRating(numberOfStar: 5),
                 onTap: onChangeFilter(BookReviewsFilter.star5),
                 clicked: filter == BookReviewsFilter.star5,
                 margin: chipLeftMargin,
               ),
               ClickableChip(
                 clickedBackgroundColor: clickedBackgroundColor,
-                child: Rating(numberOfStar: 4),
+                child: BasicRating(numberOfStar: 4),
                 onTap: onChangeFilter(BookReviewsFilter.star4),
                 clicked: filter == BookReviewsFilter.star4,
                 margin: chipLeftMargin,
               ),
               ClickableChip(
                 clickedBackgroundColor: clickedBackgroundColor,
-                child: Rating(numberOfStar: 3),
+                child: BasicRating(numberOfStar: 3),
                 onTap: onChangeFilter(BookReviewsFilter.star3),
                 clicked: filter == BookReviewsFilter.star3,
                 margin: chipLeftMargin,
               ),
               ClickableChip(
                 clickedBackgroundColor: clickedBackgroundColor,
-                child: Rating(numberOfStar: 2),
+                child: BasicRating(numberOfStar: 2),
                 onTap: onChangeFilter(BookReviewsFilter.star2),
                 clicked: filter == BookReviewsFilter.star2,
                 margin: chipLeftMargin,
               ),
               ClickableChip(
                 clickedBackgroundColor: clickedBackgroundColor,
-                child: Rating(numberOfStar: 1),
+                child: BasicRating(numberOfStar: 1),
                 onTap: onChangeFilter(BookReviewsFilter.star1),
                 clicked: filter == BookReviewsFilter.star1,
                 margin: chipLeftMargin,

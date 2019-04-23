@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Rating extends StatelessWidget {
+class BasicRating extends StatelessWidget {
   final double numberOfStar;
   final TextStyle textStyle;
   final double spaceBetween;
@@ -9,7 +9,7 @@ class Rating extends StatelessWidget {
   // If true, the star icon will be displayed even if the numberOfStar variable is null
   final bool alwaysShowIcon;
 
-  Rating(
+  BasicRating(
       {@required this.numberOfStar,
       this.textStyle,
       this.spaceBetween = 3,

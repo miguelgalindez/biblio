@@ -21,6 +21,7 @@ dependencies:
   url_launcher:
   smooth_star_rating:
   percent_indicator:
+  animator:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -43,6 +44,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/login-background.jpg
+    - assets/login-background-2.jpg
     - assets/appLogo.png
     - assets/x.jpg
     - assets/books-mock-data.json

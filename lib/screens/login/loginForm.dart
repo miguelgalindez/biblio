@@ -19,13 +19,18 @@ class LoginForm extends StatefulWidget {
   final Function onFormChange;
   final GlobalKey<FormState> formKey;
 
-  LoginForm({Key key, @required this.onFormChange, this.formKey, this.horizontalPadding=0.0}) : super(key: key);
+  LoginForm(
+      {Key key,
+      @required this.onFormChange,
+      this.formKey,
+      this.horizontalPadding = 0.0})
+      : super(key: key);
 
   @override
   _LoginFormState createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {  
+class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
   TextEditingController _usernameController;
   TextEditingController _passwordController;
 
@@ -68,36 +73,27 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+    return Form(
+      key: widget.formKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          Form(
-            key: widget.formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                TextInput(
-                  keyboardType: TextInputType.emailAddress,
-                  obscureText: false,
-                  label: "Usuario institucional",
-                  icon: Icons.person,
-                  controller: _usernameController,
-                  validator: validateUsername,
-                ),
-                SizedBox(height: 10.0),
-                TextInput(
-                  obscureText: true,
-                  label: "Contraseña",
-                  icon: Icons.lock,
-                  controller: _passwordController,
-                  validator: validatePassword,
-                ),
-              ],
-            ),
-          )
+          TextInput(
+            keyboardType: TextInputType.emailAddress,
+            obscureText: false,
+            label: "Usuario institucional",
+            icon: Icons.person,
+            controller: _usernameController,
+            validator: validateUsername,
+          ),
+          SizedBox(height: 10.0),
+          TextInput(
+            obscureText: true,
+            label: "Contraseña",
+            icon: Icons.lock,
+            controller: _passwordController,
+            validator: validatePassword,
+          ),
         ],
       ),
     );

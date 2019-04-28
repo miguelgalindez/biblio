@@ -7,10 +7,14 @@ import 'package:biblio/models/User.dart';
 import 'package:biblio/screens/home/index.dart';
 
 class LoginScreen extends StatefulWidget {
+  static final AssetImage logoImage = const AssetImage("assets/appLogo.png");
+  final AssetImage backgroundImage =
+      const AssetImage("assets/login-background.jpg");
+
   final Logo logo = Logo(
-    image: const AssetImage("assets/appLogo.png"),
+    image: logoImage,
     animationDuration: const Duration(seconds: 1),
-  );  
+  );
 
   final double horizontalPadding = 24.0;
   // Create a global key that will uniquely identify the Form widget and allow
@@ -63,37 +67,47 @@ class _LoginScreenState extends State<LoginScreen>
         backgroundColor: backgroundColor,
         body: Stack(
           fit: StackFit.expand,
-          alignment: AlignmentDirectional.bottomCenter,
           children: <Widget>[
             Image(
-              image: AssetImage("assets/login-background.jpg"),
+              image: widget.backgroundImage,
               fit: BoxFit.cover,
               color: backgroundColor,
               colorBlendMode: BlendMode.darken,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.horizontalPadding,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  widget.logo,
-                  SizedBox(height: 40.0),
-                  LoginForm(
-                    onFormChange: handleFormChange,
-                    formKey: widget._formKey,
-                  ),
-                  SizedBox(height: 80.0),
-                  AnimatedButton(
-                    text: "Iniciar sesión",
-                    username: username,
-                    password: password,
-                    formKey: widget._formKey,
-                    onAnimationCompleted: _handleAnimationCompleted(context),
-                    screenSize: mediaQueryData.size,
-                  ),
-                ],
+            Center(
+              child: SingleChildScrollView(
+                child: Stack(
+                  alignment: AlignmentDirectional.bottomCenter,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: widget.horizontalPadding),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          widget.logo,
+                          SizedBox(height: 40.0),
+                          LoginForm(
+                            onFormChange: handleFormChange,
+                            formKey: widget._formKey,
+                          ),
+                          SizedBox(height: 80.0),
+                          // TODO: decouple this button from username and password to make it
+                          //      a generic component that can receive any on click function
+                        ],
+                      ),
+                    ),
+                    AnimatedButton(
+                      text: "Iniciar sesión",
+                      username: username,
+                      password: password,
+                      formKey: widget._formKey,
+                      onAnimationCompleted: _handleAnimationCompleted(context),
+                      screenSize: mediaQueryData.size,
+                      horizontalPadding: widget.horizontalPadding,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

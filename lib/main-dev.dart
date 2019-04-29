@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/app.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:biblio/models/appVariables.dart';
 
 void main() {
   runApp(ConfiguredApp());
 }
 
 class ConfiguredApp extends StatelessWidget {
+  final AppVariables appVariables = AppVariables();
+
   @override
   Widget build(BuildContext context) {
     return AppConfig(
@@ -19,7 +23,10 @@ class ConfiguredApp extends StatelessWidget {
       secondaryColor: Colors.red[700],
       //secondaryColor: Color(0xffA41617),
 
-      child: App(),
+      child: ScopedModel<AppVariables>(
+        model: appVariables,
+        child: App(),
+      ),
     );
   }
 }

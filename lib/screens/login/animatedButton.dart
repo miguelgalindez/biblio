@@ -11,10 +11,9 @@ class AnimatedButton extends StatefulWidget {
   final double horizontalPadding;
   final double width;
   final double widthAfterShrinking;
-  final String text;
-  final String username;
-  final String password;
+  final String text;  
   final GlobalKey<FormState> formKey;
+  final Function onTap;
   final Function onAnimationCompleted;
   final Size screenSize;
 
@@ -24,9 +23,8 @@ class AnimatedButton extends StatefulWidget {
       this.width,
       this.widthAfterShrinking = 70.0,
       @required this.text,
-      @required this.username,
-      @required this.password,
       this.formKey,
+      this.onTap,
       this.onAnimationCompleted,
       @required this.screenSize})
       : super(key: key);
@@ -94,17 +92,16 @@ class _AnimatedButtonState extends State<AnimatedButton>
     return appConfig;
   }
 
-  Future<void> _signIn(BuildContext context) async {
+  Future<void> _executeOnTapFunction(BuildContext context) async {
     Scaffold.of(context).removeCurrentSnackBar();
 
     if (widget.formKey == null || widget.formKey.currentState.validate()) {
       _playShrinkAnimation();
       try {
-        User user = await UserServices.signIn(
-            widget.username, widget.password, _getAppConfig(context));
-        _playZoomButtonAnimation();
-
-        print("ok " + user.username + " " + user.isAuthenticated.toString());
+        if(widget.onTap!=null){
+          widget.onTap();
+        }
+        _playZoomButtonAnimation();        
       } catch (e) {
         await _rewindShrinkAnimation();
         _showSnackbar(e.toString(), null, context);
@@ -163,7 +160,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
         return PlainButton(
           initialWidth: _getInitialWidth(boxConstraints),
           text: widget.text,
-          onTap: () async => _signIn(context),
+          onTap: () async => _executeOnTapFunction(context),
         );
       }
     });

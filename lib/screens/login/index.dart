@@ -5,6 +5,8 @@ import 'package:biblio/screens/login/loginForm.dart';
 import 'package:biblio/screens/login/animatedButton.dart';
 import 'package:biblio/models/User.dart';
 import 'package:biblio/screens/home/index.dart';
+import 'package:biblio/services/userServices.dart';
+import 'package:biblio/models/appConfig.dart';
 
 class LoginScreen extends StatefulWidget {
   static final AssetImage logoImage = const AssetImage("assets/appLogo.png");
@@ -52,6 +54,15 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
+  Future<void> _signIn(BuildContext context) async {
+    User user =
+        await UserServices.signIn(username, password, AppConfig.of(context));
+    if (user != null) {
+      //print("ok: " + user.username + " " + user.isAuthenticated.toString());
+      print("OK");
+    }
+  }
+
   Function _handleAnimationCompleted(BuildContext context) => () {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => Home()));
@@ -92,16 +103,13 @@ class _LoginScreenState extends State<LoginScreen>
                             formKey: widget._formKey,
                           ),
                           SizedBox(height: 80.0),
-                          // TODO: decouple this button from username and password to make it
-                          //      a generic component that can receive any on click function
                         ],
                       ),
                     ),
                     AnimatedButton(
                       text: "Iniciar sesión",
-                      username: username,
-                      password: password,
                       formKey: widget._formKey,
+                      onTap: () async => _signIn(context),
                       onAnimationCompleted: _handleAnimationCompleted(context),
                       screenSize: mediaQueryData.size,
                       horizontalPadding: widget.horizontalPadding,
@@ -116,27 +124,3 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 }
-
-/**
- * Column(
-              children: <Widget>[
-                widget.logo,
-                SizedBox(height: 20.0),
-                LoginForm(
-                  horizontalPadding: widget.horizontalPadding,
-                  onFormChange: handleFormChange,
-                  formKey: widget._formKey,
-                ),
-                SizedBox(height: 80.0),
-                AnimatedButton(
-                  text: "Iniciar sesión",
-                  horizontalPadding: widget.horizontalPadding,
-                  username: username,
-                  password: password,
-                  formKey: widget._formKey,
-                  onAnimationCompleted: _handleAnimationCompleted(context),
-                  screenSize: mediaQueryData.size,
-                ),
-              ],
-            ),
- */

@@ -4,44 +4,65 @@ import 'package:biblio/models/category.dart';
 import 'package:biblio/models/book.dart';
 import 'dart:convert';
 
+List<Category> categories = [];
+List<Book> books = [];
+
 Future<List<Category>> getCategories(context) async {
+  if (categories.isEmpty) {
+    categories = await loadCategories(context);
+  }
+  return categories;
+}
+
+List<Book> getBooks() {
+  return books;
+}
+
+Future<List<Category>> loadCategories(context) async {
   final jsondata = await json.decode(await DefaultAssetBundle.of(context)
       .loadString("assets/books-mock-data.json"));
-  List<Category> categories = [];
+  List<Category> array = [];
+  books=[];
+  
+  List<Book> categoryBooks = Category.parseBooks(jsondata, 'tech');
 
-  List<Book> books = Category.parseBooks(jsondata, 'tech');
-
-  categories.add(Category(
+  array.add(Category(
     id: "tech",
     icon: Icons.usb,
     name: "Tecnología",
-    books: books,
+    books: categoryBooks,
   ));
+  books.addAll(categoryBooks);
 
-  books = Category.parseBooks(jsondata, 'literature');
+  categoryBooks = Category.parseBooks(jsondata, 'literature');
 
-  categories.add(Category(
-      id: "literature",
-      icon: Icons.import_contacts,
-      name: "Literatura",
-      books: books));
+  array.add(Category(
+    id: "literature",
+    icon: Icons.import_contacts,
+    name: "Literatura",
+    books: categoryBooks,
+  ));
+  books.addAll(categoryBooks);
 
-  books = Category.parseBooks(jsondata, 'arts');
+  categoryBooks = Category.parseBooks(jsondata, 'arts');
 
-  categories.add(Category(
+  array.add(Category(
     id: "arts",
     icon: Icons.palette,
     name: "Artes",
-    books: books,
+    books: categoryBooks,
   ));
+  books.addAll(categoryBooks);
 
-  books = Category.parseBooks(jsondata, 'sciences');
+  categoryBooks = Category.parseBooks(jsondata, 'sciences');
 
-  categories.add(Category(
-      id: "sciences",
-      icon: Icons.poll, //poll pie_chart
-      name: "Ciencias",
-      books: books));
+  array.add(Category(
+    id: "sciences",
+    icon: Icons.poll, //poll pie_chart
+    name: "Ciencias",
+    books: categoryBooks,
+  ));
+  books.addAll(categoryBooks);
 
   /*
   categories.add(Category(
@@ -51,5 +72,5 @@ Future<List<Category>> getCategories(context) async {
       books: books));
   */
 
-  return categories;
+  return array;
 }

@@ -99,7 +99,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
       _playShrinkAnimation();
       try {
         if(widget.onTap!=null){
-          widget.onTap();
+          await widget.onTap();
         }
         _playZoomButtonAnimation();        
       } catch (e) {

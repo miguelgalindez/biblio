@@ -5,9 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:biblio/models/appConfig.dart';
 import 'package:biblio/screens/home/bookSearchDelegate.dart';
 import 'package:biblio/screens/home/body.dart';
-import 'package:biblio/services/categories-mock-data.dart';
-import 'package:biblio/models/category.dart';
-import 'package:biblio/components/modalProgressIndicator.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:biblio/models/appVariables.dart';
 
 class Home extends StatelessWidget {
   Future<bool> _onWillPop(BuildContext context) async {
@@ -34,9 +33,9 @@ class Home extends StatelessWidget {
         false;
   }
 
-  Widget _buildAppbar(BuildContext context){
+  Widget _buildAppbar(BuildContext context) {
     AppConfig appConfig = AppConfig.of(context);
-    
+
     return AppBar(
       backgroundColor: appConfig.primaryColor,
       title: Text(appConfig.appName),
@@ -56,18 +55,10 @@ class Home extends StatelessWidget {
       child: Scaffold(
         appBar: _buildAppbar(context),
         drawer: Drawer(),
-        body: FutureBuilder(
-          future: getCategories(context),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
-              return HomeBody(
-                bookCategories: snapshot.data,
-              );
-            }
-            return ModalProgressIndicator();
-          },
+        body: ScopedModelDescendant<AppVariables>(
+          builder: (context, child, appVariables) =>
+              HomeBody(bookCategories: appVariables.categories),
+          rebuildOnChange: true,
         ),
       ),
       onWillPop: () => _onWillPop(context),

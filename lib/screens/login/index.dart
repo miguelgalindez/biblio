@@ -7,6 +7,9 @@ import 'package:biblio/models/User.dart';
 import 'package:biblio/screens/home/index.dart';
 import 'package:biblio/services/userServices.dart';
 import 'package:biblio/models/appConfig.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:biblio/models/appVariables.dart';
+import 'package:biblio/services/categories-mock-data.dart';
 
 class LoginScreen extends StatefulWidget {
   static final AssetImage logoImage = const AssetImage("assets/appLogo.png");
@@ -55,12 +58,17 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _signIn(BuildContext context) async {
-    User user =
-        await UserServices.signIn(username, password, AppConfig.of(context));
-    if (user != null) {
-      //print("ok: " + user.username + " " + user.isAuthenticated.toString());
-      print("OK");
-    }
+    //await UserServices.signIn(username, password, AppConfig.of(context));
+    
+    AppVariables appVariables = ScopedModel.of<AppVariables>(context);
+    appVariables.user = User(
+        name: "Miguel Angel",
+        username: "miguelgalindez",
+        isAuthenticated: true,
+        id: 123);
+
+    appVariables.addCategories(await getCategories(context));
+    appVariables.addBooks(getBooks());    
   }
 
   Function _handleAnimationCompleted(BuildContext context) => () {

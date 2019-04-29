@@ -11,10 +11,13 @@ class AppVariables extends Model {
   AppVariables();
 
   set user(User user) {
-    this.user = user;
+    this._user = user;
   }
 
   User get user => _user;
+
+  List<Category> get categories => _categories;
+  List<Book> get books => _books;
 
   void addBook(Book book) {
     _books.add(book);

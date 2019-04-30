@@ -68,7 +68,7 @@ class _HomeState extends State<Home> {
     switch (_selectedPageIndex) {
       case 0:
         return HomeBody(bookCategories: appVariables.categories);
-      case 1:
+      case 2:
         return BookScan();
       default:
         return UnderConstruction();

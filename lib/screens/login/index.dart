@@ -5,8 +5,6 @@ import 'package:biblio/screens/login/loginForm.dart';
 import 'package:biblio/screens/login/animatedButton.dart';
 import 'package:biblio/models/User.dart';
 import 'package:biblio/screens/home/index.dart';
-import 'package:biblio/services/userServices.dart';
-import 'package:biblio/models/appConfig.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/services/categories-mock-data.dart';

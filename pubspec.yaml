@@ -24,6 +24,8 @@ dependencies:
   animator:
   modal_progress_hud:
   scoped_model:
+  curved_navigation_bar:
+  material_design_icons_flutter:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -55,6 +57,7 @@ flutter:
     - assets/avatar-2.png
     - assets/avatar-3.png
     - assets/avatar-4.png
+    - assets/under-construction.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -14,7 +14,7 @@ class ConfiguredApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppConfig(
-      appName: 'Biblio Dev',
+      appName: 'Sigma Mobile',
       projectStage: ProjectStages.development,
       apiBaseUrl: "http://192.168.1.124:9308/",
       //primaryColor: Color(0xff4285F4),

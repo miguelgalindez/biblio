@@ -5,6 +5,7 @@ import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/screens/details/bookStats.dart';
 import 'package:biblio/screens/details/bookDescription.dart';
 import 'package:biblio/screens/details/bookRatingAndReviews.dart';
+import 'package:biblio/screens/home/bookSearchDelegate.dart';
 
 class BookDetails extends StatelessWidget {
   final Book book;
@@ -35,7 +36,7 @@ class BookDetails extends StatelessWidget {
     );
   }
 
-  Widget _getAppBar() {
+  Widget _getAppBar(BuildContext context) {
     return SliverAppBar(
       // TODO make this a dynamic value (Global state)
       expandedHeight: 56.0,
@@ -47,7 +48,7 @@ class BookDetails extends StatelessWidget {
           icon: const Icon(Icons.search),
           tooltip: 'Buscar libro',
           onPressed: () {
-            print("[details/index] Book search button tapped");
+            showSearch(context: context, delegate: BookSearchDelegate());
           },
         ),
         IconButton(
@@ -124,7 +125,7 @@ class BookDetails extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
-          _getAppBar(),
+          _getAppBar(context),
           SliverToBoxAdapter(
             child: Stack(
               children: <Widget>[

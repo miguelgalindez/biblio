@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/models/book.dart';
+import 'package:biblio/components/book/bookThumbnail.dart';
+import 'package:biblio/screens/details/index.dart';
 
 class BookSearchDelegate extends SearchDelegate<String> {
   @override
@@ -66,9 +68,9 @@ class BookSearchDelegate extends SearchDelegate<String> {
   RichText _buildBookTitle(Book book) {
     TextSpan textSpan;
     if (query.isNotEmpty) {
-      Iterable<Match> matches = book.title.allMatches(query);
+      Iterable<Match> matches = book.title.allMatches(query.toString());
       int currentPosition = 0;
-      List<TextSpan> fragments=[];
+      List<TextSpan> fragments = [];
 
       while (currentPosition < book.title.length && matches.isNotEmpty) {
         Match match = matches.first;
@@ -108,11 +110,19 @@ class BookSearchDelegate extends SearchDelegate<String> {
     return ListView.builder(
       itemBuilder: (context, index) => ListTile(
             onTap: () {
-              query = books[index].title;
-              showResults(context);
+              //query = suggestionList[index].title;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          BookDetails(book: suggestionList[index])));
             },
-            leading: Icon(Icons.location_city),
-            title: _buildBookTitle(books[index]),
+            leading: BookThumbnail(
+              thumbnailUrl: suggestionList[index].smallThumbnail,
+              height: 46.0,
+              width: 32.0,
+            ),
+            title: _buildBookTitle(suggestionList[index]),
           ),
       itemCount: suggestionList.length,
     );

@@ -58,6 +58,7 @@ flutter:
     - assets/avatar-3.png
     - assets/avatar-4.png
     - assets/under-construction.png
+    - assets/logo-nfc.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

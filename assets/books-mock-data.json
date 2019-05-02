@@ -374,6 +374,8 @@
                             "Science"
                         ],
                         "maturityRating": "NOT_MATURE",
+                        "averageRating": 4.6,
+                        "ratingsCount": 1,
                         "allowAnonLogging": true,
                         "contentVersion": "0.2.2.0.preview.3",
                         "panelizationSummary": {

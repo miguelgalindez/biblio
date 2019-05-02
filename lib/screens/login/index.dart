@@ -57,7 +57,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _signIn(BuildContext context) async {
     //await UserServices.signIn(username, password, AppConfig.of(context));
-    
     AppVariables appVariables = ScopedModel.of<AppVariables>(context);
     appVariables.user = User(
         name: "Miguel Angel",

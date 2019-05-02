@@ -54,7 +54,7 @@ class PlainButton extends StatelessWidget {
     if (zoomButtonAnimation != null &&
         (zoomButtonAnimation.status == AnimationStatus.forward ||
             zoomButtonAnimation.status == AnimationStatus.completed)) {
-      double incrementRate = screenSize.height / screenSize.width;
+      double incrementRate = (screenSize.height / screenSize.width)+0.2;
       double t = zoomButtonAnimation.value - initialWidth;
       double increment = incrementRate * t;
       return height + increment;

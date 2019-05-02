@@ -4,7 +4,6 @@ import 'package:biblio/components/plainButton.dart';
 import 'package:biblio/screens/login/shrinkButtonAnimation.dart';
 import 'package:biblio/screens/login/zoomButtonAnimation.dart';
 import 'package:biblio/models/User.dart';
-import 'package:biblio/services/userServices.dart';
 import 'package:biblio/models/appConfig.dart';
 
 class AnimatedButton extends StatefulWidget {
@@ -48,14 +47,14 @@ class _AnimatedButtonState extends State<AnimatedButton>
     showShrinkButtonAnimation = false;
     showZoomButtonAnimation = false;
     shrinkButtonAnimationController =
-        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+        AnimationController(duration: const Duration(seconds: 1), vsync: this);
     zoomButtonAnimationController =
         AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
   }
 
   @override
   void dispose() {
-    zoomButtonAnimationController.dispose();
+    zoomButtonAnimationController.dispose(); 
     shrinkButtonAnimationController.dispose();
     super.dispose();
   }
@@ -81,28 +80,18 @@ class _AnimatedButtonState extends State<AnimatedButton>
     await zoomButtonAnimationController.forward();
   }
 
-  AppConfig _getAppConfig(BuildContext context) {
-    if (appConfig == null) {
-      var config = AppConfig.of(context);
-      setState(() {
-        appConfig = config;
-      });
-      return config;
-    }
-    return appConfig;
-  }
-
   Future<void> _executeOnTapFunction(BuildContext context) async {
     Scaffold.of(context).removeCurrentSnackBar();
 
     if (widget.formKey == null || widget.formKey.currentState.validate()) {
-      _playShrinkAnimation();
+      await _playShrinkAnimation(); 
       try {
         if(widget.onTap!=null){
           await widget.onTap();
         }
         _playZoomButtonAnimation();        
       } catch (e) {
+        print("Error: "+e.toString());
         await _rewindShrinkAnimation();
         _showSnackbar(e.toString(), null, context);
       }

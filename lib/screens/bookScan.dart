@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
@@ -5,6 +6,8 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/components/book/cardBook.dart';
 import 'package:animator/animator.dart';
+import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter/services.dart';
 
 class BookScan extends StatefulWidget {
   @override
@@ -65,11 +68,32 @@ class _BookScanState extends State<BookScan> {
     }
   }
 
+  Future<void> _scanQR() async {
+    try {
+      String qrResult = await BarcodeScanner.scan();
+      print("QR result: " + qrResult);
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        print("The user did not grant the camera permission!");
+      } else {
+        print("Unknown error: $e");
+      }
+    } on FormatException {
+      print(
+          "null (User returned using the back-button before scanning anything. Result)");
+    } catch (e) {
+      print("Unknown error: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Center(
-        child: _buildWidget(context),
+        child: RaisedButton(
+          child: Text("Scan"),
+          onPressed: _scanQR,
+        ),
       ),
     );
   }

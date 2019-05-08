@@ -3,7 +3,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
-import 'package:biblio/screens/details/index.dart';
+import 'package:biblio/screens/bookDetails/index.dart';
 
 class BookSearchDelegate extends SearchDelegate<String> {
   @override

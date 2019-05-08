@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/hero_photo_viewer.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
-import 'package:biblio/screens/details/bookStats.dart';
-import 'package:biblio/screens/details/bookDescription.dart';
-import 'package:biblio/screens/details/bookRatingAndReviews.dart';
-import 'package:biblio/screens/home/bookSearchDelegate.dart';
+import 'package:biblio/components/book/bookStats.dart';
+import 'package:biblio/screens/bookDetails/bookDescription.dart';
+import 'package:biblio/screens/bookDetails/bookReviews.dart';
+import 'package:biblio/components/book/bookSearchDelegate.dart';
 
 class BookDetails extends StatelessWidget {
   final Book book;
@@ -161,8 +161,8 @@ class BookDetails extends StatelessWidget {
                                     Divider(height: 30.0, color: Colors.grey),
                                     BookDescription.getIntro(book, context),
                                     Divider(height: 0.0, color: Colors.grey),
-                                    Divider(height: 30.0, color: Colors.transparent),
-                                    BookRatingAndReviews(book: book),
+                                    Divider(height: 30.0, color: Colors.transparent),                                    
+                                    BookReviews.getIntro(book, context),
                                   ].where((widget)=>widget!=null).toList(),
                                 ),
                               )

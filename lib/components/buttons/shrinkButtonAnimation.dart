@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/components/plainButton.dart';
+import 'package:biblio/components/buttons/plainButton.dart';
 
 class ShrinkButtonAnimation extends StatelessWidget {
   final double begin;

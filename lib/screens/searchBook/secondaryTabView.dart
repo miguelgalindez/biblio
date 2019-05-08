@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/components/book/cardBook.dart';
+import 'package:biblio/components/book/bookCard.dart';
 import 'package:biblio/models/category.dart';
 
 class SecondaryTabView extends StatelessWidget {
@@ -22,7 +22,7 @@ class SecondaryTabView extends StatelessWidget {
           childAspectRatio: 0.55),
       itemBuilder: (BuildContext context, int index) {
         return SizedBox(
-            height: 150.0, child: CardBook(book: category.books[index]));
+            height: 150.0, child: BookCard(book: category.books[index]));
       },
     );
   }

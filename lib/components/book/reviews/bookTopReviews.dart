@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/components/book/bookReview.dart';
+import 'package:biblio/components/book/reviews/bookReview.dart';
 import 'package:biblio/services/reviews-mock-data.dart';
-import 'package:biblio/screens/details/bookAllReviews.dart';
+import 'package:biblio/screens/bookDetails/bookReviews.dart';
 import 'package:biblio/models/review.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/models/appConfig.dart';
@@ -55,7 +55,7 @@ class BookTopReviews extends StatelessWidget {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (BuildContext context) => BookAllReviews(
+              builder: (BuildContext context) => BookReviews(
                     book: book,
                     initialFilter: filter,
                   )));

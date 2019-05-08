@@ -4,12 +4,12 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class BookScan extends StatelessWidget {
+class BookScanScreen extends StatelessWidget {
   // If true, the device will start to scan as soon
   // as this widget is built
   final bool autoScan;
 
-  BookScan({this.autoScan = false});
+  BookScanScreen({this.autoScan = false});
 
   Future<void> _scanQR() async {
     try {
@@ -59,14 +59,14 @@ class BookScan extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: Text(
-                  "Toma el libro que deseas y escanea su código de barras/QR usando el siguiente botón:",
+                  "Toma el libro que deseas y escanea su código de barras o QR usando el siguiente botón:",
                   textAlign: TextAlign.center,
                   style: textStyle,
                 ),
               ),
               RaisedButton(
                 color: Colors.white,
-                child: Text("ESCANEAR CÓDIGO", style: TextStyle(color: themeData.primaryColor, fontWeight: FontWeight.bold)),
+                child: Text("ESCANEAR CÓDIGO DE BARRAS O QR", style: TextStyle(color: themeData.primaryColor, fontWeight: FontWeight.bold)),
                 onPressed: _scanQR,
               ),
             ]),

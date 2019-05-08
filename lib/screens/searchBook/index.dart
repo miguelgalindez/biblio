@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/components/tabBar.dart';
-import 'package:biblio/screens/home/tabs/mainTabView.dart';
-import 'package:biblio/screens/home/tabs/secondaryTabView.dart';
+import 'package:biblio/screens/searchBook/mainTabView.dart';
+import 'package:biblio/screens/searchBook/secondaryTabView.dart';
 import 'package:biblio/models/category.dart';
 
-class HomeBody extends StatefulWidget {
+class SearchBookScreen extends StatefulWidget {
   final List<Category> bookCategories;
   final double tabsIconSize = 18.0;
 
-  HomeBody({@required this.bookCategories});
+  SearchBookScreen({@required this.bookCategories});
 
   @override
-  _HomeBodyState createState() => _HomeBodyState();
+  _SearchBookScreenState createState() => _SearchBookScreenState();
 }
 
-class _HomeBodyState extends State<HomeBody>
+class _SearchBookScreenState extends State<SearchBookScreen>
     with SingleTickerProviderStateMixin {
   Key _key;
   TabController _tabController;

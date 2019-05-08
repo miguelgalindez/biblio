@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import './bookCard.dart';
 import 'package:biblio/models/category.dart';
 import 'package:biblio/models/appConfig.dart';
 
-class CardHeader extends StatelessWidget {
+class BookCategory extends StatelessWidget {
   final Category category;
   final Function goToTab;
+  BookCategory({@required this.category, @required this.goToTab});
 
-  CardHeader({@required this.category, this.goToTab});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildHeader(BuildContext context) {
     final AppConfig appConfig = AppConfig.of(context);
     return InkWell(
       splashColor: appConfig.secondaryColor,
@@ -39,6 +38,41 @@ class CardHeader extends StatelessWidget {
       onTap: () {
         goToTab(category.id);
       },
+    );
+  }
+
+  Widget _buildBody() {
+    return SizedBox(
+      height: 150.0,
+      child: new ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: category.books.length,
+        itemExtent: 110.0,
+        itemBuilder: (BuildContext context, int index) {
+          return BookCard(book: category.books[index]);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.white,
+      elevation: 3.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(2.0)),
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        child: Column(
+          children: <Widget>[
+            _buildHeader(context),
+            SizedBox(height: 10.0),
+            _buildBody(),
+          ],
+        ),
+      ),
     );
   }
 }

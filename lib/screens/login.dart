@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:biblio/components/logo.dart';
-import 'package:biblio/screens/login/loginForm.dart';
-import 'package:biblio/screens/login/animatedButton.dart';
+import 'package:biblio/components/forms/loginForm.dart';
+import 'package:biblio/components/buttons/animatedButton.dart';
 import 'package:biblio/models/User.dart';
-import 'package:biblio/screens/home/index.dart';
+import 'package:biblio/screens/home.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/services/categories-mock-data.dart';
@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Function _handleAnimationCompleted(BuildContext context) => () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Home()));
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
       };
 
   @override

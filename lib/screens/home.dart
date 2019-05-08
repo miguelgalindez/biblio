@@ -1,23 +1,22 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:biblio/models/appConfig.dart';
-import 'package:biblio/screens/home/bookSearchDelegate.dart';
-import 'package:biblio/screens/home/body.dart';
+import 'package:biblio/components/book/bookSearchDelegate.dart';
+import 'package:biblio/screens/searchBook/index.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:biblio/screens/bookScan.dart';
+import 'package:biblio/screens/bookScan/index.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:biblio/screens/underConstruction.dart';
+import 'package:biblio/components/underConstruction.dart';
 
-class Home extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _HomeState createState() => _HomeState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeScreenState extends State<HomeScreen> {
   int _selectedPageIndex;
 
   @override
@@ -67,9 +66,9 @@ class _HomeState extends State<Home> {
   Widget _selectPage(AppVariables appVariables) {
     switch (_selectedPageIndex) {
       case 0:
-        return BookScan(autoScan: false);
+        return BookScanScreen(autoScan: false);
       case 1:
-        return HomeBody(bookCategories: appVariables.categories);
+        return SearchBookScreen(bookCategories: appVariables.categories);
       default:
         return UnderConstruction();
     }

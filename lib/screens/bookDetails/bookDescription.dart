@@ -13,40 +13,8 @@ class BookDescription extends StatelessWidget {
   BookDescription({@required this.book})
       : dateFormat = DateFormat("dd/MM/yyyy");
 
-  Widget _getAppbar(BuildContext context) {
-    // TODO make this a dynamic value (Global state)
-    return SliverAppBar(
-      expandedHeight: 56.0,
-      elevation: 8.0,
-      forceElevated: true,
-      pinned: false,
-      floating: true,
-      snap: false,
-      centerTitle: false,
-      titleSpacing: 0.0,
-      title: CustomListTile(
-        leading: BookThumbnail(
-          heroTag: book.getId(),
-          thumbnailUrl: book.smallThumbnail,
-          height: 46.0,
-          width: 32.0,
-        ),
-        title: Text(
-          book.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: CustomListTile.getSuggestedTextStyleForTitle(context),
-        ),
-        subtitle: Text(
-          "Descripción",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: CustomListTile.getSuggestedTextStyleForSubtitle(context),
-        ),
-      ),
-    );
-  }
 
+  // TODO: pick a better name
   static Widget getIntro(Book book, BuildContext context) {
     ThemeData themeData = Theme.of(context);
     TextStyle textStyle =
@@ -95,6 +63,40 @@ class BookDescription extends StatelessWidget {
     }
     // TODO: Check this null return. What happens? will the app crash?
     return null;
+  }
+
+  Widget _getAppbar(BuildContext context) {
+    // TODO make this a dynamic value (Global state)
+    return SliverAppBar(
+      expandedHeight: 56.0,
+      elevation: 8.0,
+      forceElevated: true,
+      pinned: false,
+      floating: true,
+      snap: false,
+      centerTitle: false,
+      titleSpacing: 0.0,
+      title: CustomListTile(
+        leading: BookThumbnail(
+          heroTag: book.getId(),
+          thumbnailUrl: book.smallThumbnail,
+          height: 46.0,
+          width: 32.0,
+        ),
+        title: Text(
+          book.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: CustomListTile.getSuggestedTextStyleForTitle(context),
+        ),
+        subtitle: Text(
+          "Descripción",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: CustomListTile.getSuggestedTextStyleForSubtitle(context),
+        ),
+      ),
+    );
   }
 
   // TODO: avoid repeated texts

@@ -2,27 +2,67 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import 'package:biblio/components/book/bookThumbnail.dart';
 import 'package:biblio/components/customListTile.dart';
-import 'package:biblio/screens/details/BookReviewsFiltersBar.dart';
+import 'package:biblio/components/book/reviews/bookReviewsFiltersBar.dart';
 import 'package:biblio/components/listHeader.dart';
 import 'package:biblio/components/basicRating.dart';
 import 'package:biblio/models/sortingCriteria.dart';
 import 'package:biblio/models/review.dart';
-import 'package:biblio/components/book/bookReview.dart';
+import 'package:biblio/components/book/reviews/bookReview.dart';
 import 'package:biblio/services/reviews-mock-data.dart';
 import 'package:biblio/models/appConfig.dart';
+import 'package:biblio/components/book/reviews/bookDetailedRating.dart';
+import 'package:biblio/components/book/reviews/bookTopReviews.dart';
 
-class BookAllReviews extends StatefulWidget {
+class BookReviews extends StatefulWidget {
   final Book book;
   final BookReviewsFilter initialFilter;
   final List<SortingCriteria> sortingCriterias = Review.sortingCriterias;
 
-  BookAllReviews({@required this.book, this.initialFilter});
+  BookReviews({@required this.book, this.initialFilter});
+
+
+  // TODO: pick a better name
+  static Widget getIntro(Book book, BuildContext context) {
+    List<Widget> widgets = [];
+    if (book.hasRatings()) {
+      TextStyle titleStyle = Theme.of(context)
+          .textTheme
+          .subhead
+          .copyWith(fontWeight: FontWeight.bold);
+
+      Widget title, detailedRating, topReviews;
+
+      title = Text(
+        "Valoraciones y comentarios",
+        textAlign: TextAlign.start,
+        style: titleStyle,
+      );
+
+      detailedRating = Padding(
+        padding: EdgeInsets.symmetric(vertical: 12.0),
+        child: BookDetailedRating(book: book),
+      );
+
+      topReviews = BookTopReviews(book: book);
+
+      widgets.add(title);
+      widgets.add(detailedRating);
+      widgets.add(topReviews);
+    }
+    
+    widgets = widgets.where((widget) => widget != null).toList();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: widgets,
+    );
+  }
 
   @override
-  _BookAllReviewsState createState() => _BookAllReviewsState();
+  _BookReviewsState createState() => _BookReviewsState();
 }
 
-class _BookAllReviewsState extends State<BookAllReviews> {
+class _BookReviewsState extends State<BookReviews> {
   BookReviewsFilter filter;
   SortingCriteria selectedSortingCriteria;
 

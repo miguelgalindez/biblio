@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:biblio/screens/login/index.dart';
+import 'package:biblio/screens/login.dart';
 import 'package:biblio/models/appConfig.dart';
 
 ThemeData buildTheme(AppConfig appConfig) {

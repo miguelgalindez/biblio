@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:biblio/components/plainButton.dart';
-import 'package:biblio/screens/login/shrinkButtonAnimation.dart';
-import 'package:biblio/screens/login/zoomButtonAnimation.dart';
+import 'package:biblio/components/buttons/plainButton.dart';
+import 'package:biblio/components/buttons/shrinkButtonAnimation.dart';
+import 'package:biblio/components/buttons/zoomButtonAnimation.dart';
 import 'package:biblio/models/User.dart';
 import 'package:biblio/models/appConfig.dart';
 

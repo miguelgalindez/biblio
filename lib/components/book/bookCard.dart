@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/book.dart';
 import './bookThumbnail.dart';
-import 'package:biblio/screens/details/index.dart';
+import 'package:biblio/screens/bookDetails/index.dart';
 import 'package:biblio/models/appConfig.dart';
 
-enum CardBookSize { small, medium, big }
+enum BookCardSize { small, medium, big }
 
-class CardBook extends StatelessWidget {
+class BookCard extends StatelessWidget {
   final Book book;
-  final CardBookSize size;
+  final BookCardSize size;
 
-  CardBook({@required this.book, this.size = CardBookSize.small});
+  BookCard({@required this.book, this.size = BookCardSize.small});
 
   TextStyle _getBookTitleTextStyle() {
     switch (size) {
-      case CardBookSize.big:
+      case BookCardSize.big:
         return TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold);
-      case CardBookSize.medium:
+      case BookCardSize.medium:
         return TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold);
-      case CardBookSize.small:
+      case BookCardSize.small:
       default:
         return TextStyle(fontSize: 12.0);
     }
@@ -26,11 +26,11 @@ class CardBook extends StatelessWidget {
 
   TextStyle _getBookAuthorsTextStyle() {
     switch (size) {
-      case CardBookSize.big:
+      case BookCardSize.big:
         return TextStyle(fontSize: 14.0);
-      case CardBookSize.medium:
+      case BookCardSize.medium:
         return TextStyle(fontSize: 12.0);
-      case CardBookSize.small:
+      case BookCardSize.small:
       default:
         return TextStyle(fontSize: 10.0, fontStyle: FontStyle.italic);
     }
@@ -42,7 +42,7 @@ class CardBook extends StatelessWidget {
       Text(
         book.title,
         textAlign:
-            size == CardBookSize.big ? TextAlign.justify : TextAlign.left,
+            size == BookCardSize.big ? TextAlign.justify : TextAlign.left,
         overflow: TextOverflow.ellipsis,
         maxLines: bookHasAuthors ? 2 : 3,
         style: _getBookTitleTextStyle(),
@@ -66,13 +66,13 @@ class CardBook extends StatelessWidget {
 
   double _getBookThumbnailSideSize() {
     switch (size) {
-      case CardBookSize.medium:
+      case BookCardSize.medium:
         return 150.0;
 
-      case CardBookSize.big:
+      case BookCardSize.big:
         return 200.0;
 
-      case CardBookSize.small:
+      case BookCardSize.small:
       default:
         return 90.0;
     }
@@ -96,7 +96,7 @@ class CardBook extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             BookThumbnail(
-              thumbnailUrl: size == CardBookSize.small
+              thumbnailUrl: size == BookCardSize.small
                   ? book.smallThumbnail
                   : book.thumbnail,
               heroTag: book.getId(),

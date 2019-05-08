@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:biblio/components/textInput.dart';
 import 'package:biblio/validators/userValidator.dart';
-import 'package:biblio/services/userServices.dart';
 
 /**
  * TODO: use shared preferences to store the state before

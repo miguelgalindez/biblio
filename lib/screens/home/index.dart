@@ -67,9 +67,9 @@ class _HomeState extends State<Home> {
   Widget _selectPage(AppVariables appVariables) {
     switch (_selectedPageIndex) {
       case 0:
+        return BookScan(autoScan: false);
+      case 1:
         return HomeBody(bookCategories: appVariables.categories);
-      case 2:
-        return BookScan();
       default:
         return UnderConstruction();
     }
@@ -84,15 +84,37 @@ class _HomeState extends State<Home> {
         });
       },
       items: <Widget>[
-        Icon(Icons.home, size: 30, color: Colors.white),
-        Icon(Icons.local_library, size: 30, color: Colors.white),
-        Icon(MdiIcons.barcodeScan, size: 30, color: Colors.white),
-        Icon(Icons.monetization_on, size: 30, color: Colors.white),
-        Icon(Icons.settings, size: 30, color: Colors.white),
+        Icon(MdiIcons.barcodeScan,
+            size: 30,
+            color: _selectedPageIndex == 0
+                ? appConfig.primaryColor
+                : Colors.white),
+        Icon(Icons.search,
+            size: 30,
+            color: _selectedPageIndex == 0
+                ? appConfig.primaryColor
+                : Colors.white),
+        Icon(Icons.local_library,
+            size: 30,
+            color: _selectedPageIndex == 0
+                ? appConfig.primaryColor
+                : Colors.white),
+        Icon(Icons.monetization_on,
+            size: 30,
+            color: _selectedPageIndex == 0
+                ? appConfig.primaryColor
+                : Colors.white),
+        Icon(Icons.settings,
+            size: 30,
+            color: _selectedPageIndex == 0
+                ? appConfig.primaryColor
+                : Colors.white),
       ],
-      backgroundColor: Colors.white,
-      buttonBackgroundColor: appConfig.primaryColor,
-      color: appConfig.primaryColor,
+      backgroundColor:
+          _selectedPageIndex == 0 ? appConfig.primaryColor : Colors.white,
+      buttonBackgroundColor:
+          _selectedPageIndex == 0 ? Colors.white : appConfig.primaryColor,
+      color: _selectedPageIndex == 0 ? Colors.white : appConfig.primaryColor,
       height: 50.0,
     );
   }

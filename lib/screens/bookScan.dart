@@ -1,72 +1,15 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:biblio/models/book.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:biblio/models/appVariables.dart';
-import 'package:biblio/components/book/cardBook.dart';
-import 'package:animator/animator.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class BookScan extends StatefulWidget {
-  @override
-  _BookScanState createState() => _BookScanState();
-}
+class BookScan extends StatelessWidget {
+  // If true, the device will start to scan as soon
+  // as this widget is built
+  final bool autoScan;
 
-class _BookScanState extends State<BookScan> {
-  bool showBook;
-
-  @override
-  void initState() {
-    showBook = false;
-    super.initState();
-  }
-
-  Widget _buildWidget(BuildContext context) {
-    if (showBook) {
-      Book book = ScopedModel.of<AppVariables>(context).books[4];
-      return Animator(
-        duration: Duration(seconds: 1),
-        curve: Curves.bounceInOut,
-        tween: Tween(begin: 0.01, end: 1.0),
-        builder: (Animation animation) => Transform.scale(
-              scale: animation.value,
-              child: GestureDetector(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
-                  child: CardBook(
-                    book: book,
-                    size: CardBookSize.big,
-                  ),
-                ),
-                onTap: () {
-                  setState(() {
-                    showBook = false;
-                  });
-                },
-              ),
-            ),
-      );
-    } else {
-      return GestureDetector(
-        child: FadeInImage(
-          image: AssetImage("assets/logo-nfc.png"),
-          fit: BoxFit.contain,
-          alignment: Alignment.center,
-          height: 250.0,
-          width: 250.0,
-          placeholder: AssetImage('assets/x.jpg'),
-        ),
-        onTap: () {
-          sleep(const Duration(seconds: 1));
-          setState(() {
-            showBook = true;
-          });
-        },
-      );
-    }
-  }
+  BookScan({this.autoScan = false});
 
   Future<void> _scanQR() async {
     try {
@@ -88,12 +31,45 @@ class _BookScanState extends State<BookScan> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData=Theme.of(context);
+    TextStyle textStyle=themeData.textTheme.subhead.copyWith(
+      color: Colors.white,
+    );
+
+    if (autoScan) {
+      _scanQR();
+    }
     return Container(
+      decoration: BoxDecoration(
+        color: themeData.primaryColor,
+      ),
       child: Center(
-        child: RaisedButton(
-          child: Text("Scan"),
-          onPressed: _scanQR,
-        ),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(MdiIcons.barcodeScan, size: 60.0, color: Colors.white),
+                  SizedBox(width: 40.0),
+                  Icon(MdiIcons.qrcodeScan, size: 60.0, color: Colors.white),
+                ],
+              ),
+              
+              Padding(
+                padding: EdgeInsets.all(40.0),
+                child: Text(
+                  "Toma el libro que deseas y escanea su código de barras/QR usando el siguiente botón:",
+                  textAlign: TextAlign.center,
+                  style: textStyle,
+                ),
+              ),
+              RaisedButton(
+                color: Colors.white,
+                child: Text("ESCANEAR CÓDIGO", style: TextStyle(color: themeData.primaryColor, fontWeight: FontWeight.bold)),
+                onPressed: _scanQR,
+              ),
+            ]),
       ),
     );
   }

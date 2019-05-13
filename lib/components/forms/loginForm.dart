@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:biblio/components/textInput.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'package:biblio/components/customTextInput.dart';
 import 'package:biblio/validators/userValidator.dart';
 
 /**
@@ -17,6 +18,8 @@ class LoginForm extends StatefulWidget {
   final double horizontalPadding;
   final Function onFormChange;
   final GlobalKey<FormState> formKey;
+  final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
 
   LoginForm(
       {Key key,
@@ -77,21 +80,35 @@ class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          TextInput(
+          CustomTextInput(
+            controller: _usernameController,
+            validator: validateUsername,
+            focusNode: widget._usernameFocusNode,
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: (String value) {
+              widget._usernameFocusNode.unfocus();
+              FocusScope.of(context).requestFocus(widget._passwordFocusNode);
+            },
             keyboardType: TextInputType.emailAddress,
             obscureText: false,
             label: "Usuario institucional",
             icon: Icons.person,
-            controller: _usernameController,
-            validator: validateUsername,
           ),
           SizedBox(height: 10.0),
-          TextInput(
+          CustomTextInput(
+            controller: _passwordController,
+            validator: validatePassword,
+            focusNode: widget._passwordFocusNode,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (String value) {
+              widget._usernameFocusNode.unfocus();
+              // As the best option didn't work, i used the second one as stackoverflow's user suggest: https://stackoverflow.com/questions/44991968/how-can-i-dismiss-the-on-screen-keyboard
+              // FocusScope.of(context).requestFocus(FocusNode());
+              SystemChannels.textInput.invokeMethod('TextInput.hide');
+            },
             obscureText: true,
             label: "Contraseña",
             icon: Icons.lock,
-            controller: _passwordController,
-            validator: validatePassword,
           ),
         ],
       ),

@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen>
         id: 123);
 
     appVariables.addCategories(await getCategories(context));
-    appVariables.addBooks(getBooks());    
+    appVariables.addBooks(getBooks());
   }
 
   Function _handleAnimationCompleted(BuildContext context) => () {
@@ -73,9 +73,72 @@ class _LoginScreenState extends State<LoginScreen>
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       };
 
+  Widget _buildFormLayout(BuildContext context) {
+    MediaQueryData mediaQueryData = MediaQuery.of(context);
+    Orientation orientation = mediaQueryData.orientation;
+
+    Widget formWidget = LoginForm(
+      onFormChange: handleFormChange,
+      formKey: widget._formKey,
+    );
+
+    Widget loginButton = AnimatedButton(
+      text: "Iniciar sesión",
+      formKey: widget._formKey,
+      onTap: () async => _signIn(context),
+      onAnimationCompleted: _handleAnimationCompleted(context),
+      screenSize: mediaQueryData.size,
+      horizontalPadding: widget.horizontalPadding,
+    );
+
+    if (orientation == Orientation.portrait) {
+      return Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                widget.logo,
+                SizedBox(height: 40.0),
+                formWidget,
+                SizedBox(height: 80.0),
+              ],
+            ),
+          ),
+          loginButton,
+        ],
+      );
+    } else {
+      return Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                widget.logo,
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      formWidget,
+                      SizedBox(height: 40.0),
+                      loginButton,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    MediaQueryData mediaQueryData = MediaQuery.of(context);
     Color backgroundColor = Colors.black.withOpacity(0.77);
     return SafeArea(
       child: Scaffold(
@@ -92,35 +155,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             Center(
               child: SingleChildScrollView(
-                child: Stack(
-                  alignment: AlignmentDirectional.bottomCenter,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: widget.horizontalPadding),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          widget.logo,
-                          SizedBox(height: 40.0),
-                          LoginForm(
-                            onFormChange: handleFormChange,
-                            formKey: widget._formKey,
-                          ),
-                          SizedBox(height: 80.0),
-                        ],
-                      ),
-                    ),
-                    AnimatedButton(
-                      text: "Iniciar sesión",
-                      formKey: widget._formKey,
-                      onTap: () async => _signIn(context),
-                      onAnimationCompleted: _handleAnimationCompleted(context),
-                      screenSize: mediaQueryData.size,
-                      horizontalPadding: widget.horizontalPadding,
-                    ),
-                  ],
-                ),
+                child: _buildFormLayout(context),
               ),
             ),
           ],

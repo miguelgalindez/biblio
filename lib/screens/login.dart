@@ -86,9 +86,11 @@ class _LoginScreenState extends State<LoginScreen>
       text: "Iniciar sesión",
       formKey: widget._formKey,
       onTap: () async => _signIn(context),
+      enableZoomButtonAnimation: orientation == Orientation.portrait,
       onAnimationCompleted: _handleAnimationCompleted(context),
       screenSize: mediaQueryData.size,
-      horizontalPadding: widget.horizontalPadding,
+      horizontalPadding:
+          orientation == Orientation.portrait ? widget.horizontalPadding : 0,
     );
 
     if (orientation == Orientation.portrait) {
@@ -121,12 +123,15 @@ class _LoginScreenState extends State<LoginScreen>
               children: <Widget>[
                 widget.logo,
                 Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      formWidget,
-                      SizedBox(height: 40.0),
-                      loginButton,
-                    ],
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 40.0),
+                    child: Column(
+                      children: <Widget>[
+                        formWidget,
+                        SizedBox(height: 20.0),
+                        loginButton,
+                      ],
+                    ),
                   ),
                 ),
               ],

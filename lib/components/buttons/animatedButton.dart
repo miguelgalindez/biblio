@@ -10,9 +10,10 @@ class AnimatedButton extends StatefulWidget {
   final double horizontalPadding;
   final double width;
   final double widthAfterShrinking;
-  final String text;  
+  final String text;
   final GlobalKey<FormState> formKey;
   final Function onTap;
+  final bool enableZoomButtonAnimation;
   final Function onAnimationCompleted;
   final Size screenSize;
 
@@ -24,6 +25,7 @@ class AnimatedButton extends StatefulWidget {
       @required this.text,
       this.formKey,
       this.onTap,
+      this.enableZoomButtonAnimation = true,
       this.onAnimationCompleted,
       @required this.screenSize})
       : super(key: key);
@@ -48,13 +50,13 @@ class _AnimatedButtonState extends State<AnimatedButton>
     showZoomButtonAnimation = false;
     shrinkButtonAnimationController =
         AnimationController(duration: const Duration(seconds: 1), vsync: this);
-    zoomButtonAnimationController =
-        AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    zoomButtonAnimationController = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
   }
 
   @override
   void dispose() {
-    zoomButtonAnimationController.dispose(); 
+    zoomButtonAnimationController.dispose();
     shrinkButtonAnimationController.dispose();
     super.dispose();
   }
@@ -84,14 +86,18 @@ class _AnimatedButtonState extends State<AnimatedButton>
     Scaffold.of(context).removeCurrentSnackBar();
 
     if (widget.formKey == null || widget.formKey.currentState.validate()) {
-      await _playShrinkAnimation(); 
+      await _playShrinkAnimation();
       try {
-        if(widget.onTap!=null){
+        if (widget.onTap != null) {
           await widget.onTap();
         }
-        _playZoomButtonAnimation();        
+        if (widget.enableZoomButtonAnimation) {
+          _playZoomButtonAnimation();
+        } else {
+          widget.onAnimationCompleted();
+        }
       } catch (e) {
-        print("Error: "+e.toString());
+        print("Error: " + e.toString());
         await _rewindShrinkAnimation();
         _showSnackbar(e.toString(), null, context);
       }
@@ -121,7 +127,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
       showZoomButtonAnimation = false;
       showShrinkButtonAnimation = false;
     });
-  }  
+  }
 
   double _getInitialWidth(BoxConstraints boxConstraints) {
     return widget.width != null && widget.width > 0

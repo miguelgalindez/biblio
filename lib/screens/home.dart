@@ -10,6 +10,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:biblio/screens/bookScan/index.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:biblio/components/underConstruction.dart';
+import 'package:biblio/screens/inventory/index.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -29,22 +30,21 @@ class _HomeScreenState extends State<HomeScreen> {
     return showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
-                content: Text('¿Desea salir de la aplicación?'),
-                actions: <Widget>[
-                  FlatButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('No'),
-                  ),
-                  FlatButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                      SystemChannels.platform
-                          .invokeMethod('SystemNavigator.pop');
-                    },
-                    child: Text('Si'),
-                  ),
-                ],
+            content: Text('¿Desea salir de la aplicación?'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
               ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                  SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                },
+                child: Text('Si'),
+              ),
+            ],
+          ),
         ) ??
         false;
   }
@@ -69,6 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return BookScanScreen(autoScan: false);
       case 1:
         return SearchBookScreen(bookCategories: appVariables.categories);
+      case 4:
+        return Inventory();
       default:
         return UnderConstruction();
     }

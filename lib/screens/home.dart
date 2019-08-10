@@ -10,7 +10,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:biblio/screens/bookScan/index.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:biblio/components/underConstruction.dart';
-import 'package:biblio/screens/inventory/index.dart';
+import 'package:biblio/ui/screens/inventory/index.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

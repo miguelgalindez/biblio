@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RfidReader {
+public abstract class Reader {
     /**
      * Code for the reader trigger key. If the device
      * doesn't have a physical trigger key, then this
@@ -53,12 +53,11 @@ public abstract class RfidReader {
      * (casted as a map) is going to be put into an indexed
      * HashMap for improving the searching of duplicates
      * */
-    private HashMap<String, Map<String, String>> readTags;
+    protected HashMap<String, Map<String, String>> readTags;
 
     // FIXME: Check for concurrency risks over readTags when the tags are send (it implies cleaning readTags) while the reader is running.
 
-    public RfidReader(@NotNull DataCallback dataCallback, StartInventoryCallback startInventoryCallback, StopInventoryCallback stopInventoryCallback, Integer sendingCapacity,  Integer triggerKeyCode) {
-        init();
+    public Reader(@NotNull DataCallback dataCallback, StartInventoryCallback startInventoryCallback, StopInventoryCallback stopInventoryCallback, Integer sendingCapacity, Integer triggerKeyCode) {
         this.onDataCallback=dataCallback;
         this.sendingCapacity=sendingCapacity;
         this.startInventoryCallback=startInventoryCallback;
@@ -68,19 +67,31 @@ public abstract class RfidReader {
     }
 
     /**
-     * Tries to initialize the reader.
+     * Tries to open the reader.
      */
-    protected abstract void init();
+    protected abstract void open() throws Exception;
 
     /**
-     * Release all the resources held by the reader
+     * Tries to close the reader.
      */
-    public abstract void destroy();
+    protected abstract void close() throws Exception;
 
     /**
      * Clean the reader session (if exists)
      */
     protected abstract void cleanSession();
+
+    /**
+     * Close the reader and release all the held resources.
+     */
+    public void destroy(){
+        try {
+            readTags.clear();
+            close();
+        } catch(Exception ex){
+            Log.e(null, "Error trying to destroy the reader");
+        }
+    }
 
     /**
      * Tries to start the inventory scanning
@@ -99,22 +110,19 @@ public abstract class RfidReader {
      * capacity (if that limit exists).
      * @param tag HashMap that contains the tag's data to be added.
      */
-    protected void addTag(HashMap<String, String> tag) {
+    protected void addTag(Map<String, String> tag) {
         String tagEPC=tag.get("epc");
 
-        // Checking if the tag has the epc property
-        if(tagEPC!=null && !tagEPC.isEmpty()){
+        // Checking if the tag has the epc property and if it hasn't been previously read (to avoid duplicated tags in the collection)
+        if(tagEPC!=null && !tagEPC.isEmpty() && readTags.get(tagEPC)==null){
+            readTags.put(tagEPC, tag);
 
-            // Checking if this tag has been previously read (to avoid duplicated tags in the collection)
-            if(!readTags.containsKey(tagEPC)){
-                readTags.put(tagEPC, tag);
-
-                // Checking if the number of read tags reaches the sending capacity.
-                // If so, it sends the data through the callback.
-                if(sendingCapacity!=null && sendingCapacity>0 && readTags.size()==sendingCapacity) {
-                    sendTags();
-                }
+            // Checking if the number of read tags has reached the sending capacity.
+            // If so, it sends the data through the callback.
+            if(sendingCapacity!=null && sendingCapacity>0 && readTags.size()==sendingCapacity) {
+                sendTags();
             }
+
         } else{
             Log.e(null, "Missing epc property in the read tag. Skipping that tag...");
         }
@@ -140,15 +148,15 @@ public abstract class RfidReader {
      * @return true or false indicating if the event was successfully handle or not.
      */
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(triggerKeyCode!=null && keyCode==triggerKeyCode && event.getRepeatCount() == 0){
+        boolean triggerWasPressed=triggerKeyCode!=null && keyCode==triggerKeyCode;
+        if(triggerWasPressed && event.getRepeatCount() == 0){
             try{
                 startInventory();
-                return true;
             } catch(Exception ex){
                 Log.e(null, ex.getMessage());
             }
         }
-        return false;
+        return triggerWasPressed;
     }
 
 
@@ -161,15 +169,15 @@ public abstract class RfidReader {
      * @return true or false indicating if the event was successfully handle or not.
      */
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (triggerKeyCode != null && keyCode == triggerKeyCode){
+        boolean triggerWasReleased=triggerKeyCode != null && keyCode == triggerKeyCode;
+        if (triggerWasReleased){
             try {
                 stopInventory();
-                return true;
             } catch (Exception ex) {
                 Log.e(null, ex.getMessage());
             }
         }
-        return false;
+        return triggerWasReleased;
     }
 
     protected List<Map<String, String>> getReadTagsAsList(){

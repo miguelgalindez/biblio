@@ -46,7 +46,7 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> startInventory() async {
     try {
       reportStatus(1);
-      await rfidReaderChannel.invokeMethod("startInventory");
+      rfidReaderChannel.invokeMethod("startInventory");
     } catch (e) {
       print("Flutter start inventory exception: ${e.message}");
     }
@@ -55,7 +55,7 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> stopInventory() async {
     try {
       reportStatus(0);
-      await rfidReaderChannel.invokeMethod("stopInventory");
+      rfidReaderChannel.invokeMethod("stopInventory");
     } catch (e) {
       print("Flutter stop inventory exception: ${e.message}");
     }
@@ -71,6 +71,7 @@ class InventoryScreenBloc implements BlocBase {
 
   @override
   void dispose() {
+    // TODO: Should i close or dispose the method channel?
     tagsFetcher.drain();
     tagsFetcher.close();
     inventoryStatusReporter.drain();

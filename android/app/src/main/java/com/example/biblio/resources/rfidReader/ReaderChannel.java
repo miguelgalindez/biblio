@@ -5,47 +5,59 @@ import android.view.KeyEvent;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.view.FlutterView;
-import com.example.biblio.resources.rfidReader.RfidReader.DataCallback;
-import com.example.biblio.resources.rfidReader.RfidReader.StartInventoryCallback;
-import com.example.biblio.resources.rfidReader.RfidReader.StopInventoryCallback;
+import com.example.biblio.resources.rfidReader.Reader.DataCallback;
+import com.example.biblio.resources.rfidReader.Reader.StartInventoryCallback;
+import com.example.biblio.resources.rfidReader.Reader.StopInventoryCallback;
 
-public class RfidReaderChannel {
+public class ReaderChannel {
     private static final String METHOD_CHANNEL ="biblio/rfidReader/methodChannel";
 
     private MethodChannel methodChannel;
-    private RfidReader rfidReader;
+    private Reader rfidReader;
 
-    public RfidReaderChannel(FlutterView flutterView){
+    public ReaderChannel(FlutterView flutterView){
         methodChannel = new MethodChannel(flutterView, METHOD_CHANNEL);
         methodChannel.setMethodCallHandler(buildMethodCallHandler());
-        // TODO Add implementation selector
-        rfidReader = new AlienH450(buildDataCallback(), buildStartInventoryCallback(), buildStopInventoryCallback());
+        rfidReader = ImplementationSelector.getImplementation(buildDataCallback(), buildStartInventoryCallback(), buildStopInventoryCallback());
     }
 
     private MethodCallHandler buildMethodCallHandler(){
         return (methodCall, result) -> {
-            if(rfidReader!=null){
-                try {
-                    switch (methodCall.method) {
-                        case "startInventory":
-                            rfidReader.startInventory();
-                            break;
-                        case "stopInventory":
-                            rfidReader.stopInventory();
-                            break;
+            try {
+                switch (methodCall.method) {
 
-                        default:
-                            result.notImplemented();
-                            return;
-                    }
-                    result.success(null);
+                    case "open":
+                        rfidReader.open();
+                        break;
 
-                } catch (Exception ex) {
-                    result.error(null, ex.getMessage(), null);
+                    case "close":
+                        rfidReader.close();
+                        break;
+
+                    case "deviceCanReadRfidTags":
+                        // Indicates whether the current device is able to read RFID tags or not
+                        result.success(rfidReader!=null);
+                        break;
+
+                    case "startInventory":
+                        rfidReader.startInventory();
+                        break;
+
+                    case "stopInventory":
+                        rfidReader.stopInventory();
+                        break;
+
+                    default:
+                        result.notImplemented();
+                        return;
                 }
-            } else{
-                result.error(null, "The reader couldn't be initialized", null);
+
+                result.success(null);
+
+            } catch (Exception ex) {
+                result.error(null, ex.getMessage(), null);
             }
+
         };
     }
 
@@ -63,6 +75,7 @@ public class RfidReaderChannel {
 
 
     public void destroy(){
+        // TODO: should i destroy the method channel
         rfidReader.destroy();
     }
 

@@ -2,15 +2,14 @@ package com.example.biblio.resources.rfidReader;
 
 import android.view.KeyEvent;
 
+import com.example.biblio.resources.EventCallback;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.view.FlutterView;
-import com.example.biblio.resources.rfidReader.Reader.DataCallback;
-import com.example.biblio.resources.rfidReader.Reader.StartInventoryCallback;
-import com.example.biblio.resources.rfidReader.Reader.StopInventoryCallback;
 
 public class ReaderChannel {
     private static final String METHOD_CHANNEL ="biblio/rfidReader/methodChannel";
+    private static final String TAG ="RFIDReaderChannel";
 
     private MethodChannel methodChannel;
     private Reader rfidReader;
@@ -18,7 +17,7 @@ public class ReaderChannel {
     public ReaderChannel(FlutterView flutterView){
         methodChannel = new MethodChannel(flutterView, METHOD_CHANNEL);
         methodChannel.setMethodCallHandler(buildMethodCallHandler());
-        rfidReader = ImplementationSelector.getImplementation(buildDataCallback(), buildStartInventoryCallback(), buildStopInventoryCallback());
+        rfidReader = ImplementationSelector.getImplementation(buildOnDataCallback(), buildOnStatusChangedCallback());
     }
 
     private MethodCallHandler buildMethodCallHandler(){
@@ -55,27 +54,37 @@ public class ReaderChannel {
                 result.success(null);
 
             } catch (Exception ex) {
-                result.error(null, ex.getMessage(), null);
+                result.error(TAG, ex.getMessage(), null);
             }
 
         };
     }
 
-    private DataCallback buildDataCallback(){
+    /**
+     * Defines the callback that is going to be invoked when
+     * the reader has send data. In this case, the Flutter
+     * listener will be notified about the new read tags
+     * @return EventCallback instance
+     */
+    private EventCallback buildOnDataCallback(){
         return tags -> methodChannel.invokeMethod("onData", tags);
     }
 
-    private StartInventoryCallback buildStartInventoryCallback(){
-        return ()-> methodChannel.invokeMethod("onInventoryStarted", null);
+    /**
+     * Defines the callback that is going to be invoked when
+     * the reader status has changed. In this case, the Flutter
+     * listener will be notified about the new reader status
+     * @return EventCallback instance
+     */
+    private EventCallback buildOnStatusChangedCallback(){
+        return status -> methodChannel.invokeMethod("onStatusChanged", (int) status);
     }
 
-    private StopInventoryCallback buildStopInventoryCallback(){
-        return ()-> methodChannel.invokeMethod("onInventoryStopped", null);
-    }
-
-
+    /**
+     * Destroys the method channel and releases resources
+     */
     public void destroy(){
-        // TODO: should i destroy the method channel
+        // TODO: should i destroy the method channel?
         rfidReader.destroy();
     }
 

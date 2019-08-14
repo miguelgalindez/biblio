@@ -1,10 +1,9 @@
 package com.example.biblio.resources.rfidReader.implementations;
 
-import android.util.Log;
-
 import com.alien.common.KeyCode;
 import com.alien.rfid.RFID;
 import com.alien.rfid.RFIDReader;
+import com.example.biblio.resources.EventCallback;
 import com.example.biblio.resources.rfidReader.Reader;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +16,8 @@ public class AlienH450 extends Reader {
 
     private RFIDReader reader;
 
-    public AlienH450(@NotNull DataCallback dataCallback, StartInventoryCallback startInventoryCallback, StopInventoryCallback stopInventoryCallback){
-        super(dataCallback, startInventoryCallback, stopInventoryCallback, SENDING_CAPACITY,  TRIGGER_KEY_CODE);
+    public AlienH450(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
+        super(onDataCallback, onStatusChangedCallback, SENDING_CAPACITY,  TRIGGER_KEY_CODE);
     }
 
 
@@ -28,6 +27,7 @@ public class AlienH450 extends Reader {
     @Override
     protected void open() throws Exception {
         reader=RFID.open();
+        reportStatus(Status.OPENED);
     }
 
     /**
@@ -41,6 +41,7 @@ public class AlienH450 extends Reader {
             }
             cleanSession();
             reader.close();
+            reportStatus(Status.CLOSED);
         }
     }
 
@@ -73,7 +74,8 @@ public class AlienH450 extends Reader {
                     addTag(tagAsMap);
                 }
             });
-            startInventoryCallback.onInventoryStartedCallback();
+
+            reportStatus(Status.INVENTORY_STARTED);
 
         } else if (reader==null){
             throw new Exception("The inventory scanning couldn't be started because the reader is null.");
@@ -89,7 +91,7 @@ public class AlienH450 extends Reader {
     public void stopInventory() throws Exception {
         if(reader!=null){
             reader.stop();
-            stopInventoryCallback.onInventoryStoppedCallback();
+            reportStatus(Status.INVENTORY_STOPPED);
             sendTags();
         } else {
             throw new Exception("The inventory scanning couldn't be stopped because the reader is null.");

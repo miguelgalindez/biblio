@@ -23,13 +23,9 @@ class InventoryScreenBloc implements BlocBase {
 
     rfidReaderChannel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
-        case "onInventoryStarted":
-          reportStatus(1);          
-          break;
-
-        case "onInventoryStopped":
-          reportStatus(0);          
-          break;
+        case "onStatusChanged":
+          reportStatus(call.arguments);
+          break;        
 
         case "onData":          
           await tagsRepository.addTagsFromJson(call.arguments);
@@ -44,8 +40,7 @@ class InventoryScreenBloc implements BlocBase {
   }
 
   Future<void> startInventory() async {
-    try {
-      reportStatus(1);
+    try {      
       rfidReaderChannel.invokeMethod("startInventory");
     } catch (e) {
       print("Flutter start inventory exception: ${e.message}");
@@ -53,8 +48,7 @@ class InventoryScreenBloc implements BlocBase {
   }
 
   Future<void> stopInventory() async {
-    try {
-      reportStatus(0);
+    try {      
       rfidReaderChannel.invokeMethod("stopInventory");
     } catch (e) {
       print("Flutter stop inventory exception: ${e.message}");

@@ -1,5 +1,6 @@
 package com.example.biblio.resources.rfidReader.implementations;
 
+import com.example.biblio.resources.EventCallback;
 import com.example.biblio.resources.rfidReader.Reader;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +27,8 @@ public class Mock extends Reader {
         }
     }
 
-    public Mock(@NotNull DataCallback dataCallback, StartInventoryCallback startInventoryCallback, StopInventoryCallback stopInventoryCallback){
-        super(dataCallback, startInventoryCallback, stopInventoryCallback, SENDING_CAPACITY,  null);
+    public Mock(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
+        super(onDataCallback, onStatusChangedCallback, SENDING_CAPACITY,  null);
     }
 
 
@@ -36,7 +37,7 @@ public class Mock extends Reader {
      */
     @Override
     protected void open() {
-
+        reportStatus(Status.OPENED);
     }
 
     /**
@@ -44,7 +45,7 @@ public class Mock extends Reader {
      */
     @Override
     protected void close() {
-
+        reportStatus(Status.CLOSED);
     }
 
     /**
@@ -59,8 +60,8 @@ public class Mock extends Reader {
      * Tries to start the inventory scanning
      */
     @Override
-    public void startInventory() throws Exception {
-        startInventoryCallback.onInventoryStartedCallback();
+    public void startInventory() {
+        reportStatus(Status.INVENTORY_STARTED);
 
         // Mocking tags scanning
         for(Map.Entry<String, Map<String, String>> entry : mockReadTags.entrySet()){
@@ -72,8 +73,8 @@ public class Mock extends Reader {
      * Tries to stop the inventory scanning
      */
     @Override
-    public void stopInventory() throws Exception {
-        stopInventoryCallback.onInventoryStoppedCallback();
+    public void stopInventory() {
+        reportStatus(Status.INVENTORY_STOPPED);
         sendTags();
     }
 

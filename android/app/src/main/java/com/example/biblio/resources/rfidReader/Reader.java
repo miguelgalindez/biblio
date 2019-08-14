@@ -2,11 +2,16 @@ package com.example.biblio.resources.rfidReader;
 
 import android.util.Log;
 import android.view.KeyEvent;
+
+import com.example.biblio.resources.EventCallback;
+
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 
 public abstract class Reader {
     /**
@@ -20,7 +25,7 @@ public abstract class Reader {
      * Defines the function that will be called when
      * there're tags ready to send
      */
-    private DataCallback onDataCallback;
+    private EventCallback onDataCallback;
 
     /**
      * Indicates the maximum number of tags the
@@ -35,16 +40,26 @@ public abstract class Reader {
     private Integer sendingCapacity;
 
     /**
-     * Defines the function that will be called when the inventory
-     * scanning is started
+     * Defines the function that will be called when the
+     * reader status has changed
      */
-    protected StartInventoryCallback startInventoryCallback;
+    protected EventCallback onStatusChangedCallback;
+
 
     /**
-     * Defines the function that will be called when the inventory
-     * scanning is started
+     * Enumeration of well-known (standard) states for every reader
      */
-    protected StopInventoryCallback stopInventoryCallback;
+    protected enum Status {
+        CLOSED(0),
+        OPENED(1),
+        INVENTORY_STARTED(2),
+        INVENTORY_STOPPED(3);
+
+        private final int statusCode;
+        Status(int statusCode){
+            this.statusCode=statusCode;
+        }
+    }
 
     /**
      * Variable that holds read tags.
@@ -53,17 +68,18 @@ public abstract class Reader {
      * (casted as a map) is going to be put into an indexed
      * HashMap for improving the searching of duplicates
      * */
+    // FIXME: Check for concurrency risks over readTags when the tags are send (it implies cleaning readTags) while the reader is running.
     protected HashMap<String, Map<String, String>> readTags;
 
-    // FIXME: Check for concurrency risks over readTags when the tags are send (it implies cleaning readTags) while the reader is running.
 
-    public Reader(@NotNull DataCallback dataCallback, StartInventoryCallback startInventoryCallback, StopInventoryCallback stopInventoryCallback, Integer sendingCapacity, Integer triggerKeyCode) {
-        this.onDataCallback=dataCallback;
+
+    public Reader(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback, Integer sendingCapacity, Integer triggerKeyCode) {
+        this.onDataCallback=onDataCallback;
         this.sendingCapacity=sendingCapacity;
-        this.startInventoryCallback=startInventoryCallback;
-        this.stopInventoryCallback=stopInventoryCallback;
+        this.onStatusChangedCallback =onStatusChangedCallback;
         this.triggerKeyCode=triggerKeyCode;
         readTags=new HashMap<>();
+        reportStatus(Status.CLOSED);
     }
 
     /**
@@ -133,9 +149,17 @@ public abstract class Reader {
      * and the reader session (if exists) to allow further tags to be read and send
      */
     protected void sendTags(){
-        onDataCallback.onData(getReadTagsAsList());
+        onDataCallback.trigger(getReadTagsAsList());
         readTags.clear();
         cleanSession();
+    }
+
+    /**
+     * Notifies the new reader status by using the on status changed callback
+     * @param status Any of the different states defined by the Status enum
+     */
+    protected void reportStatus(Status status){
+        onStatusChangedCallback.trigger(status.statusCode);
     }
 
 
@@ -180,31 +204,12 @@ public abstract class Reader {
         return triggerWasReleased;
     }
 
+    /**
+     * Returns the collection of read tags
+     * @return Read tags as a list
+     */
     protected List<Map<String, String>> getReadTagsAsList(){
         return new ArrayList<>(readTags.values());
-    }
-
-    /**
-     * Interface that holds the callback for data sending
-     */
-    public interface DataCallback {
-        void onData(List<Map<String, String>> tags);
-    }
-
-    /**
-     * Interface that defines the callback that will be
-     * called when the inventory scanning is started
-     */
-    public interface StartInventoryCallback {
-        void onInventoryStartedCallback();
-    }
-
-    /**
-     * Interface that defines the callback that will be
-     * called when the inventory scanning is stopped
-     */
-    public interface StopInventoryCallback {
-        void onInventoryStoppedCallback();
     }
 }
 

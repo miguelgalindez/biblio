@@ -77,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context, AppConfig appConfig) {
+    bool invertColours = _selectedPageIndex == 0 || _selectedPageIndex == 4;
     return CurvedNavigationBar(
       index: _selectedPageIndex,
       onTap: (int index) {
@@ -87,35 +88,24 @@ class _HomeScreenState extends State<HomeScreen> {
       items: <Widget>[
         Icon(MdiIcons.barcodeScan,
             size: 30,
-            color: _selectedPageIndex == 0
-                ? appConfig.primaryColor
-                : Colors.white),
+            color: invertColours ? appConfig.primaryColor : Colors.white),
         Icon(Icons.search,
             size: 30,
-            color: _selectedPageIndex == 0
-                ? appConfig.primaryColor
-                : Colors.white),
+            color: invertColours ? appConfig.primaryColor : Colors.white),
         Icon(Icons.local_library,
             size: 30,
-            color: _selectedPageIndex == 0
-                ? appConfig.primaryColor
-                : Colors.white),
+            color: invertColours ? appConfig.primaryColor : Colors.white),
         Icon(Icons.monetization_on,
             size: 30,
-            color: _selectedPageIndex == 0
-                ? appConfig.primaryColor
-                : Colors.white),
+            color: invertColours ? appConfig.primaryColor : Colors.white),
         Icon(Icons.settings,
             size: 30,
-            color: _selectedPageIndex == 0
-                ? appConfig.primaryColor
-                : Colors.white),
+            color: invertColours ? appConfig.primaryColor : Colors.white),
       ],
-      backgroundColor:
-          _selectedPageIndex == 0 ? appConfig.primaryColor : Colors.white,
+      backgroundColor: invertColours ? appConfig.primaryColor : Colors.white,
       buttonBackgroundColor:
-          _selectedPageIndex == 0 ? Colors.white : appConfig.primaryColor,
-      color: _selectedPageIndex == 0 ? Colors.white : appConfig.primaryColor,
+          invertColours ? Colors.white : appConfig.primaryColor,
+      color: invertColours ? Colors.white : appConfig.primaryColor,
       height: 50.0,
     );
   }

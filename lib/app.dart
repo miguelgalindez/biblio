@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:biblio/screens/login.dart';
 import 'package:biblio/models/appConfig.dart';
 
-ThemeData buildTheme(AppConfig appConfig) {
-  final ThemeData base = ThemeData();
+ThemeData buildTheme(BuildContext context, AppConfig appConfig) {
+  final ThemeData base = Theme.of(context);
 
   return base.copyWith(
-      hintColor: Colors.white70,
-      primaryColor: appConfig.primaryColor,      
-      primaryIconTheme: base.primaryIconTheme.copyWith(color: Colors.white));
+    hintColor: Colors.white70,
+    primaryColor: appConfig.primaryColor,
+    primaryIconTheme: base.primaryIconTheme.copyWith(color: Colors.white),
+    textTheme: base.textTheme.apply(fontFamily: 'Montserrat'),
+  );
 }
 
 class App extends StatelessWidget {
@@ -19,7 +21,7 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner:
           appConfig.projectStage == ProjectStages.development,
       title: appConfig.appName,
-      theme: buildTheme(appConfig),
+      theme: buildTheme(context, appConfig),
       home: LoginScreen(),
     );
   }

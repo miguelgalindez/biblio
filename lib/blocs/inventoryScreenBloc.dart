@@ -9,14 +9,14 @@ import 'package:rxdart/rxdart.dart';
 class InventoryScreenBloc implements BlocBase {
   MethodChannel rfidReaderChannel;
   TagsRepository tagsRepository;
-  PublishSubject<List<Tag>> tagsFetcher;
+  BehaviorSubject<List<Tag>> tagsFetcher;
   BehaviorSubject<int> inventoryStatusReporter;
 
   void init() {
     // TODO Put this on a session singleton object or use it as lazy singleton
     tagsRepository = TagsRepository();
     rfidReaderChannel = MethodChannel("biblio/rfidReader/methodChannel");
-    tagsFetcher = PublishSubject<List<Tag>>();
+    tagsFetcher = BehaviorSubject<List<Tag>>();
     inventoryStatusReporter = BehaviorSubject<int>();
     print("Initializing bloc...");
     reportStatus(0);

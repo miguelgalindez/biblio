@@ -6,9 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:biblio/resources/repositories/tagsRepository.dart';
 import 'package:rxdart/rxdart.dart';
 
-// TODO: add the following states: INVENTORY_STARTED_WITH_TAGS, INVENTORY_STOPPED_WITH_TAGS
-enum InventoryStatus { CLOSED, OPENED, INVENTORY_STARTED, INVENTORY_STOPPED }
-enum InventoryAction { START_INVENTORY, STOP_INVENTORY }
+enum InventoryStatus {
+  CLOSED,
+  OPENED,
+  INVENTORY_STARTED_WITHOUT_TAGS,
+  INVENTORY_STOPPED_WITHOUT_TAGS,
+  INVENTORY_STARTED_WITH_TAGS,
+  INVENTORY_STOPPED_WITH_TAGS
+}
+enum InventoryAction { OPEN, START_INVENTORY, STOP_INVENTORY }
 
 class InventoryScreenBloc implements BlocBase {
   MethodChannel rfidReaderChannel;
@@ -30,6 +36,9 @@ class InventoryScreenBloc implements BlocBase {
 
     actionSubscription = actionReporter.stream.listen((InventoryAction action) {
       switch (action) {
+        case InventoryAction.OPEN:
+          _open();
+          break;
         case InventoryAction.START_INVENTORY:
           _startInventory();
           break;
@@ -61,6 +70,14 @@ class InventoryScreenBloc implements BlocBase {
   Observable<List<Tag>> get allTags => tagsReporter.stream;
   Observable<InventoryStatus> get status => statusReporter.stream.distinct();
 
+  Future<void> _open() async {
+    try {
+      await rfidReaderChannel.invokeMethod("open");
+    } catch (e) {
+      print("Flutter open exception: ${e.message}");
+    }
+  }
+
   Future<void> _startInventory() async {
     try {
       await rfidReaderChannel.invokeMethod("startInventory");
@@ -86,12 +103,14 @@ class InventoryScreenBloc implements BlocBase {
         return InventoryStatus.OPENED;
 
       case 2:
-        // TODO: check for the number of read tags
-        return InventoryStatus.INVENTORY_STARTED;
+        return tagsRepository.tags.length > 0
+            ? InventoryStatus.INVENTORY_STARTED_WITH_TAGS
+            : InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS;
 
       case 3:
-        // TODO: check for the number of read tags
-        return InventoryStatus.INVENTORY_STOPPED;
+        return tagsRepository.tags.length > 0
+            ? InventoryStatus.INVENTORY_STOPPED_WITH_TAGS
+            : InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS;
 
       default:
         return null;

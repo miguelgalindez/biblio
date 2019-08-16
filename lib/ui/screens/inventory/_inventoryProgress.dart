@@ -71,10 +71,10 @@ class _InventoryProgressState extends State<InventoryProgress>
 
   void _statusListener(InventoryStatus status) {
     switch (status) {
-      case InventoryStatus.INVENTORY_STARTED:
+      case InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS:
         animationController.forward();
         break;
-      case InventoryStatus.INVENTORY_STOPPED:
+      case InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS:
         animationController.reverse();
         break;
 
@@ -99,31 +99,33 @@ class _InventoryProgressState extends State<InventoryProgress>
               animationController: animationController,
               child: _ReadTags(screnBloc: widget.screenBloc),
               height: 40,
-            ),
-            ShowAnimation(
-              animationController: animationController,
-              child: SizedBox(height: 10),
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                ShowAnimation(
-                  animationController: animationController,
-                  child: _StatusDescription(screenBloc: widget.screenBloc),
-                  width: 100,
-                ),
-                ShowAnimation(
-                  animationController: animationController,
-                  child: SizedBox(width: 50),
-                  width: 50,
-                ),
-                _Actions(
-                  screenBloc: widget.screenBloc,
-                  animationController: animationController,
-                ),
-              ],
+            ),            
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  ShowAnimation(
+                    animationController: animationController,
+                    child: Flexible(
+                      child: _StatusDescription(screenBloc: widget.screenBloc),
+                    ),
+                    width: 100,
+                  ),
+                  ShowAnimation(
+                    animationController: animationController,
+                    child: SizedBox(width: 50),
+                    width: 50,
+                  ),
+                  Flexible(
+                    child: _Actions(
+                      screenBloc: widget.screenBloc,
+                      animationController: animationController,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -156,12 +158,24 @@ class _ReadTags extends StatelessWidget {
           }
           return Column(
             children: <Widget>[
-              Text(numberOfReadTags.toString(), style: counterTextStyle),
-              const Text("Etiquetas escaneadas", style: whiteLabelTextStyle),
+              const Text(
+                "Etiquetas escaneadas",
+                style: whiteLabelTextStyle,
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                numberOfReadTags.toString(),
+                style: counterTextStyle,
+                textAlign: TextAlign.center,
+              ),
             ],
           );
         } else {
-          return const Text("Ocurrió un error", style: redLabelTextStyle);
+          return const Text(
+            "Error",
+            style: redLabelTextStyle,
+            textAlign: TextAlign.center,
+          );
         }
       },
     );
@@ -179,32 +193,64 @@ class _StatusDescription extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const Text("Estado:", style: whiteLabelTextStyle),
+        const Text(
+          "Estado:",
+          style: whiteLabelTextStyle,
+          textAlign: TextAlign.center,
+        ),
         StreamBuilder(
           stream: screenBloc.status,
           builder:
               (BuildContext context, AsyncSnapshot<InventoryStatus> snapshot) {
             if (!snapshot.hasError) {
-              switch (snapshot.data) {
-                case InventoryStatus.CLOSED:
-                  return const Text("Lector cerrado",
-                      style: yellowLabelTextStyle);
+              if (snapshot.hasData) {
+                switch (snapshot.data) {
+                  case InventoryStatus.CLOSED:
+                    return const Text(
+                      "Lector cerrado",
+                      style: yellowLabelTextStyle,
+                      textAlign: TextAlign.center,
+                    );
 
-                case InventoryStatus.OPENED:
-                  return const Text("Lector listo", style: whiteLabelTextStyle);
+                  case InventoryStatus.OPENED:
+                    return const Text(
+                      "Lector listo",
+                      style: whiteLabelTextStyle,
+                      textAlign: TextAlign.center,
+                    );
 
-                case InventoryStatus.INVENTORY_STARTED:
-                  return const Text("Escaneando", style: greenLabelTextStyle);
+                  case InventoryStatus.INVENTORY_STARTED_WITH_TAGS:
+                  case InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS:
+                    return const Text(
+                      "Escaneando",
+                      style: greenLabelTextStyle,
+                      textAlign: TextAlign.center,
+                    );
 
-                case InventoryStatus.INVENTORY_STOPPED:
-                  return const Text("Escaneo detenido",
-                      style: yellowLabelTextStyle);
+                  case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:
+                  case InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS:
+                    return const Text(
+                      "Escaneo detenido",
+                      style: yellowLabelTextStyle,
+                      textAlign: TextAlign.center,
+                    );
 
-                default:
-                  return const Text("Desconocido", style: redLabelTextStyle);
+                  default:
+                    return const Text(
+                      "Desconocido",
+                      style: redLabelTextStyle,
+                      textAlign: TextAlign.center,
+                    );
+                }
+              } else {
+                return const Center(child: const CircularProgressIndicator());
               }
             } else {
-              return const Text("Error", style: redLabelTextStyle);
+              return const Text(
+                "Error",
+                style: redLabelTextStyle,
+                textAlign: TextAlign.center,
+              );
             }
           },
         ),
@@ -216,11 +262,20 @@ class _StatusDescription extends StatelessWidget {
 class _Actions extends StatelessWidget {
   final InventoryScreenBloc screenBloc;
   final AnimationController animationController;
+  final Widget openButton;
   final Widget startButton;
+  final Widget continueButton;
   final Widget stopButton;
   _Actions({@required this.screenBloc, @required this.animationController})
-      : startButton = _Button(
-          // TODO: conditional text for 'Continuar'
+      : openButton = _Button(
+          text: "ABRIR",
+          textStyle: whiteLabelTextStyle,
+          color: white,
+          onPressed: () async {
+            screenBloc.actions.add(InventoryAction.OPEN);
+          },
+        ),
+        startButton = _Button(
           text: "INICIAR",
           textStyle: greenLabelTextStyle,
           color: green,
@@ -235,7 +290,33 @@ class _Actions extends StatelessWidget {
           onPressed: () async {
             screenBloc.actions.add(InventoryAction.STOP_INVENTORY);
           },
+        ),
+        continueButton = _Button(
+          text: "CONTINUAR",
+          textStyle: greenLabelTextStyle,
+          color: green,
+          onPressed: () async {
+            screenBloc.actions.add(InventoryAction.START_INVENTORY);
+          },
         );
+
+  bool _showOpenButton(InventoryStatus status) {
+    return status == InventoryStatus.CLOSED;
+  }
+
+  bool _showStartButton(InventoryStatus status) {
+    return status == InventoryStatus.OPENED ||
+        status == InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS;
+  }
+
+  bool _showStopButton(InventoryStatus status) {
+    return status == InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS ||
+        status == InventoryStatus.INVENTORY_STARTED_WITH_TAGS;
+  }
+
+  bool _showContinueButton(InventoryStatus status) {
+    return status == InventoryStatus.INVENTORY_STOPPED_WITH_TAGS;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,16 +325,31 @@ class _Actions extends StatelessWidget {
     return StreamBuilder(
       stream: screenBloc.status,
       builder: (BuildContext context, AsyncSnapshot<InventoryStatus> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data != InventoryStatus.INVENTORY_STARTED) {
-            return startButton;
+        if (!snapshot.hasError) {
+          if (snapshot.hasData) {
+            if (_showStartButton(snapshot.data)) {
+              return startButton;
+            } else if (_showStopButton(snapshot.data)) {
+              return stopButton;
+            } else if (_showContinueButton(snapshot.data)) {
+              return continueButton;
+            } else if (_showOpenButton(snapshot.data)) {
+              return openButton;
+            } else {
+              return const Text(
+                "No hay acciones disponibles",
+                style: whiteLabelTextStyle,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              );
+            }
           } else {
-            return stopButton;
+            return const Center(child: const CircularProgressIndicator());
           }
-        } else if (snapshot.hasError) {
-          return Text(snapshot.error.toString(), style: redLabelTextStyle);
+        } else {
+          return const Text("Error", style: redLabelTextStyle);
         }
-        return const Center(child: const CircularProgressIndicator());
       },
     );
   }

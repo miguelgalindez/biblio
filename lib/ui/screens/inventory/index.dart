@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/blocs/inventoryScreenBloc.dart';
-import 'package:biblio/ui/screens/inventory/_inventoryStatus.dart';
+import 'package:biblio/ui/screens/inventory/_inventoryProgress.dart';
 
 class Inventory extends StatefulWidget {
   @override
@@ -22,6 +22,6 @@ class _InventoryState extends State<Inventory> {
 
   @override
   Widget build(BuildContext context) {
-    return InventoryStatus(screenBloc: inventoryScreenBloc);
+    return InventoryProgress(screenBloc: inventoryScreenBloc);
   }
 }

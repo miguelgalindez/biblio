@@ -26,7 +26,7 @@ class TagsRepository {
   }
 
   List<Tag> getTagsAsCollection() {    
-    return tags.values;
+    return List<Tag>.from(tags.values);
   }
 
   void clear() {

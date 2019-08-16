@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:biblio/blocs/inventoryScreenBloc.dart';
 import 'package:biblio/models/tag.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 const Color white = const Color(0xFFFFFFFF);
 const Color red = const Color(0xFFF44336);
 const Color green = const Color(0xFF4CAF50);
+const Color yellow = const Color(0xFFFFEB3B);
 
 const TextStyle whiteLabelTextStyle = const TextStyle(
   color: white,
@@ -19,6 +22,13 @@ const TextStyle greenLabelTextStyle = const TextStyle(
   wordSpacing: 3.0,
 );
 
+const TextStyle yellowLabelTextStyle = const TextStyle(
+  color: yellow,
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  wordSpacing: 3.0,
+);
+
 const TextStyle redLabelTextStyle = const TextStyle(
   color: red,
   fontSize: 14,
@@ -26,18 +36,19 @@ const TextStyle redLabelTextStyle = const TextStyle(
   wordSpacing: 3.0,
 );
 
-class InventoryStatus extends StatefulWidget {
+class InventoryProgress extends StatefulWidget {
   final InventoryScreenBloc screenBloc;
-  InventoryStatus({@required this.screenBloc});
+  InventoryProgress({@required this.screenBloc});
 
   @override
-  _InventoryStatusState createState() => _InventoryStatusState();
+  _InventoryProgressState createState() => _InventoryProgressState();
 }
 
-class _InventoryStatusState extends State<InventoryStatus>
+class _InventoryProgressState extends State<InventoryProgress>
     with TickerProviderStateMixin {
   AnimationController animationController;
   Animation growAnimation;
+  StreamSubscription<InventoryStatus> statusSubscription;
 
   @override
   void initState() {
@@ -47,12 +58,29 @@ class _InventoryStatusState extends State<InventoryStatus>
       duration: const Duration(milliseconds: 250),
     );
     growAnimation = Tween(begin: 0.0, end: 1.0).animate(animationController);
+
+    statusSubscription = inventoryScreenBloc.status.listen(_statusListener);
   }
 
   @override
   void dispose() {
+    statusSubscription.cancel();
     animationController.dispose();
     super.dispose();
+  }
+
+  void _statusListener(InventoryStatus status) {
+    switch (status) {
+      case InventoryStatus.INVENTORY_STARTED:
+        animationController.forward();
+        break;
+      case InventoryStatus.INVENTORY_STOPPED:
+        animationController.reverse();
+        break;
+
+      default:
+        break;
+    }
   }
 
   @override
@@ -128,8 +156,7 @@ class _ReadTags extends StatelessWidget {
           }
           return Column(
             children: <Widget>[
-              Text(numberOfReadTags.toString(), style: counterTextStyle,),
-              //const Text("4", style: counterTextStyle),
+              Text(numberOfReadTags.toString(), style: counterTextStyle),
               const Text("Etiquetas escaneadas", style: whiteLabelTextStyle),
             ],
           );
@@ -155,22 +182,23 @@ class _StatusDescription extends StatelessWidget {
         const Text("Estado:", style: whiteLabelTextStyle),
         StreamBuilder(
           stream: screenBloc.status,
-          builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<InventoryStatus> snapshot) {
             if (!snapshot.hasError) {
               switch (snapshot.data) {
-                case 0:
+                case InventoryStatus.CLOSED:
                   return const Text("Lector cerrado",
-                      style: whiteLabelTextStyle);
+                      style: yellowLabelTextStyle);
 
-                case 1:
+                case InventoryStatus.OPENED:
                   return const Text("Lector listo", style: whiteLabelTextStyle);
 
-                case 2:
+                case InventoryStatus.INVENTORY_STARTED:
                   return const Text("Escaneando", style: greenLabelTextStyle);
 
-                case 3:
+                case InventoryStatus.INVENTORY_STOPPED:
                   return const Text("Escaneo detenido",
-                      style: whiteLabelTextStyle);
+                      style: yellowLabelTextStyle);
 
                 default:
                   return const Text("Desconocido", style: redLabelTextStyle);
@@ -192,12 +220,12 @@ class _Actions extends StatelessWidget {
   final Widget stopButton;
   _Actions({@required this.screenBloc, @required this.animationController})
       : startButton = _Button(
+          // TODO: conditional text for 'Continuar'
           text: "INICIAR",
           textStyle: greenLabelTextStyle,
           color: green,
           onPressed: () async {
-            animationController.forward();
-            screenBloc.startInventory();
+            screenBloc.actions.add(InventoryAction.START_INVENTORY);
           },
         ),
         stopButton = _Button(
@@ -205,8 +233,7 @@ class _Actions extends StatelessWidget {
           textStyle: redLabelTextStyle,
           color: red,
           onPressed: () async {
-            animationController.reverse();
-            screenBloc.stopInventory();
+            screenBloc.actions.add(InventoryAction.STOP_INVENTORY);
           },
         );
 
@@ -216,9 +243,9 @@ class _Actions extends StatelessWidget {
 
     return StreamBuilder(
       stream: screenBloc.status,
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<InventoryStatus> snapshot) {
         if (snapshot.hasData) {
-          if (snapshot.data != 2) {
+          if (snapshot.data != InventoryStatus.INVENTORY_STARTED) {
             return startButton;
           } else {
             return stopButton;

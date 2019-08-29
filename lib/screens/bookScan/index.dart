@@ -39,38 +39,33 @@ class BookScanScreen extends StatelessWidget {
     if (autoScan) {
       _scanQR();
     }
-    return Container(
-      decoration: BoxDecoration(
-        color: themeData.primaryColor,
-      ),
-      child: Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(MdiIcons.barcodeScan, size: 60.0, color: Colors.white),
-                  SizedBox(width: 40.0),
-                  Icon(MdiIcons.qrcodeScan, size: 60.0, color: Colors.white),
-                ],
+    return Center(
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(MdiIcons.barcodeScan, size: 60.0, color: Colors.white),
+                SizedBox(width: 40.0),
+                Icon(MdiIcons.qrcodeScan, size: 60.0, color: Colors.white),
+              ],
+            ),
+            
+            Padding(
+              padding: EdgeInsets.all(40.0),
+              child: Text(
+                "Toma el libro que deseas y escanea su código de barras o QR usando el siguiente botón:",
+                textAlign: TextAlign.center,
+                style: textStyle,
               ),
-              
-              Padding(
-                padding: EdgeInsets.all(40.0),
-                child: Text(
-                  "Toma el libro que deseas y escanea su código de barras o QR usando el siguiente botón:",
-                  textAlign: TextAlign.center,
-                  style: textStyle,
-                ),
-              ),
-              RaisedButton(
-                color: Colors.white,
-                child: Text("ESCANEAR CÓDIGO DE BARRAS O QR", style: TextStyle(color: themeData.primaryColor, fontWeight: FontWeight.bold)),
-                onPressed: _scanQR,
-              ),
-            ]),
-      ),
+            ),
+            RaisedButton(
+              color: Colors.white,
+              child: Text("ESCANEAR CÓDIGO DE BARRAS O QR", style: TextStyle(color: themeData.primaryColor, fontWeight: FontWeight.bold)),
+              onPressed: _scanQR,
+            ),
+          ]),
     );
   }
 }

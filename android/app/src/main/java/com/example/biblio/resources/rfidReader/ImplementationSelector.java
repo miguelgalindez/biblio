@@ -10,7 +10,7 @@ import com.example.biblio.resources.rfidReader.implementations.Mock;
 public class ImplementationSelector {
 
     private static final String DEVICE_MODEL=android.os.Build.MODEL;
-    public static String PROJECT_STAGE="production";
+    public static String PROJECT_STAGE;
 
     public static Reader getImplementation(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
         switch (DEVICE_MODEL){

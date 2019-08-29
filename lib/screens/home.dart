@@ -52,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildAppbar(BuildContext context, AppConfig appConfig) {
     return AppBar(
       backgroundColor: appConfig.primaryColor,
-      title: Text(appConfig.appName),
+      // TODO: put current screen title
+      title: Text("Inventario"),
       actions: <Widget>[
         IconButton(
             icon: Icon(Icons.search),
@@ -63,21 +64,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _selectPage(AppVariables appVariables) {
+  Widget _selectPage(AppVariables appVariables, Color primaryColor, bool invertColours) {
+    Widget page;
     switch (_selectedPageIndex) {
       case 0:
-        return BookScanScreen(autoScan: false);
+        page = BookScanScreen(autoScan: false);
+        break;
       case 1:
-        return SearchBookScreen(bookCategories: appVariables.categories);
+        page = SearchBookScreen(bookCategories: appVariables.categories);
+        break;
       case 4:
-        return Inventory();
+        page = Inventory();
+        break;
       default:
-        return UnderConstruction();
+        page = UnderConstruction();
+        break;
     }
+
+    return Container(
+      color: invertColours ? primaryColor : null,
+      child: page,
+    );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context, AppConfig appConfig) {
-    bool invertColours = _selectedPageIndex == 0 || _selectedPageIndex == 4;
+  Widget _buildBottomNavigationBar(Color primaryColor, bool invertColours) {
     return CurvedNavigationBar(
       index: _selectedPageIndex,
       onTap: (int index) {
@@ -87,25 +97,19 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       items: <Widget>[
         Icon(MdiIcons.barcodeScan,
-            size: 30,
-            color: invertColours ? appConfig.primaryColor : Colors.white),
+            size: 30, color: invertColours ? primaryColor : Colors.white),
         Icon(Icons.search,
-            size: 30,
-            color: invertColours ? appConfig.primaryColor : Colors.white),
+            size: 30, color: invertColours ? primaryColor : Colors.white),
         Icon(Icons.local_library,
-            size: 30,
-            color: invertColours ? appConfig.primaryColor : Colors.white),
+            size: 30, color: invertColours ? primaryColor : Colors.white),
         Icon(Icons.monetization_on,
-            size: 30,
-            color: invertColours ? appConfig.primaryColor : Colors.white),
+            size: 30, color: invertColours ? primaryColor : Colors.white),
         Icon(Icons.settings,
-            size: 30,
-            color: invertColours ? appConfig.primaryColor : Colors.white),
+            size: 30, color: invertColours ? primaryColor : Colors.white),
       ],
-      backgroundColor: invertColours ? appConfig.primaryColor : Colors.white,
-      buttonBackgroundColor:
-          invertColours ? Colors.white : appConfig.primaryColor,
-      color: invertColours ? Colors.white : appConfig.primaryColor,
+      backgroundColor: invertColours ? primaryColor : Colors.white,
+      buttonBackgroundColor: invertColours ? Colors.white : primaryColor,
+      color: invertColours ? Colors.white : primaryColor,
       height: 50.0,
     );
   }
@@ -113,12 +117,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     AppConfig appConfig = AppConfig.of(context);
+    bool invertColours = _selectedPageIndex == 0 || _selectedPageIndex == 4;
     return WillPopScope(
       child: Scaffold(
         appBar: _buildAppbar(context, appConfig),
-        bottomNavigationBar: _buildBottomNavigationBar(context, appConfig),
+        bottomNavigationBar: _buildBottomNavigationBar(appConfig.primaryColor, invertColours),
         body: ScopedModelDescendant<AppVariables>(
-          builder: (context, child, appVariables) => _selectPage(appVariables),
+          builder: (context, child, appVariables) => _selectPage(appVariables, appConfig.primaryColor, invertColours),
           rebuildOnChange: true,
         ),
       ),

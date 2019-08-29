@@ -98,24 +98,17 @@ public abstract class Reader {
     protected abstract void cleanSession();
 
     /**
-     * Close the reader and release all the held resources.
-     */
-    public void destroy(){
-        try {
-            readTags.clear();
-            close();
-        } catch(Exception ex){
-            Log.e(null, "Error trying to destroy the reader");
-        }
-    }
-
-    /**
      * Tries to start the inventory scanning
      */
     public abstract void startInventory() throws Exception;
 
     /**
-     * Tries to stop the inventory scanning
+     * Tries to stop the inventory scanning.
+     * To avoid reporting inaccurate states, it must follow
+     * these steps (in strict order):
+     *      1. Stop the reader
+     *      2. Send tags
+     *      3. Report "Inventory stopped" status
      */
     public abstract void stopInventory() throws Exception;
 

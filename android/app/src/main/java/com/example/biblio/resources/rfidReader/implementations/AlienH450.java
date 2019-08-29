@@ -3,9 +3,9 @@ package com.example.biblio.resources.rfidReader.implementations;
 import com.alien.common.KeyCode;
 import com.alien.rfid.RFID;
 import com.alien.rfid.RFIDReader;
+import com.alien.rfid.Tag;
 import com.example.biblio.resources.EventCallback;
 import com.example.biblio.resources.rfidReader.Reader;
-
 import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
@@ -26,8 +26,12 @@ public class AlienH450 extends Reader {
      */
     @Override
     protected void open() throws Exception {
-        reader=RFID.open();
-        reportStatus(Status.OPENED);
+        if(reader==null) {
+            reader = RFID.open();
+            reportStatus(Status.OPENED);
+        } else{
+            throw new Exception("Reader couldn't be opened because it has already been instantiated");
+        }
     }
 
     /**
@@ -41,7 +45,10 @@ public class AlienH450 extends Reader {
             }
             cleanSession();
             reader.close();
+            reader=null;
             reportStatus(Status.CLOSED);
+        } else {
+            throw new Exception("Reader couldn't be closed because it is null");
         }
     }
 
@@ -52,6 +59,7 @@ public class AlienH450 extends Reader {
     @Override
     protected void cleanSession() {
         // TODO: how to clean session in this device
+        readTags.clear();
     }
 
     /**
@@ -60,21 +68,7 @@ public class AlienH450 extends Reader {
     @Override
     public void startInventory() throws Exception {
         if(reader!=null && !reader.isRunning()){
-            reader.inventory(tag -> {
-                String tagEPC=tag.getEPC();
-
-                // Casting process will be executed only if the tag hasn't been previously read
-                if(tagEPC!=null && !tagEPC.isEmpty() && readTags.get(tagEPC)==null) {
-                    HashMap<String, String> tagAsMap = new HashMap<>();
-                    tagAsMap.put("epc", tag.getEPC());
-                    tagAsMap.put("pc", tag.getPC());
-                    tagAsMap.put("tid", tag.getTID());
-                    tagAsMap.put("rssi", String.valueOf(tag.getRSSI()));
-
-                    addTag(tagAsMap);
-                }
-            });
-
+            reader.inventory(this::processTag);
             reportStatus(Status.INVENTORY_STARTED);
 
         } else if (reader==null){
@@ -85,16 +79,41 @@ public class AlienH450 extends Reader {
     }
 
     /**
-     * Tries to stop the inventory scanning
+     * Tries to stop the inventory scanning.
+     * To avoid reporting inaccurate states, it must follow
+     * these steps (in strict order):
+     *      1. Stop the reader
+     *      2. Send tags
+     *      3. Report "Inventory stopped" status
      */
     @Override
     public void stopInventory() throws Exception {
-        if(reader!=null){
-            reader.stop();
-            reportStatus(Status.INVENTORY_STOPPED);
+        if(reader!=null){            
+            reader.stop();                        
             sendTags();
+            reportStatus(Status.INVENTORY_STOPPED);
         } else {
             throw new Exception("The inventory scanning couldn't be stopped because the reader is null.");
+        }
+    }
+
+    /**
+     * It casts every tag received as parameter and
+     * adds them to the readTags collection
+     * @param tag
+     */
+    private void processTag(Tag tag){
+        String tagEPC=tag.getEPC();
+
+        // Casting process will be executed only if the tag hasn't been previously read
+        if(tagEPC!=null && !tagEPC.isEmpty() && readTags.get(tagEPC)==null) {
+            HashMap<String, String> tagAsMap = new HashMap<>();
+            tagAsMap.put("epc", tag.getEPC());
+            tagAsMap.put("pc", tag.getPC());
+            tagAsMap.put("tid", tag.getTID());
+            tagAsMap.put("rssi", String.valueOf(tag.getRSSI()));
+
+            addTag(tagAsMap);
         }
     }
 }

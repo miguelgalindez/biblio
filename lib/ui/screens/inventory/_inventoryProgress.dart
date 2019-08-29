@@ -1,40 +1,10 @@
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:biblio/blocs/inventoryScreenBloc.dart';
 import 'package:biblio/models/tag.dart';
-import 'package:flutter/material.dart';
-
-const Color white = const Color(0xFFFFFFFF);
-const Color red = const Color(0xFFF44336);
-const Color green = const Color(0xFF4CAF50);
-const Color yellow = const Color(0xFFFFEB3B);
-
-const TextStyle whiteLabelTextStyle = const TextStyle(
-  color: white,
-  fontSize: 14,
-  wordSpacing: 3.0,
-);
-
-const TextStyle greenLabelTextStyle = const TextStyle(
-  color: green,
-  fontSize: 14,
-  fontWeight: FontWeight.bold,
-  wordSpacing: 3.0,
-);
-
-const TextStyle yellowLabelTextStyle = const TextStyle(
-  color: yellow,
-  fontSize: 14,
-  fontWeight: FontWeight.bold,
-  wordSpacing: 3.0,
-);
-
-const TextStyle redLabelTextStyle = const TextStyle(
-  color: red,
-  fontSize: 14,
-  fontWeight: FontWeight.bold,
-  wordSpacing: 3.0,
-);
+import 'package:biblio/ui/components/outlinedButton.dart';
+import 'package:biblio/ui/components/showAnimation.dart';
+import 'package:biblio/ui/screens/inventory/_style.dart';
 
 class InventoryProgress extends StatefulWidget {
   final InventoryScreenBloc screenBloc;
@@ -69,13 +39,22 @@ class _InventoryProgressState extends State<InventoryProgress>
     super.dispose();
   }
 
-  void _statusListener(InventoryStatus status) {
+  Future<void> _statusListener(InventoryStatus status) async {
     switch (status) {
       case InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS:
         animationController.forward();
         break;
+
       case InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS:
         animationController.reverse();
+        break;
+
+      /**
+       * When the stop status is reported before the tags are processed the
+       * animation is required to take place (only if it is not already played)
+       */
+      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:
+        animationController.forward();
         break;
 
       default:
@@ -85,50 +64,45 @@ class _InventoryProgressState extends State<InventoryProgress>
 
   @override
   Widget build(BuildContext context) {
-    print("[InventoryStatus] Building widget...");
+    print("[InventoryProgress] Building widget...");
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ShowAnimation(
-              animationController: animationController,
-              child: _ReadTags(screnBloc: widget.screenBloc),
-              height: 40,
-            ),            
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  ShowAnimation(
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ShowAnimation(
+            animationController: animationController,
+            child: _ReadTags(screnBloc: widget.screenBloc),
+            height: 40,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                ShowAnimation(
+                  animationController: animationController,
+                  child: Flexible(
+                    child: _StatusDescription(screenBloc: widget.screenBloc),
+                  ),
+                  width: 100,
+                ),
+                ShowAnimation(
+                  animationController: animationController,
+                  child: SizedBox(width: 50),
+                  width: 50,
+                ),
+                Flexible(
+                  child: _Actions(
+                    screenBloc: widget.screenBloc,
                     animationController: animationController,
-                    child: Flexible(
-                      child: _StatusDescription(screenBloc: widget.screenBloc),
-                    ),
-                    width: 100,
                   ),
-                  ShowAnimation(
-                    animationController: animationController,
-                    child: SizedBox(width: 50),
-                    width: 50,
-                  ),
-                  Flexible(
-                    child: _Actions(
-                      screenBloc: widget.screenBloc,
-                      animationController: animationController,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -267,7 +241,7 @@ class _Actions extends StatelessWidget {
   final Widget continueButton;
   final Widget stopButton;
   _Actions({@required this.screenBloc, @required this.animationController})
-      : openButton = _Button(
+      : openButton = OutlinedButton(
           text: "ABRIR",
           textStyle: whiteLabelTextStyle,
           color: white,
@@ -275,7 +249,7 @@ class _Actions extends StatelessWidget {
             screenBloc.actions.add(InventoryAction.OPEN);
           },
         ),
-        startButton = _Button(
+        startButton = OutlinedButton(
           text: "INICIAR",
           textStyle: greenLabelTextStyle,
           color: green,
@@ -283,7 +257,7 @@ class _Actions extends StatelessWidget {
             screenBloc.actions.add(InventoryAction.START_INVENTORY);
           },
         ),
-        stopButton = _Button(
+        stopButton = OutlinedButton(
           text: "PARAR",
           textStyle: redLabelTextStyle,
           color: red,
@@ -291,7 +265,7 @@ class _Actions extends StatelessWidget {
             screenBloc.actions.add(InventoryAction.STOP_INVENTORY);
           },
         ),
-        continueButton = _Button(
+        continueButton = OutlinedButton(
           text: "CONTINUAR",
           textStyle: greenLabelTextStyle,
           color: green,
@@ -320,7 +294,7 @@ class _Actions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("[_Controls] Building widget...");
+    print("[_Actions] Building widget...");
 
     return StreamBuilder(
       stream: screenBloc.status,
@@ -350,67 +324,6 @@ class _Actions extends StatelessWidget {
         } else {
           return const Text("Error", style: redLabelTextStyle);
         }
-      },
-    );
-  }
-}
-
-class _Button extends StatelessWidget {
-  final String text;
-  final TextStyle textStyle;
-  final Color color;
-  final Function onPressed;
-  _Button(
-      {@required this.text,
-      @required this.textStyle,
-      @required this.color,
-      @required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlineButton(
-      child: Text(text, style: textStyle),
-      borderSide: BorderSide(color: color, width: 3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      color: color,
-      onPressed: onPressed,
-    );
-  }
-}
-
-class ShowAnimation extends StatelessWidget {
-  final AnimationController animationController;
-  final Widget child;
-  final double width;
-  final double height;
-
-  ShowAnimation(
-      {@required this.child,
-      @required this.animationController,
-      this.width,
-      this.height});
-
-  double _getScale(double finalSize, double percentage) {
-    if (finalSize != null && finalSize > 0) {
-      return percentage * finalSize;
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animationController,
-      child: child,
-      builder: (BuildContext context, Widget child) {
-        return animationController.isCompleted
-            ? child
-            : Container(
-                width: _getScale(width, animationController.value),
-                height: _getScale(height, animationController.value),
-              );
       },
     );
   }

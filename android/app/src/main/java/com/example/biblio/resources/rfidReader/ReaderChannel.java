@@ -25,6 +25,11 @@ public class ReaderChannel {
             try {
                 switch (methodCall.method) {
 
+                    case "deviceCanReadRfidTags":
+                        // Indicates whether the current device is able to read RFID tags or not
+                        result.success(rfidReader!=null);
+                        break;
+
                     case "open":
                         rfidReader.open();
                         break;
@@ -33,10 +38,6 @@ public class ReaderChannel {
                         rfidReader.close();
                         break;
 
-                    case "deviceCanReadRfidTags":
-                        // Indicates whether the current device is able to read RFID tags or not
-                        result.success(rfidReader!=null);
-                        break;
 
                     case "startInventory":
                         rfidReader.startInventory();
@@ -85,7 +86,11 @@ public class ReaderChannel {
      */
     public void destroy(){
         // TODO: should i destroy the method channel?
-        rfidReader.destroy();
+        if(rfidReader!=null) {
+            try {
+                rfidReader.close();
+            } catch(Exception e) {}
+        }
     }
 
     /**

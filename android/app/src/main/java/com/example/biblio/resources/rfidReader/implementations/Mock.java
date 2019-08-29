@@ -53,7 +53,7 @@ public class Mock extends Reader {
      */
     @Override
     protected void cleanSession() {
-
+        readTags.clear();
     }
 
     /**
@@ -70,12 +70,17 @@ public class Mock extends Reader {
     }
 
     /**
-     * Tries to stop the inventory scanning
+     * Tries to stop the inventory scanning.
+     * To avoid reporting inaccurate states, it must follow
+     * these steps (in strict order):
+     *      1. Stop the reader
+     *      2. Send tags
+     *      3. Report "Inventory stopped" status
      */
     @Override
     public void stopInventory() {
-        reportStatus(Status.INVENTORY_STOPPED);
         sendTags();
+        reportStatus(Status.INVENTORY_STOPPED);
     }
 
 

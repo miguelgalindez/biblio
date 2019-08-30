@@ -4,16 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:biblio/ui/components/changeSizeAnimation.dart';
 import 'package:biblio/ui/components/showAnimation.dart';
 import 'package:biblio/ui/screens/inventory/_readTagsList.dart';
-import 'package:biblio/blocs/inventoryScreenBloc.dart';
+import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
 import 'package:biblio/ui/screens/inventory/_inventoryProgress.dart';
 import 'package:biblio/ui/screens/inventory/_inventoryOptions.dart';
 
-class Inventory extends StatefulWidget {
+class InventoryScreen extends StatefulWidget {
   @override
-  _InventoryState createState() => _InventoryState();
+  _InventoryScreenState createState() => _InventoryScreenState();
 }
 
-class _InventoryState extends State<Inventory> with TickerProviderStateMixin {
+class _InventoryScreenState extends State<InventoryScreen> with TickerProviderStateMixin {
   AnimationController showReadTagsAnimationController;
   AnimationController showInventoryOptionsController;
   StreamSubscription<InventoryStatus> statusSubscription;

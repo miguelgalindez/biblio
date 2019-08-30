@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:biblio/models/category.dart';
 import 'package:biblio/models/book.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 
 List<Category> categories = [];
 List<Book> books = [];
 
-Future<List<Category>> getCategories(context) async {
+Future<List<Category>> getCategories() async {
   if (categories.isEmpty) {
-    categories = await loadCategories(context);
+    categories = await loadCategories();
   }
   return categories;
 }
@@ -18,9 +19,8 @@ List<Book> getBooks() {
   return books;
 }
 
-Future<List<Category>> loadCategories(context) async {
-  final jsondata = await json.decode(await DefaultAssetBundle.of(context)
-      .loadString("assets/books-mock-data.json"));
+Future<List<Category>> loadCategories() async {
+  final jsondata = await json.decode(await rootBundle.loadString("assets/books-mock-data.json"));
   List<Category> array = [];
   books=[];
   

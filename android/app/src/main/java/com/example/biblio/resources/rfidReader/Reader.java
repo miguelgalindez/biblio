@@ -143,7 +143,6 @@ public abstract class Reader {
      */
     protected void sendTags(){
         onDataCallback.trigger(getReadTagsAsList());
-        readTags.clear();
         cleanSession();
     }
 

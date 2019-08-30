@@ -4,7 +4,7 @@ import 'package:biblio/components/logo.dart';
 import 'package:biblio/components/forms/loginForm.dart';
 import 'package:biblio/components/buttons/animatedButton.dart';
 import 'package:biblio/models/User.dart';
-import 'package:biblio/screens/home.dart';
+import 'package:biblio/ui/screens/home/index.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/services/categories-mock-data.dart';
@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen>
         isAuthenticated: true,
         id: 123);
 
-    appVariables.addCategories(await getCategories(context));
+    appVariables.addCategories(await getCategories());
     appVariables.addBooks(getBooks());
   }
 

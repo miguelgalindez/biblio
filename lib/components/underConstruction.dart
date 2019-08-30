@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class UnderConstruction extends StatelessWidget {
+class UnderConstructionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(

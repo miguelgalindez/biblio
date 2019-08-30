@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:biblio/blocs/blocBase.dart';
+import 'package:biblio/ui/screens/blocBase.dart';
 import 'package:biblio/models/tag.dart';
 import 'package:flutter/services.dart';
 import 'package:biblio/resources/repositories/tagsRepository.dart';

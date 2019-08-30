@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:biblio/models/tag.dart';
-import 'package:biblio/blocs/inventoryScreenBloc.dart';
+import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
 import '_style.dart';
 
 class ReadTagslist extends StatelessWidget {

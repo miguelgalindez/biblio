@@ -28,7 +28,11 @@ public class ReaderChannel {
                     case "deviceCanReadRfidTags":
                         // Indicates whether the current device is able to read RFID tags or not
                         result.success(rfidReader!=null);
-                        break;
+                        return;
+
+                    case "getCurrentStatus":
+                        result.success(rfidReader.getCurrentStatusCode());
+                        return;
 
                     case "open":
                         rfidReader.open();

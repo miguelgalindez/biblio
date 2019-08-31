@@ -12,8 +12,22 @@ import java.util.List;
 import java.util.Map;
 
 
-
 public abstract class Reader {
+    /**
+     * Enumeration of well-known (standard) states for every reader
+     */
+    protected enum Status {
+        CLOSED(0),
+        OPENED(1),
+        INVENTORY_STARTED(2),
+        INVENTORY_STOPPED(3);
+
+        private final int statusCode;
+        Status(int statusCode){
+            this.statusCode=statusCode;
+        }
+    }
+
     /**
      * Code for the reader trigger key. If the device
      * doesn't have a physical trigger key, then this
@@ -45,21 +59,10 @@ public abstract class Reader {
      */
     protected EventCallback onStatusChangedCallback;
 
-
     /**
-     * Enumeration of well-known (standard) states for every reader
+     * Holds the last reported status
      */
-    protected enum Status {
-        CLOSED(0),
-        OPENED(1),
-        INVENTORY_STARTED(2),
-        INVENTORY_STOPPED(3);
-
-        private final int statusCode;
-        Status(int statusCode){
-            this.statusCode=statusCode;
-        }
-    }
+    protected Status currentStatus;
 
     /**
      * Variable that holds read tags.
@@ -68,7 +71,6 @@ public abstract class Reader {
      * (casted as a map) is going to be put into an indexed
      * HashMap for improving the searching of duplicates
      * */
-    // FIXME: Check for concurrency risks over readTags when the tags are send (it implies cleaning readTags) while the reader is running.
     protected HashMap<String, Map<String, String>> readTags;
 
 
@@ -151,7 +153,8 @@ public abstract class Reader {
      * @param status Any of the different states defined by the Status enum
      */
     protected void reportStatus(Status status){
-        onStatusChangedCallback.trigger(status.statusCode);
+        this.currentStatus=status;
+        onStatusChangedCallback.trigger(this.currentStatus.statusCode);
     }
 
 
@@ -165,7 +168,7 @@ public abstract class Reader {
      */
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         boolean triggerWasPressed=triggerKeyCode!=null && keyCode==triggerKeyCode;
-        if(triggerWasPressed && event.getRepeatCount() == 0){
+        if(triggerWasPressed && event.getRepeatCount() == 0 && currentStatus!=Status.INVENTORY_STARTED){
             try{
                 startInventory();
             } catch(Exception ex){
@@ -186,7 +189,7 @@ public abstract class Reader {
      */
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         boolean triggerWasReleased=triggerKeyCode != null && keyCode == triggerKeyCode;
-        if (triggerWasReleased){
+        if (triggerWasReleased && currentStatus!=Status.INVENTORY_STOPPED){
             try {
                 stopInventory();
             } catch (Exception ex) {
@@ -202,6 +205,11 @@ public abstract class Reader {
      */
     protected List<Map<String, String>> getReadTagsAsList(){
         return new ArrayList<>(readTags.values());
+    }
+
+
+    public int getCurrentStatusCode() {
+        return currentStatus.statusCode;
     }
 }
 

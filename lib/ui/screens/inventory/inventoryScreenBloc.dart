@@ -35,7 +35,7 @@ class InventoryScreenBloc implements BlocBase {
     _reportStatus(InventoryStatus.CLOSED);
 
     _actionSubscription =
-        _actionReporter.stream.distinct().listen(_actionHandler);
+        _actionReporter.stream.listen(_actionHandler);
     _rfidReaderChannel.setMethodCallHandler(_rfidReaderMethodChannelHandler);
   }
 

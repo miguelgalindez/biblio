@@ -81,7 +81,7 @@ public abstract class Reader {
         this.onStatusChangedCallback =onStatusChangedCallback;
         this.triggerKeyCode=triggerKeyCode;
         readTags=new HashMap<>();
-        reportStatus(Status.CLOSED);
+        changeStatus(Status.CLOSED);
     }
 
     /**
@@ -116,6 +116,19 @@ public abstract class Reader {
 
 
     /**
+     * Sets the reader transmit power
+     * @param power Power attenuation in dBm
+     */
+    public abstract void setPower(int power) throws Exception;
+
+    /**
+     * Returns the reader transmit power
+     * @return Power attenuation in dBm
+     */
+    public abstract int getPower() throws Exception;
+
+
+    /**
      * Adds a tag to the readTags collection. Avoids duplicated tags
      * and sends the read tags when they have been reached the sending
      * capacity (if that limit exists).
@@ -144,16 +157,26 @@ public abstract class Reader {
      * and the reader session (if exists) to allow further tags to be read and send
      */
     protected void sendTags(){
-        onDataCallback.trigger(getReadTagsAsList());
-        cleanSession();
+        if(readTags!=null && !readTags.isEmpty()) {
+            onDataCallback.trigger(getReadTagsAsList());
+            cleanSession();
+        }
     }
 
     /**
-     * Notifies the new reader status by using the on status changed callback
+     * Replaces the reader status with the new one received as parameter
      * @param status Any of the different states defined by the Status enum
      */
-    protected void reportStatus(Status status){
+    protected void changeStatus(Status status){
         this.currentStatus=status;
+        reportCurrentStatus();
+    }
+
+    /**
+     * Reports/Notifies the current reader status by using the
+     * "onStatusChanged" callback
+     */
+    public void reportCurrentStatus() {
         onStatusChangedCallback.trigger(this.currentStatus.statusCode);
     }
 
@@ -207,10 +230,6 @@ public abstract class Reader {
         return new ArrayList<>(readTags.values());
     }
 
-
-    public int getCurrentStatusCode() {
-        return currentStatus.statusCode;
-    }
 }
 
 

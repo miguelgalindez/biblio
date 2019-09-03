@@ -2,9 +2,9 @@ package com.example.biblio.resources.rfidReader;
 
 import android.view.KeyEvent;
 
-import com.example.biblio.resources.EventCallback;
+import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.view.FlutterView;
 
 public class ReaderChannel {
@@ -16,73 +16,72 @@ public class ReaderChannel {
 
     public ReaderChannel(FlutterView flutterView){
         methodChannel = new MethodChannel(flutterView, METHOD_CHANNEL);
-        methodChannel.setMethodCallHandler(buildMethodCallHandler());
-        rfidReader = ImplementationSelector.getImplementation(buildOnDataCallback(), buildOnStatusChangedCallback());
+        methodChannel.setMethodCallHandler(this::methodCallHandler);
+        rfidReader = ImplementationSelector.getImplementation(this::onDataCallback, this::onStatusChangedCallback);
     }
 
-    private MethodCallHandler buildMethodCallHandler(){
-        return (methodCall, result) -> {
-            try {
-                switch (methodCall.method) {
+    private void methodCallHandler(MethodCall methodCall, Result result){
+        try {
+            switch (methodCall.method) {
 
-                    case "deviceCanReadRfidTags":
-                        // Indicates whether the current device is able to read RFID tags or not
-                        result.success(rfidReader!=null);
-                        return;
+                case "deviceCanReadRfidTags":
+                    // Indicates whether the current device is able to read RFID tags or not
+                    result.success(rfidReader!=null);
+                    return;
 
-                    case "getCurrentStatus":
-                        result.success(rfidReader.getCurrentStatusCode());
-                        return;
+                case "reportCurrentStatus":
+                    rfidReader.reportCurrentStatus();
+                    break;
 
-                    case "open":
-                        rfidReader.open();
-                        break;
+                case "open":
+                    rfidReader.open();
+                    break;
 
-                    case "close":
-                        rfidReader.close();
-                        break;
+                case "close":
+                    rfidReader.close();
+                    break;
 
+                case "startInventory":
+                    rfidReader.startInventory();
+                    break;
 
-                    case "startInventory":
-                        rfidReader.startInventory();
-                        break;
+                case "stopInventory":
+                    rfidReader.stopInventory();
+                    break;
 
-                    case "stopInventory":
-                        rfidReader.stopInventory();
-                        break;
+                case "sendTags":
+                    rfidReader.sendTags();
+                    break;
 
-                    default:
-                        result.notImplemented();
-                        return;
-                }
-
-                result.success(null);
-
-            } catch (Exception ex) {
-                result.error(TAG, ex.getMessage(), null);
+                default:
+                    result.notImplemented();
+                    return;
             }
 
-        };
+            result.success(null);
+
+        } catch (Exception ex) {
+            result.error(TAG, ex.getMessage(), null);
+        }
     }
 
     /**
-     * Defines the callback that is going to be invoked when
+     * Callback that is going to be invoked when
      * the reader has send data. In this case, the Flutter
      * listener will be notified about the new read tags
-     * @return EventCallback instance
      */
-    private EventCallback buildOnDataCallback(){
-        return tags -> methodChannel.invokeMethod("onData", tags);
+
+    private void onDataCallback(Object tags){
+        methodChannel.invokeMethod("onData", tags);
     }
 
     /**
-     * Defines the callback that is going to be invoked when
+     * Callback that is going to be invoked when
      * the reader status has changed. In this case, the Flutter
      * listener will be notified about the new reader status
-     * @return EventCallback instance
      */
-    private EventCallback buildOnStatusChangedCallback(){
-        return status -> methodChannel.invokeMethod("onStatusChanged", (int) status);
+    private void onStatusChangedCallback(Object status){
+        methodChannel.invokeMethod("onStatusChanged", status);
     }
 
     /**
@@ -93,7 +92,7 @@ public class ReaderChannel {
         if(rfidReader!=null) {
             try {
                 rfidReader.close();
-            } catch(Exception e) {}
+            } catch(Exception ignored) {}
         }
     }
 

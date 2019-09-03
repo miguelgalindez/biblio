@@ -37,7 +37,7 @@ public class Mock extends Reader {
      */
     @Override
     protected void open() {
-        reportStatus(Status.OPENED);
+        changeStatus(Status.OPENED);
     }
 
     /**
@@ -45,7 +45,7 @@ public class Mock extends Reader {
      */
     @Override
     protected void close() {
-        reportStatus(Status.CLOSED);
+        changeStatus(Status.CLOSED);
     }
 
     /**
@@ -61,7 +61,7 @@ public class Mock extends Reader {
      */
     @Override
     public void startInventory() {
-        reportStatus(Status.INVENTORY_STARTED);
+        changeStatus(Status.INVENTORY_STARTED);
 
         // Mocking tags scanning
         for(Map.Entry<String, Map<String, String>> entry : mockReadTags.entrySet()){
@@ -80,7 +80,27 @@ public class Mock extends Reader {
     @Override
     public void stopInventory() {
         sendTags();
-        reportStatus(Status.INVENTORY_STOPPED);
+        changeStatus(Status.INVENTORY_STOPPED);
+    }
+
+    /**
+     * Sets the reader transmit power
+     *
+     * @param power Power attenuation in dBm
+     */
+    @Override
+    public void setPower(int power){
+
+    }
+
+    /**
+     * Returns the reader transmit power
+     *
+     * @return Power attenuation in dBm
+     */
+    @Override
+    public int getPower(){
+        return 0;
     }
 
 

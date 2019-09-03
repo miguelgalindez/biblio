@@ -15,8 +15,10 @@ class TagsRepository {
   }
 
   Future<void> addTagsFromJson(List<dynamic> json) async {
-    Future.forEach(json.cast<Map<dynamic, dynamic>>(),
-        (Map<dynamic, dynamic> tagJson) => addTag(Tag.fromJson(tagJson)));
+    if (json.length > 0) {
+      Future.forEach(json.cast<Map<dynamic, dynamic>>(),
+          (Map<dynamic, dynamic> tagJson) => addTag(Tag.fromJson(tagJson)));
+    }
   }
 
   void addTag(Tag tag) {
@@ -25,7 +27,7 @@ class TagsRepository {
     }
   }
 
-  List<Tag> getTagsAsCollection() {    
+  List<Tag> getTagsAsCollection() {
     return List<Tag>.from(tags.values);
   }
 

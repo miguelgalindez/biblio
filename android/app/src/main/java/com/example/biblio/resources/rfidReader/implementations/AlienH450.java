@@ -28,7 +28,7 @@ public class AlienH450 extends Reader {
     protected void open() throws Exception {
         if(reader==null) {
             reader = RFID.open();
-            reportStatus(Status.OPENED);
+            changeStatus(Status.OPENED);
         } else{
             throw new Exception("Reader couldn't be opened because it has already been instantiated");
         }
@@ -46,7 +46,7 @@ public class AlienH450 extends Reader {
             cleanSession();
             reader.close();
             reader=null;
-            reportStatus(Status.CLOSED);
+            changeStatus(Status.CLOSED);
         } else {
             throw new Exception("Reader couldn't be closed because it is null");
         }
@@ -69,7 +69,7 @@ public class AlienH450 extends Reader {
     public void startInventory() throws Exception {
         if(reader!=null && !reader.isRunning()){
             reader.inventory(this::processTag);
-            reportStatus(Status.INVENTORY_STARTED);
+            changeStatus(Status.INVENTORY_STARTED);
 
         } else if (reader==null){
             throw new Exception("The inventory scanning couldn't be started because the reader is null.");
@@ -91,7 +91,7 @@ public class AlienH450 extends Reader {
         if(reader!=null){            
             reader.stop();                        
             sendTags();
-            reportStatus(Status.INVENTORY_STOPPED);
+            changeStatus(Status.INVENTORY_STOPPED);
         } else {
             throw new Exception("The inventory scanning couldn't be stopped because the reader is null.");
         }
@@ -115,5 +115,23 @@ public class AlienH450 extends Reader {
 
             addTag(tagAsMap);
         }
+    }
+
+    /**
+     * Sets the reader transmit power
+     * @param power Power attenuation in dBm
+     */
+    @Override
+    public void setPower(int power) throws Exception {
+        reader.setPower(power);
+    }
+
+    /**
+     * Returns the reader transmit power
+     * @return Power attenuation in dBm
+     */
+    @Override
+    public int getPower() throws Exception {
+        return reader.getPower();
     }
 }

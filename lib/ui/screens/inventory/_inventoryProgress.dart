@@ -246,7 +246,7 @@ class _Actions extends StatelessWidget {
           textStyle: whiteLabelTextStyle,
           color: white,
           onPressed: () async {
-            screenBloc.actions.add(InventoryAction.OPEN);
+            screenBloc.actions.add(InventoryAction.OPEN_READER);
           },
         ),
         startButton = OutlinedButton(

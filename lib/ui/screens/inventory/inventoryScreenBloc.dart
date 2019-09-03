@@ -14,7 +14,7 @@ enum InventoryStatus {
   INVENTORY_STARTED_WITH_TAGS,
   INVENTORY_STOPPED_WITH_TAGS
 }
-enum InventoryAction { OPEN, START_INVENTORY, STOP_INVENTORY }
+enum InventoryAction { OPEN_READER, START_INVENTORY, STOP_INVENTORY, CLOSE_READER }
 
 class InventoryScreenBloc implements BlocBase {
   MethodChannel _rfidReaderChannel;
@@ -23,30 +23,47 @@ class InventoryScreenBloc implements BlocBase {
   StreamSubscription<InventoryAction> _actionSubscription;
   BehaviorSubject<List<Tag>> _tagsReporter;
   BehaviorSubject<InventoryStatus> _statusReporter;
+  Timer _fetchTagsTimer;
 
   void init() {
     // TODO Put this on a session singleton object or use it as lazy singleton
+    print("Initializing bloc...");
     _tagsRepository = TagsRepository();
     _rfidReaderChannel = MethodChannel("biblio/rfidReader/methodChannel");
     _actionReporter = StreamController<InventoryAction>();
     _tagsReporter = BehaviorSubject<List<Tag>>();
     _statusReporter = BehaviorSubject<InventoryStatus>();
-    print("Initializing bloc...");
-    _reportStatus(InventoryStatus.CLOSED);
-
-    _actionSubscription =
-        _actionReporter.stream.listen(_actionHandler);
+    _actionSubscription = _actionReporter.stream.listen(_actionHandler);
     _rfidReaderChannel.setMethodCallHandler(_rfidReaderMethodChannelHandler);
+    _requestReaderStatus();
   }
 
+  @override
+  void dispose() {
+    // TODO: Should i close or dispose the method channel?
+    // todo: should i drain streams?
+    print("[InventoryScreenBloc] Disposing...");
+    _actionSubscription.cancel();
+    _actionReporter.close();
+    _tagsReporter.drain();
+    _tagsReporter.close();
+    _statusReporter.drain();
+    _statusReporter.close();
+    _stopPeriodicTagsFetching();
+    // FIXME: close the rfid reader
+    //_close();
+  }
+
+  /// Bloc endpoints for the UI
   Sink<InventoryAction> get actions => _actionReporter.sink;
   Observable<List<Tag>> get allTags => _tagsReporter.stream.distinct();
   Observable<InventoryStatus> get status => _statusReporter.stream.distinct();
 
+  /// Handles the action required for the user
   Future<void> _actionHandler(InventoryAction action) async {
     switch (action) {
-      case InventoryAction.OPEN:
-        _open();
+      case InventoryAction.OPEN_READER:
+        _openReader();
         break;
       case InventoryAction.START_INVENTORY:
         _startInventory();
@@ -54,9 +71,13 @@ class InventoryScreenBloc implements BlocBase {
       case InventoryAction.STOP_INVENTORY:
         _stopInventory();
         break;
+      case InventoryAction.CLOSE_READER:
+        break;
     }
   }
 
+  /// Handles the method calls made by the reader (native code).
+  /// It includes callbacks for reader events.
   Future<void> _rfidReaderMethodChannelHandler(MethodCall call) async {
     switch (call.method) {
       case "onStatusChanged":
@@ -64,7 +85,7 @@ class InventoryScreenBloc implements BlocBase {
         break;
 
       case "onData":
-        _proccessReadTags(call);
+        _processReadTags(call);
         break;
 
       default:
@@ -72,7 +93,17 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
-  Future<void> _open() async {
+  /// Asks the reader for its current status
+  Future<void> _requestReaderStatus() async {
+    try {
+      await _rfidReaderChannel.invokeMethod("reportCurrentStatus");
+    } catch (e) {
+      print("Flutter reportCurrentStatus exception: ${e.message}");
+    }
+  }
+
+  /// Asks the reader to open itself and to be ready for scanning
+  Future<void> _openReader() async {
     try {
       await _rfidReaderChannel.invokeMethod("open");
     } catch (e) {
@@ -80,7 +111,8 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
-  Future<void> _close() async {
+  /// Asks the reader to close itself and release its held resources
+  Future<void> _closeReader() async {
     try {
       await _rfidReaderChannel.invokeMethod("close");
     } catch (e) {
@@ -88,6 +120,7 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
+  /// Asks the reader to start the inventory scanning
   Future<void> _startInventory() async {
     try {
       await _rfidReaderChannel.invokeMethod("startInventory");
@@ -96,6 +129,7 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
+  /// Asks the reader to stop the inventory scanning
   Future<void> _stopInventory() async {
     try {
       await _rfidReaderChannel.invokeMethod("stopInventory");
@@ -104,7 +138,9 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
-  Future<void> _proccessReadTags(MethodCall call) async {
+  /// Process the read tags reported by the reader
+  Future<void> _processReadTags(MethodCall call) async {
+    print("[InventoryScreenBloc] Processing read tags: ${call.arguments}");
     await _tagsRepository.addTagsFromJson(call.arguments);
 
     if (_tagsRepository.tags.length > 0) {
@@ -120,6 +156,42 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
+  /// Broadcast, towards the UI, the status reported from the reader
+  Future<void> _reportStatus(InventoryStatus status) async {
+    print("Reporting status $status");
+    _statusReporter.sink.add(status);
+
+    /// While the inventory scanning is running, asks the reader to
+    /// send the read tags periodically
+    if (status == InventoryStatus.INVENTORY_STARTED_WITH_TAGS ||
+        status == InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS) {
+      _runPeriodicTagsFetching();
+    } else {
+      _stopPeriodicTagsFetching();
+    }
+  }
+
+  /// Starts the periodic tags fetching, asking the reader
+  /// to send the read tags every 500 ms.
+  Future<void> _runPeriodicTagsFetching() async {
+    if (_fetchTagsTimer == null || !_fetchTagsTimer.isActive) {
+      _fetchTagsTimer = Timer.periodic(
+        Duration(milliseconds: 500),
+        (Timer t) async => _rfidReaderChannel.invokeMethod("sendTags"),
+      );
+      print("_fetchTagsTimer active: ${_fetchTagsTimer.isActive}");
+    }
+  }
+
+  /// Stops the periodic tags fetching
+  Future<void> _stopPeriodicTagsFetching() async {
+    if (_fetchTagsTimer != null && _fetchTagsTimer.isActive) {
+      _fetchTagsTimer.cancel();
+      print("_fetchTagsTimer active: ${_fetchTagsTimer.isActive}");
+    }
+  }
+
+  /// Translates the status reported by the reader
   InventoryStatus _translateStatus(int status) {
     switch (status) {
       case 0:
@@ -141,25 +213,6 @@ class InventoryScreenBloc implements BlocBase {
       default:
         return null;
     }
-  }
-
-  void _reportStatus(InventoryStatus status) {
-    print("Reporting status $status");
-    _statusReporter.sink.add(status);
-  }
-
-  @override
-  void dispose() {
-    // TODO: Should i close or dispose the method channel?
-    print("[InventoryScreenBloc] Disposing...");
-    _actionSubscription.cancel();    
-    _actionReporter.close();
-    _tagsReporter.drain();
-    _tagsReporter.close();
-    _statusReporter.drain();
-    _statusReporter.close();
-    // FIXME: close the rfid reader
-    //_close();
   }
 }
 

@@ -14,7 +14,12 @@ enum InventoryStatus {
   INVENTORY_STARTED_WITH_TAGS,
   INVENTORY_STOPPED_WITH_TAGS
 }
-enum InventoryAction { OPEN_READER, START_INVENTORY, STOP_INVENTORY, CLOSE_READER }
+enum InventoryAction {
+  OPEN_READER,
+  START_INVENTORY,
+  STOP_INVENTORY,
+  CLOSE_READER
+}
 
 class InventoryScreenBloc implements BlocBase {
   MethodChannel _rfidReaderChannel;
@@ -24,10 +29,15 @@ class InventoryScreenBloc implements BlocBase {
   BehaviorSubject<List<Tag>> _tagsReporter;
   BehaviorSubject<InventoryStatus> _statusReporter;
   Timer _fetchTagsTimer;
+  double readerRssiAtOneMeter;
+
+  InventoryScreenBloc() {
+    print("[InventoryScreenBloc] New instance created");
+  }
 
   void init() {
     // TODO Put this on a session singleton object or use it as lazy singleton
-    print("Initializing bloc...");
+    print("[InventoryScreenBloc] Initializing bloc...");
     _tagsRepository = TagsRepository();
     _rfidReaderChannel = MethodChannel("biblio/rfidReader/methodChannel");
     _actionReporter = StreamController<InventoryAction>();
@@ -81,7 +91,7 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> _rfidReaderMethodChannelHandler(MethodCall call) async {
     switch (call.method) {
       case "onStatusChanged":
-        _reportStatus(_translateStatus(call.arguments));
+        _processStatusChange(_translateStatus(call.arguments));
         break;
 
       case "onData":
@@ -138,10 +148,30 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
+  /// Asks the reader to send/report the read tags
+  Future<void> _requestReadTags() async {
+    try {
+      await _rfidReaderChannel.invokeMethod("sendTags");
+    } catch (e) {
+      print("Flutter _requestReadTags exception: ${e.message}");
+    }
+  }
+
+  /// Gets the reader's received signal strength in dBm at 1 metre
+  Future<double> _getRssiAtOneMeter() async {
+    try {
+      return await _rfidReaderChannel.invokeMethod("getRssiAtOneMeter");
+    } catch (e) {
+      print("Flutter _getRssiAtOneMeter exception: ${e.message}");
+    }
+    return null;
+  }
+
   /// Process the read tags reported by the reader
   Future<void> _processReadTags(MethodCall call) async {
-    print("[InventoryScreenBloc] Processing read tags: ${call.arguments}");
-    await _tagsRepository.addTagsFromJson(call.arguments);
+    print(
+        "[InventoryScreenBloc] Processing read tags: ${call.arguments.length}");
+    await _tagsRepository.addTagsFromJson(call.arguments, readerRssiAtOneMeter);
 
     if (_tagsRepository.tags.length > 0) {
       _tagsReporter.sink.add(_tagsRepository.getTagsAsCollection());
@@ -156,10 +186,12 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
-  /// Broadcast, towards the UI, the status reported from the reader
-  Future<void> _reportStatus(InventoryStatus status) async {
-    print("Reporting status $status");
-    _statusReporter.sink.add(status);
+  Future<void> _processStatusChange(InventoryStatus status) async {
+    _reportStatus(status);
+
+    if (status == InventoryStatus.OPENED) {
+      readerRssiAtOneMeter = await _getRssiAtOneMeter();
+    }
 
     /// While the inventory scanning is running, asks the reader to
     /// send the read tags periodically
@@ -171,15 +203,20 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
+  /// Broadcast, towards the UI, the status reported from the reader
+  Future<void> _reportStatus(InventoryStatus status) async {
+    print("Reporting status $status");
+    _statusReporter.sink.add(status);
+  }
+
   /// Starts the periodic tags fetching, asking the reader
   /// to send the read tags every 500 ms.
   Future<void> _runPeriodicTagsFetching() async {
     if (_fetchTagsTimer == null || !_fetchTagsTimer.isActive) {
       _fetchTagsTimer = Timer.periodic(
         Duration(milliseconds: 500),
-        (Timer t) async => _rfidReaderChannel.invokeMethod("sendTags"),
+        (Timer t) async => _requestReadTags(),
       );
-      print("_fetchTagsTimer active: ${_fetchTagsTimer.isActive}");
     }
   }
 
@@ -187,7 +224,6 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> _stopPeriodicTagsFetching() async {
     if (_fetchTagsTimer != null && _fetchTagsTimer.isActive) {
       _fetchTagsTimer.cancel();
-      print("_fetchTagsTimer active: ${_fetchTagsTimer.isActive}");
     }
   }
 

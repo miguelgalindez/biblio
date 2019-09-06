@@ -8,16 +8,18 @@ import com.example.biblio.resources.EventCallback;
 import com.example.biblio.resources.rfidReader.Reader;
 import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AlienH450 extends Reader {
 
-    private static final int TRIGGER_KEY_CODE=KeyCode.ALR_H450.SCAN;
+    private static final Double RSSI_AT_ONE_METER=-67.5;
     private static final int SENDING_CAPACITY=50;
+    private static final int TRIGGER_KEY_CODE=KeyCode.ALR_H450.SCAN;
 
     private RFIDReader reader;
 
     public AlienH450(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
-        super(onDataCallback, onStatusChangedCallback, SENDING_CAPACITY,  TRIGGER_KEY_CODE);
+        super(onDataCallback, onStatusChangedCallback, RSSI_AT_ONE_METER, SENDING_CAPACITY, TRIGGER_KEY_CODE);
     }
 
 
@@ -109,11 +111,19 @@ public class AlienH450 extends Reader {
         if(tagEPC!=null && !tagEPC.isEmpty() && readTags.get(tagEPC)==null) {
             HashMap<String, String> tagAsMap = new HashMap<>();
             tagAsMap.put("epc", tag.getEPC());
-            tagAsMap.put("pc", tag.getPC());
-            tagAsMap.put("tid", tag.getTID());
             tagAsMap.put("rssi", String.valueOf(tag.getRSSI()));
 
             addTag(tagAsMap);
+
+            // But if the tag has been already read, then its RSSI value will be updated
+            // if the current reading have a greater RSSI value
+        } else if(readTags.get(tagEPC)!=null){
+            Map<String, String> previouslyReadTag=readTags.get(tagEPC);
+            double previousRSSI=Double.parseDouble(previouslyReadTag.get("rssi"));
+            double currentRSSI=tag.getRSSI();
+            if(currentRSSI>previousRSSI){
+                previouslyReadTag.put("rssi", String.valueOf(currentRSSI));
+            }
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Mock extends Reader {
-
+    private static final Double RSSI_AT_ONE_METER=null;
     private static final int SENDING_CAPACITY=50;
 
     /**
@@ -28,7 +28,7 @@ public class Mock extends Reader {
     }
 
     public Mock(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
-        super(onDataCallback, onStatusChangedCallback, SENDING_CAPACITY,  null);
+        super(onDataCallback, onStatusChangedCallback, RSSI_AT_ONE_METER, SENDING_CAPACITY,  null);
     }
 
 

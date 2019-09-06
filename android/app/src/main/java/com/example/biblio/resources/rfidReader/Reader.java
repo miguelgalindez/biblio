@@ -29,6 +29,12 @@ public abstract class Reader {
     }
 
     /**
+     * The received signal strength in dBm at 1 metre.
+     * Every reader must be calibrated to get this value.
+     */
+    protected Double rssiAtOneMeter;
+
+    /**
      * Code for the reader trigger key. If the device
      * doesn't have a physical trigger key, then this
      * must be null
@@ -73,12 +79,18 @@ public abstract class Reader {
      * */
     protected HashMap<String, Map<String, String>> readTags;
 
+    /**
+     * Indicates if there are tags without reporting.
+     */
+    private boolean areThereUnreportedTags;
 
 
-    public Reader(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback, Integer sendingCapacity, Integer triggerKeyCode) {
+
+    public Reader(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback, Double rssiAtOneMeter, Integer sendingCapacity, Integer triggerKeyCode) {
         this.onDataCallback=onDataCallback;
-        this.sendingCapacity=sendingCapacity;
         this.onStatusChangedCallback =onStatusChangedCallback;
+        this.rssiAtOneMeter=rssiAtOneMeter;
+        this.sendingCapacity=sendingCapacity;
         this.triggerKeyCode=triggerKeyCode;
         readTags=new HashMap<>();
         changeStatus(Status.CLOSED);
@@ -140,11 +152,13 @@ public abstract class Reader {
         // Checking if the tag has the epc property and if it hasn't been previously read (to avoid duplicated tags in the collection)
         if(tagEPC!=null && !tagEPC.isEmpty() && readTags.get(tagEPC)==null){
             readTags.put(tagEPC, tag);
+            areThereUnreportedTags =true;
 
             // Checking if the number of read tags has reached the sending capacity.
             // If so, it sends the data through the callback.
             if(sendingCapacity!=null && sendingCapacity>0 && readTags.size()==sendingCapacity) {
                 sendTags();
+                cleanSession();
             }
 
         } else{
@@ -157,9 +171,9 @@ public abstract class Reader {
      * and the reader session (if exists) to allow further tags to be read and send
      */
     protected void sendTags(){
-        if(readTags!=null && !readTags.isEmpty()) {
+        if(readTags!=null && !readTags.isEmpty() && areThereUnreportedTags) {
             onDataCallback.trigger(getReadTagsAsList());
-            cleanSession();
+            areThereUnreportedTags=false;
         }
     }
 
@@ -191,11 +205,15 @@ public abstract class Reader {
      */
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         boolean triggerWasPressed=triggerKeyCode!=null && keyCode==triggerKeyCode;
-        if(triggerWasPressed && event.getRepeatCount() == 0 && currentStatus!=Status.INVENTORY_STARTED){
-            try{
-                startInventory();
-            } catch(Exception ex){
-                Log.e(null, ex.getMessage());
+        if(triggerWasPressed) {
+            boolean canBeOpened = currentStatus == Status.OPENED && currentStatus != Status.INVENTORY_STARTED;
+
+            if (event.getRepeatCount() == 0 && canBeOpened) {
+                try {
+                    startInventory();
+                } catch (Exception ex) {
+                    Log.e(null, ex.getMessage());
+                }
             }
         }
         return triggerWasPressed;
@@ -212,11 +230,15 @@ public abstract class Reader {
      */
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         boolean triggerWasReleased=triggerKeyCode != null && keyCode == triggerKeyCode;
-        if (triggerWasReleased && currentStatus!=Status.INVENTORY_STOPPED){
-            try {
-                stopInventory();
-            } catch (Exception ex) {
-                Log.e(null, ex.getMessage());
+        if(triggerWasReleased) {
+            boolean canBeClosed = currentStatus == Status.OPENED && currentStatus != Status.INVENTORY_STOPPED;
+
+            if (canBeClosed) {
+                try {
+                    stopInventory();
+                } catch (Exception ex) {
+                    Log.e(null, ex.getMessage());
+                }
             }
         }
         return triggerWasReleased;
@@ -230,6 +252,9 @@ public abstract class Reader {
         return new ArrayList<>(readTags.values());
     }
 
+    public Double getRssiAtOneMeter() {
+        return rssiAtOneMeter;
+    }
 }
 
 

@@ -33,6 +33,14 @@ public class ReaderChannel {
                     rfidReader.reportCurrentStatus();
                     break;
 
+                case "getPower":
+                    result.success(rfidReader.getPower());
+                    return;
+
+                case  "getRssiAtOneMeter":
+                    result.success(rfidReader.getRssiAtOneMeter());
+                    return;
+
                 case "open":
                     rfidReader.open();
                     break;

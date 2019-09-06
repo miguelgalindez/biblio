@@ -52,7 +52,11 @@ class ReadTag extends StatelessWidget {
     return ListTile(
       leading: Text(index != null ? index.toString() : ''),
       title: Text(tag.epc),
-      subtitle: Text(tag.rssi ?? ''),
+      subtitle: Text(
+        tag.distance != null
+            ? 'Distancia aprox.: ${tag.distance.toString()} metros'
+            : 'Distancia desconocida',
+      ),
       trailing: Icon(Icons.delete),
       dense: true,
       isThreeLine: true,

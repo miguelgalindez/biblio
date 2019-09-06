@@ -14,17 +14,22 @@ class TagsRepository {
     return tags[id];
   }
 
-  Future<void> addTagsFromJson(List<dynamic> json) async {
+  Future<void> addTagsFromJson(
+      List<dynamic> json, double readerRssiAtOneMeter) async {
     if (json.length > 0) {
-      Future.forEach(json.cast<Map<dynamic, dynamic>>(),
-          (Map<dynamic, dynamic> tagJson) => addTag(Tag.fromJson(tagJson)));
+      Future.forEach(
+        json.cast<Map<dynamic, dynamic>>(),
+        (Map<dynamic, dynamic> tagJson) =>
+            addTag(Tag.fromJson(tagJson), readerRssiAtOneMeter),
+      );
     }
   }
 
-  void addTag(Tag tag) {
-    if (!tags.containsKey(tag.epc)) {
-      tags[tag.epc] = tag;
+  void addTag(Tag tag, double readerRssiAtOneMeter) {
+    if (readerRssiAtOneMeter != null) {
+      tag.calculateDistance(readerRssiAtOneMeter);
     }
+    tags[tag.epc] = tag;
   }
 
   List<Tag> getTagsAsCollection() {

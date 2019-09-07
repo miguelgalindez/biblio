@@ -1,3 +1,4 @@
+import 'package:biblio/ui/screens/blocEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:biblio/models/tag.dart';
 import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
@@ -49,17 +50,24 @@ class ReadTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Text(index != null ? index.toString() : ''),
-      title: Text(tag.epc),
-      subtitle: Text(
-        tag.distance != null
-            ? 'Distancia aprox.: ${tag.distance.toString()} metros'
-            : 'Distancia desconocida',
+    return Container(
+      color: index != null && index % 2 == 0 ? Colors.grey[100] : null,
+      child: ListTile(
+        leading: Text(index != null ? index.toString() : ''),
+        title: Text(tag.epc),
+        subtitle: tag.distance != null
+            ? Text('Distancia aprox.: ${tag.distance.toString()} metros')
+            : const Text('Distancia desconocida'),
+        trailing: IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () async {
+            inventoryScreenBloc.events.add(
+              BlocEvent(action: InventoryAction.DISCARD_TAG, data: tag.epc),
+            );
+          },
+        ),
+        dense: true,        
       ),
-      trailing: Icon(Icons.delete),
-      dense: true,
-      isThreeLine: true,
     );
   }
 }

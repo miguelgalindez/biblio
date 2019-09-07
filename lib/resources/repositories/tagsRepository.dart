@@ -15,13 +15,20 @@ class TagsRepository {
   }
 
   Future<void> addTagsFromJson(
-      List<dynamic> json, double readerRssiAtOneMeter) async {
+    List<dynamic> json,
+    double readerRssiAtOneMeter,
+    Function callback,
+  ) async {
     if (json.length > 0) {
       Future.forEach(
         json.cast<Map<dynamic, dynamic>>(),
         (Map<dynamic, dynamic> tagJson) =>
             addTag(Tag.fromJson(tagJson), readerRssiAtOneMeter),
       );
+    }
+
+    if (callback != null) {
+      callback();
     }
   }
 
@@ -32,12 +39,22 @@ class TagsRepository {
     tags[tag.epc] = tag;
   }
 
+  void removeTag(String tagEpc, Function callback) {
+    tags.remove(tagEpc);
+    if (callback != null) {
+      callback();
+    }
+  }
+
   List<Tag> getTagsAsCollection() {
     return List<Tag>.from(tags.values);
   }
 
-  void clear() {
+  void clear(Function callback) {
     tags.clear();
+    if (callback != null) {
+      callback();
+    }
   }
 
   void dispose() {

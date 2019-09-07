@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:biblio/ui/screens/blocEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
 import 'package:biblio/models/tag.dart';
@@ -246,7 +247,9 @@ class _Actions extends StatelessWidget {
           textStyle: whiteLabelTextStyle,
           color: white,
           onPressed: () async {
-            screenBloc.actions.add(InventoryAction.OPEN_READER);
+            screenBloc.events.add(
+              BlocEvent(action: InventoryAction.OPEN_READER),
+            );
           },
         ),
         startButton = OutlinedButton(
@@ -254,7 +257,9 @@ class _Actions extends StatelessWidget {
           textStyle: greenLabelTextStyle,
           color: green,
           onPressed: () async {
-            screenBloc.actions.add(InventoryAction.START_INVENTORY);
+            screenBloc.events.add(
+              BlocEvent(action: InventoryAction.START_INVENTORY),
+            );
           },
         ),
         stopButton = OutlinedButton(
@@ -262,7 +267,9 @@ class _Actions extends StatelessWidget {
           textStyle: redLabelTextStyle,
           color: red,
           onPressed: () async {
-            screenBloc.actions.add(InventoryAction.STOP_INVENTORY);
+            screenBloc.events.add(
+              BlocEvent(action: InventoryAction.STOP_INVENTORY),
+            );
           },
         ),
         continueButton = OutlinedButton(
@@ -270,7 +277,9 @@ class _Actions extends StatelessWidget {
           textStyle: greenLabelTextStyle,
           color: green,
           onPressed: () async {
-            screenBloc.actions.add(InventoryAction.START_INVENTORY);
+            screenBloc.events.add(
+              BlocEvent(action: InventoryAction.START_INVENTORY),
+            );
           },
         );
 

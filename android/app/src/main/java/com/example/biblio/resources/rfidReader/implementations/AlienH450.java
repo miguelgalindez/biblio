@@ -34,7 +34,7 @@ public class AlienH450 extends Reader {
      *      readTags.clear();
      */
     @Override
-    protected void cleanSession() {
+    protected void cleanReaderSession() {
         // TODO: how to clean session in this device
     }
 

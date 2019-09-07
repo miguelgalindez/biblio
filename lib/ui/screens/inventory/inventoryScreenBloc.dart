@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:biblio/ui/screens/blocBase.dart';
 import 'package:biblio/models/tag.dart';
+import 'package:biblio/ui/screens/blocEvent.dart';
 import 'package:flutter/services.dart';
 import 'package:biblio/resources/repositories/tagsRepository.dart';
 import 'package:rxdart/rxdart.dart';
@@ -18,14 +19,16 @@ enum InventoryAction {
   OPEN_READER,
   START_INVENTORY,
   STOP_INVENTORY,
-  CLOSE_READER
+  CLOSE_READER,
+  DISCARD_TAG,
+  DISCARD_ALL_TAGS,
 }
 
 class InventoryScreenBloc implements BlocBase {
   MethodChannel _rfidReaderChannel;
   TagsRepository _tagsRepository;
-  StreamController<InventoryAction> _actionReporter;
-  StreamSubscription<InventoryAction> _actionSubscription;
+  StreamController<BlocEvent> _actionReporter;
+  StreamSubscription<BlocEvent> _actionSubscription;
   BehaviorSubject<List<Tag>> _tagsReporter;
   BehaviorSubject<InventoryStatus> _statusReporter;
   Timer _fetchTagsTimer;
@@ -40,7 +43,7 @@ class InventoryScreenBloc implements BlocBase {
     print("[InventoryScreenBloc] Initializing bloc...");
     _tagsRepository = TagsRepository();
     _rfidReaderChannel = MethodChannel("biblio/rfidReader/methodChannel");
-    _actionReporter = StreamController<InventoryAction>();
+    _actionReporter = StreamController<BlocEvent>();
     _tagsReporter = BehaviorSubject<List<Tag>>();
     _statusReporter = BehaviorSubject<InventoryStatus>();
     _actionSubscription = _actionReporter.stream.listen(_actionHandler);
@@ -65,13 +68,13 @@ class InventoryScreenBloc implements BlocBase {
   }
 
   /// Bloc endpoints for the UI
-  Sink<InventoryAction> get actions => _actionReporter.sink;
+  Sink<BlocEvent> get events => _actionReporter.sink;
   Observable<List<Tag>> get allTags => _tagsReporter.stream.distinct();
   Observable<InventoryStatus> get status => _statusReporter.stream.distinct();
 
   /// Handles the action required for the user
-  Future<void> _actionHandler(InventoryAction action) async {
-    switch (action) {
+  Future<void> _actionHandler(BlocEvent event) async {
+    switch (event.action) {
       case InventoryAction.OPEN_READER:
         _openReader();
         break;
@@ -82,6 +85,12 @@ class InventoryScreenBloc implements BlocBase {
         _stopInventory();
         break;
       case InventoryAction.CLOSE_READER:
+        break;
+      case InventoryAction.DISCARD_TAG:
+        _discardTag(event.data);
+        break;
+      case InventoryAction.DISCARD_ALL_TAGS:
+        _clear();
         break;
     }
   }
@@ -148,6 +157,26 @@ class InventoryScreenBloc implements BlocBase {
     }
   }
 
+  /// Asks the reader to clear the read tags collection
+  Future<void> _clear() async {
+    try {
+      _tagsRepository.clear(_reportTags);
+      await _rfidReaderChannel.invokeMethod("clear");
+    } catch (e) {
+      print("Flutter clear inventory exception: ${e.message}");
+    }
+  }
+
+  /// Asks the reader to discard a single tag
+  Future<void> _discardTag(String tagEpc) async {
+    try {
+      _tagsRepository.removeTag(tagEpc, _reportTags);
+      await _rfidReaderChannel.invokeMethod("discardTag", tagEpc);
+    } catch (e) {
+      print("Flutter _discardTag exception: ${e.message}");
+    }
+  }
+
   /// Asks the reader to send/report the read tags
   Future<void> _requestReadTags() async {
     try {
@@ -171,21 +200,24 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> _processReadTags(MethodCall call) async {
     print(
         "[InventoryScreenBloc] Processing read tags: ${call.arguments.length}");
-    await _tagsRepository.addTagsFromJson(call.arguments, readerRssiAtOneMeter);
+    if (call.arguments.length > 0) {
+      await _tagsRepository.addTagsFromJson(
+          call.arguments, readerRssiAtOneMeter, _reportTags);
 
-    if (_tagsRepository.tags.length > 0) {
-      _tagsReporter.sink.add(_tagsRepository.getTagsAsCollection());
-
-      InventoryStatus currentStatus = _statusReporter.value;
-      if (currentStatus == InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS) {
-        _reportStatus(InventoryStatus.INVENTORY_STARTED_WITH_TAGS);
-      } else if (currentStatus != InventoryStatus.INVENTORY_STARTED_WITH_TAGS &&
-          currentStatus != InventoryStatus.INVENTORY_STOPPED_WITH_TAGS) {
-        _reportStatus(InventoryStatus.INVENTORY_STOPPED_WITH_TAGS);
+      if (_tagsRepository.tags.length > 0) {
+        InventoryStatus currentStatus = _statusReporter.value;
+        if (currentStatus == InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS) {
+          _reportStatus(InventoryStatus.INVENTORY_STARTED_WITH_TAGS);
+        } else if (currentStatus !=
+                InventoryStatus.INVENTORY_STARTED_WITH_TAGS &&
+            currentStatus != InventoryStatus.INVENTORY_STOPPED_WITH_TAGS) {
+          _reportStatus(InventoryStatus.INVENTORY_STOPPED_WITH_TAGS);
+        }
       }
     }
   }
 
+  /// Process the status change
   Future<void> _processStatusChange(InventoryStatus status) async {
     _reportStatus(status);
 
@@ -207,6 +239,10 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> _reportStatus(InventoryStatus status) async {
     print("Reporting status $status");
     _statusReporter.sink.add(status);
+  }
+
+  Future<void> _reportTags() async {
+    _tagsReporter.sink.add(_tagsRepository.getTagsAsCollection());
   }
 
   /// Starts the periodic tags fetching, asking the reader

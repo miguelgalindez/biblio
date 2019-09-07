@@ -123,7 +123,7 @@ public abstract class Reader {
     /**
      * Clean the RFID reader session (if exists).
      */
-    protected abstract void cleanSession();
+    protected abstract void cleanReaderSession();
 
 
     /**
@@ -151,10 +151,18 @@ public abstract class Reader {
      * Tries to close the RFID reader.
      */
     public void close() throws Exception{
-        readTags.clear();
-        cleanSession();
+        clear();
         destroyReader();
         changeStatus(Status.CLOSED);
+    }
+
+    /**
+     * Clears the read tags collection and
+     * any reader's session data (if exists)
+     */
+    public void clear() {
+        readTags.clear();
+        cleanReaderSession();
     }
 
     /**
@@ -231,8 +239,7 @@ public abstract class Reader {
             // If so, it sends the data through the callback.
             if(sendingCapacity!=null && sendingCapacity>0 && readTags.size()==sendingCapacity) {
                 sendTags();
-                readTags.clear();
-                cleanSession();
+                clear();
             }
         } else{
             Log.e(null, "Missing epc property in the read tag. Skipping that tag...");
@@ -248,6 +255,10 @@ public abstract class Reader {
             onDataCallback.trigger(getReadTagsAsList());
             areThereUnreportedTags=false;
         }
+    }
+
+    public void discardTag(String epc){
+        readTags.remove(epc);
     }
 
     /**
@@ -323,6 +334,10 @@ public abstract class Reader {
         return new ArrayList<>(readTags.values());
     }
 
+    /**
+     * Returns the rssi received at one meter
+     * @return
+     */
     public Double getRssiAtOneMeter() {
         return rssiAtOneMeter;
     }

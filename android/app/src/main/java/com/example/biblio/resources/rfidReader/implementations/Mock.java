@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Mock extends Reader {
-    private static final Double RSSI_AT_ONE_METER=null;
+    private static final Double RSSI_AT_ONE_METER=-30.0;
     private static final int SENDING_CAPACITY=50;
 
     /**
@@ -19,7 +19,7 @@ public class Mock extends Reader {
     static{
         for(int i=0; i<SENDING_CAPACITY; i++){
             String mockEpc="Test-EPC-"+i;
-            Double mockRssi=-50.0;
+            Double mockRssi=-60.0+i;
             mockReadTags.add(new Tag(mockEpc, mockRssi));
         }
     }
@@ -72,7 +72,7 @@ public class Mock extends Reader {
      * Clean the RFID reader session (if exists).
      */
     @Override
-    protected void cleanSession() {
+    protected void cleanReaderSession() {
 
     }
 

@@ -64,6 +64,14 @@ public class ReaderChannel {
                     rfidReader.sendTags();
                     break;
 
+                case "clear":
+                    rfidReader.clear();
+                    break;
+
+                case "discardTag":
+                    rfidReader.discardTag((String) methodCall.arguments);
+                    break;
+
                 default:
                     result.notImplemented();
                     return;

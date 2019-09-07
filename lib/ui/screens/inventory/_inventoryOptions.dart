@@ -1,3 +1,5 @@
+import 'package:biblio/ui/screens/blocEvent.dart';
+import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
 import 'package:flutter/material.dart';
 import 'package:biblio/ui/components/outlinedButton.dart';
 import 'package:biblio/ui/screens/inventory/_style.dart';
@@ -10,7 +12,11 @@ class InventoryOptions extends StatelessWidget {
           text: "DESCARTAR",
           color: yellow,
           textStyle: yellowLabelTextStyle,
-          onPressed: () async {},
+          onPressed: () async {
+            inventoryScreenBloc.events.add(
+              BlocEvent(action: InventoryAction.DISCARD_ALL_TAGS),
+            );
+          },
         ),
         saveButton = OutlinedButton(
           text: "GUARDAR",
@@ -21,7 +27,7 @@ class InventoryOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(      
+    return Container(
       decoration: BoxDecoration(color: Theme.of(context).primaryColor),
       child: Padding(
         padding: const EdgeInsets.only(top: 5.0),

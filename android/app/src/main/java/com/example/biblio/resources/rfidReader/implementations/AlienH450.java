@@ -3,11 +3,13 @@ package com.example.biblio.resources.rfidReader.implementations;
 import com.alien.common.KeyCode;
 import com.alien.rfid.RFID;
 import com.alien.rfid.RFIDReader;
-import com.alien.rfid.Tag;
 import com.example.biblio.resources.EventCallback;
 import com.example.biblio.resources.rfidReader.Reader;
+import com.example.biblio.resources.rfidReader.Tag;
+
 import org.jetbrains.annotations.NotNull;
-import java.util.HashMap;
+
+import java.util.List;
 import java.util.Map;
 
 public class AlienH450 extends Reader {
@@ -16,132 +18,100 @@ public class AlienH450 extends Reader {
     private static final int SENDING_CAPACITY=50;
     private static final int TRIGGER_KEY_CODE=KeyCode.ALR_H450.SCAN;
 
-    private RFIDReader reader;
+    private RFIDReader rfidReader;
 
-    public AlienH450(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
+    public AlienH450(@NotNull EventCallback<List<Map<String, String>>> onDataCallback, EventCallback<Integer> onStatusChangedCallback){
         super(onDataCallback, onStatusChangedCallback, RSSI_AT_ONE_METER, SENDING_CAPACITY, TRIGGER_KEY_CODE);
     }
 
 
     /**
-     * Tries to open the reader.
-     */
-    @Override
-    protected void open() throws Exception {
-        if(reader==null) {
-            reader = RFID.open();
-            changeStatus(Status.OPENED);
-        } else{
-            throw new Exception("Reader couldn't be opened because it has already been instantiated");
-        }
-    }
-
-    /**
-     * Tries to close the reader.
-     */
-    @Override
-    protected void close() throws Exception{
-        if(reader!=null){
-            if(reader.isRunning()) {
-                reader.stop();
-            }
-            cleanSession();
-            reader.close();
-            reader=null;
-            changeStatus(Status.CLOSED);
-        } else {
-            throw new Exception("Reader couldn't be closed because it is null");
-        }
-    }
-
-
-    /**
-     * Clean the reader session (if exists)
+     * Clean the rfidReader session (if exists).
+     * It is highly recommended to clear the
+     * read tags collection. To do that,
+     * include the following line in this
+     * method's implementation:
+     *      readTags.clear();
      */
     @Override
     protected void cleanSession() {
         // TODO: how to clean session in this device
-        readTags.clear();
     }
 
     /**
-     * Tries to start the inventory scanning
+     * Tries to initialize the RFID reader.
+     * It is specific to each RFID reader model
      */
     @Override
-    public void startInventory() throws Exception {
-        if(reader!=null && !reader.isRunning()){
-            reader.inventory(this::processTag);
-            changeStatus(Status.INVENTORY_STARTED);
-
-        } else if (reader==null){
-            throw new Exception("The inventory scanning couldn't be started because the reader is null.");
-        } else {
-            throw new Exception("The inventory scanning couldn't be started because the reader is busy.");
+    protected void initReader() throws Exception {
+        if(rfidReader ==null) {
+            rfidReader = RFID.open();
+        } else{
+            throw new Exception("RfidReader couldn't be opened because it has already been instantiated");
         }
     }
 
     /**
-     * Tries to stop the inventory scanning.
-     * To avoid reporting inaccurate states, it must follow
-     * these steps (in strict order):
-     *      1. Stop the reader
-     *      2. Send tags
-     *      3. Report "Inventory stopped" status
+     * Tries to destroy the RFID reader.
+     * It is specific to each RFID reader model
      */
     @Override
-    public void stopInventory() throws Exception {
-        if(reader!=null){            
-            reader.stop();                        
-            sendTags();
-            changeStatus(Status.INVENTORY_STOPPED);
-        } else {
-            throw new Exception("The inventory scanning couldn't be stopped because the reader is null.");
-        }
-    }
-
-    /**
-     * It casts every tag received as parameter and
-     * adds them to the readTags collection
-     * @param tag
-     */
-    private void processTag(Tag tag){
-        String tagEPC=tag.getEPC();
-
-        // Casting process will be executed only if the tag hasn't been previously read
-        if(tagEPC!=null && !tagEPC.isEmpty() && readTags.get(tagEPC)==null) {
-            HashMap<String, String> tagAsMap = new HashMap<>();
-            tagAsMap.put("epc", tag.getEPC());
-            tagAsMap.put("rssi", String.valueOf(tag.getRSSI()));
-
-            addTag(tagAsMap);
-
-            // But if the tag has been already read, then its RSSI value will be updated
-            // if the current reading have a greater RSSI value
-        } else if(readTags.get(tagEPC)!=null){
-            Map<String, String> previouslyReadTag=readTags.get(tagEPC);
-            double previousRSSI=Double.parseDouble(previouslyReadTag.get("rssi"));
-            double currentRSSI=tag.getRSSI();
-            if(currentRSSI>previousRSSI){
-                previouslyReadTag.put("rssi", String.valueOf(currentRSSI));
+    protected void destroyReader() throws Exception {
+        if(rfidReader !=null){
+            if(rfidReader.isRunning()) {
+                rfidReader.stop();
             }
+            rfidReader.close();
+            rfidReader =null;
+        } else {
+            throw new Exception("RfidReader couldn't be closed because it is null");
         }
     }
 
     /**
-     * Sets the reader transmit power
+     * Asks the RFID reader to run the continuous tags scanning
+     *
+     * @param onTagReadCallback Function that's gonna be executed
+     *                          every time a tag is read
+     */
+    @Override
+    protected void runScanning(EventCallback<Tag> onTagReadCallback) throws Exception {
+        if(rfidReader !=null && !rfidReader.isRunning()) {
+            rfidReader.inventory((com.alien.rfid.Tag tag) -> onTagReadCallback.trigger(new Tag(tag.getEPC(), tag.getRSSI())));
+        } else if (rfidReader ==null){
+            throw new Exception("The inventory scanning couldn't be started because the rfidReader is null.");
+        } else {
+            throw new Exception("The inventory scanning couldn't be started because the rfidReader is busy.");
+        }
+    }
+
+    /**
+     * Asks the RFID Reader to stop the continuous tags scanning
+     */
+    @Override
+    protected void stopScanning() throws Exception {
+        if(rfidReader !=null){
+            rfidReader.stop();
+        } else {
+            throw new Exception("The inventory scanning couldn't be stopped because the rfidReader is null.");
+        }
+    }
+
+    /**
+     * Sets the rfidReader transmit power
      * @param power Power attenuation in dBm
      */
     @Override
     public void setPower(int power) throws Exception {
-        reader.setPower(power);
+        rfidReader.setPower(power);
     }
 
     /**
-     * Returns the reader transmit power
+     * Returns the rfidReader transmit power
      * @return Power attenuation in dBm
      */
     @Override
     public int getPower() throws Exception {
-        return reader.getPower();
+        return rfidReader.getPower();
     }
 }

@@ -25,7 +25,7 @@ public class MainActivity extends FlutterActivity {
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    boolean eventHandled=rfidReaderChannel.onKeyUp(keyCode, event);
+    boolean eventHandled=rfidReaderChannel.onKeyUp(keyCode);
     if(eventHandled)
       return true;
     else

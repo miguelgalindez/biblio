@@ -2,6 +2,9 @@ package com.example.biblio.resources.rfidReader;
 
 import android.view.KeyEvent;
 
+import java.util.List;
+import java.util.Map;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
@@ -79,7 +82,7 @@ public class ReaderChannel {
      * listener will be notified about the new read tags
      */
 
-    private void onDataCallback(Object tags){
+    private void onDataCallback(List<Map<String, String>> tags){
         methodChannel.invokeMethod("onData", tags);
     }
 
@@ -88,7 +91,7 @@ public class ReaderChannel {
      * the reader status has changed. In this case, the Flutter
      * listener will be notified about the new reader status
      */
-    private void onStatusChangedCallback(Object status){
+    private void onStatusChangedCallback(int status){
         methodChannel.invokeMethod("onStatusChanged", status);
     }
 
@@ -118,10 +121,9 @@ public class ReaderChannel {
     /**
      * Catches key up events
      * @param keyCode Code of the key that has been released (unpressed)
-     * @param event Corresponding event object
      * @return true or false indicating if the event was successfully handle or not.
      */
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return rfidReader.onKeyUp(keyCode, event);
+    public boolean onKeyUp(int keyCode) {
+        return rfidReader.onKeyUp(keyCode);
     }
 }

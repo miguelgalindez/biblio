@@ -2,10 +2,10 @@ package com.example.biblio.resources.rfidReader.implementations;
 
 import com.example.biblio.resources.EventCallback;
 import com.example.biblio.resources.rfidReader.Reader;
-
+import com.example.biblio.resources.rfidReader.Tag;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Mock extends Reader {
@@ -15,93 +15,84 @@ public class Mock extends Reader {
     /**
      * Initializing mock data
      */
-    private static final HashMap<String, Map<String, String>> mockReadTags=new HashMap<>();
+    private static final ArrayList<Tag> mockReadTags=new ArrayList<>();
     static{
         for(int i=0; i<SENDING_CAPACITY; i++){
-            Map<String, String> mockTag=new HashMap<>();
-            mockTag.put("epc", "Test-EPC-"+i);
-            mockTag.put("pc", "");
-            mockTag.put("tid", "");
-            mockTag.put("rssi", "Test-RSSI-"+i);
-            mockReadTags.put(mockTag.get("epc"), mockTag);
+            String mockEpc="Test-EPC-"+i;
+            Double mockRssi=-50.0;
+            mockReadTags.add(new Tag(mockEpc, mockRssi));
         }
     }
 
-    public Mock(@NotNull EventCallback onDataCallback, EventCallback onStatusChangedCallback){
+    public Mock(@NotNull EventCallback<List<Map<String, String>>> onDataCallback, EventCallback<Integer> onStatusChangedCallback){
         super(onDataCallback, onStatusChangedCallback, RSSI_AT_ONE_METER, SENDING_CAPACITY,  null);
     }
 
 
     /**
-     * Tries to open the reader.
+     * Tries to initialize the RFID reader.
+     * It is specific to each RFID reader model
      */
     @Override
-    protected void open() {
-        changeStatus(Status.OPENED);
+    protected void initReader() {
+
     }
 
     /**
-     * Tries to close the reader.
+     * Tries to destroy the RFID reader.
+     * It is specific to each RFID reader model
      */
     @Override
-    protected void close() {
-        changeStatus(Status.CLOSED);
+    protected void destroyReader() {
+
     }
 
     /**
-     * Clean the reader session (if exists)
+     * Asks the RFID reader to run the continuous tags scanning
+     *
+     * @param onTagReadCallback Function that's gonna be executed
+     *                          every time a tag is read
      */
     @Override
-    protected void cleanSession() {
-        readTags.clear();
-    }
-
-    /**
-     * Tries to start the inventory scanning
-     */
-    @Override
-    public void startInventory() {
-        changeStatus(Status.INVENTORY_STARTED);
-
-        // Mocking tags scanning
-        for(Map.Entry<String, Map<String, String>> entry : mockReadTags.entrySet()){
-            addTag(entry.getValue());
+    protected void runScanning(EventCallback<Tag> onTagReadCallback){
+        for(Tag tag : mockReadTags){
+            onTagReadCallback.trigger(tag);
         }
     }
 
     /**
-     * Tries to stop the inventory scanning.
-     * To avoid reporting inaccurate states, it must follow
-     * these steps (in strict order):
-     *      1. Stop the reader
-     *      2. Send tags
-     *      3. Report "Inventory stopped" status
+     * Asks the RFID reader to stop the continuous tags scanning
      */
     @Override
-    public void stopInventory() {
-        sendTags();
-        changeStatus(Status.INVENTORY_STOPPED);
+    protected void stopScanning(){
+
     }
 
     /**
-     * Sets the reader transmit power
+     * Clean the RFID reader session (if exists).
+     */
+    @Override
+    protected void cleanSession() {
+
+    }
+
+    /**
+     * Sets the RFID reader transmit power
      *
      * @param power Power attenuation in dBm
      */
     @Override
-    public void setPower(int power){
+    public void setPower(int power) {
 
     }
 
     /**
-     * Returns the reader transmit power
+     * Returns the RFID reader transmit power
      *
      * @return Power attenuation in dBm
      */
     @Override
-    public int getPower(){
+    public int getPower() {
         return 0;
     }
-
-
 }

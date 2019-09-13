@@ -11,14 +11,13 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.view.FlutterView;
 
 public class ReaderChannel {
-    private static final String METHOD_CHANNEL ="biblio/rfidReader/methodChannel";
-    private static final String TAG ="RFIDReaderChannel";
+    private static final String CHANNEL_ID ="biblio/rfidReader";
 
     private MethodChannel methodChannel;
     private Reader rfidReader;
 
     public ReaderChannel(FlutterView flutterView){
-        methodChannel = new MethodChannel(flutterView, METHOD_CHANNEL);
+        methodChannel = new MethodChannel(flutterView, CHANNEL_ID);
         methodChannel.setMethodCallHandler(this::methodCallHandler);
         rfidReader = ImplementationSelector.getImplementation(this::onDataCallback, this::onStatusChangedCallback);
     }
@@ -26,12 +25,6 @@ public class ReaderChannel {
     private void methodCallHandler(MethodCall methodCall, Result result){
         try {
             switch (methodCall.method) {
-
-                case "deviceCanReadRfidTags":
-                    // Indicates whether the current device is able to read RFID tags or not
-                    result.success(rfidReader!=null);
-                    return;
-
                 case "reportCurrentStatus":
                     rfidReader.reportCurrentStatus();
                     break;
@@ -80,7 +73,7 @@ public class ReaderChannel {
             result.success(null);
 
         } catch (Exception ex) {
-            result.error(TAG, ex.getMessage(), null);
+            result.error("RFIDReaderChannel", ex.getMessage(), null);
         }
     }
 
@@ -122,7 +115,10 @@ public class ReaderChannel {
      * @return true or false indicating if the event was successfully handle or not.
      */
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return rfidReader.onKeyDown(keyCode, event);
+        if(rfidReader!=null) {
+            return rfidReader.onKeyDown(keyCode, event);
+        }
+        return false;
     }
 
 
@@ -132,6 +128,9 @@ public class ReaderChannel {
      * @return true or false indicating if the event was successfully handle or not.
      */
     public boolean onKeyUp(int keyCode) {
-        return rfidReader.onKeyUp(keyCode);
+        if(rfidReader!=null) {
+            return rfidReader.onKeyUp(keyCode);
+        }
+        return false;
     }
 }

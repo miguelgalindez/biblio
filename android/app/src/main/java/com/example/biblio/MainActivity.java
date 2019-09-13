@@ -5,12 +5,14 @@ import android.view.KeyEvent;
 
 import com.example.biblio.resources.rfidReader.ImplementationSelector;
 import com.example.biblio.resources.rfidReader.ReaderChannel;
+import com.example.biblio.resources.utilities.UtilitiesChannel;
 
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
   ReaderChannel rfidReaderChannel;
+  UtilitiesChannel utilitiesChannel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +23,7 @@ public class MainActivity extends FlutterActivity {
     ImplementationSelector.PROJECT_STAGE="development";
 
     rfidReaderChannel= new ReaderChannel(getFlutterView());
+    utilitiesChannel=new UtilitiesChannel(getFlutterView());
   }
 
   @Override

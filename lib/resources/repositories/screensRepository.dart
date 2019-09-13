@@ -1,5 +1,6 @@
 import 'package:biblio/components/underConstruction.dart';
 import 'package:biblio/models/category.dart';
+import 'package:biblio/models/deviceCapabilities.dart';
 import 'package:biblio/models/screen.dart';
 import 'package:biblio/resources/api/mockApi.dart';
 import 'package:biblio/screens/bookScan/index.dart';
@@ -12,7 +13,6 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 // todo: create a repository base with destroy
 // todo: Find out how to make IDE warns for closing this
-// todo: manage screens priorities, order them and put the indexes
 class ScreensRepository {
   List<Screen> screens;
   // Get rid of this as soon as posible. Replace it with bloc pattern
@@ -24,15 +24,25 @@ class ScreensRepository {
     });
   }
 
-  Future<List<Screen>> loadAvailableScreens() async {
+  Future<List<Screen>> loadAvailableScreens(
+      DeviceCapabilities deviceCapabilities) async {
     if (screens == null || screens.isEmpty) {
       screens = await MockApi.getAvailableScreens();
       if (screens != null && screens.isNotEmpty) {
-        screens.sort((a, b) => a.index.compareTo(b.index));
-        screens.forEach((Screen screen) {
-          screen.icon = getScreenIcon(screen.id);
-          screen.invertColors = getScreenInvertColors(screen.id);
-        });
+        int index = 0;
+        screens.sort((a, b) => a.priority.compareTo(b.priority));
+        screens = screens
+            .map((Screen screen) {
+              if (screen.isSupported(deviceCapabilities)) {
+                screen.index = index++;
+                screen.icon = getScreenIcon(screen.id);
+                screen.invertColors = getScreenInvertColors(screen.id);
+                return screen;
+              }
+              return null;
+            })
+            .where((screen) => screen != null)
+            .toList();
       }
     }
     return screens;
@@ -75,7 +85,8 @@ class ScreensRepository {
     }
   }
 
-  void dispose(){
-
+  void dispose() {
+    screens.clear();
+    bookCategories.clear();
   }
 }

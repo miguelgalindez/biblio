@@ -1,4 +1,3 @@
-abstract class BlocBase {
-  void init();
+abstract class BlocBase {  
   void dispose();
 }

@@ -13,7 +13,8 @@ class InventoryScreen extends StatefulWidget {
   _InventoryScreenState createState() => _InventoryScreenState();
 }
 
-class _InventoryScreenState extends State<InventoryScreen> with TickerProviderStateMixin {
+class _InventoryScreenState extends State<InventoryScreen>
+    with TickerProviderStateMixin {
   AnimationController showReadTagsAnimationController;
   AnimationController showInventoryOptionsController;
   StreamSubscription<InventoryStatus> statusSubscription;
@@ -24,7 +25,7 @@ class _InventoryScreenState extends State<InventoryScreen> with TickerProviderSt
   @override
   void initState() {
     _setPreferredOrientations();
-    inventoryScreenBloc.init();
+    inventoryScreenBloc.onShowScreen();
     showReadTagsAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -54,7 +55,7 @@ class _InventoryScreenState extends State<InventoryScreen> with TickerProviderSt
     showReadTagsAnimationController.dispose();
     showInventoryOptionsController.dispose();
     statusSubscription.cancel();
-    inventoryScreenBloc.dispose();
+    inventoryScreenBloc.onLeaveScreen();
     super.dispose();
   }
 
@@ -104,26 +105,29 @@ class _InventoryScreenState extends State<InventoryScreen> with TickerProviderSt
     ]);
   }
 
-  Future<void> _statusListener(InventoryStatus status) async {
+  void _statusListener(InventoryStatus status) {
+    _handleShowReadTagsAnimation(status);
+    _handleShowInventoryOptionsAnimation(status);
+  }
+
+  void _handleShowReadTagsAnimation(InventoryStatus status) {
     switch (status) {
       case InventoryStatus.INVENTORY_STARTED_WITH_TAGS:
-      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:
-        // Firing show read tags animation
-        if (!showReadTagsAnimationController.isAnimating &&
-            !showReadTagsAnimationController.isCompleted) {
-          showReadTagsAnimationController.forward();
-        }
-
-        // Firing show inventory options animation
-        if (status == InventoryStatus.INVENTORY_STOPPED_WITH_TAGS) {
-          showInventoryOptionsController.forward();
-        } else if (showInventoryOptionsController.isCompleted ||
-            showInventoryOptionsController.isAnimating) {
-          showInventoryOptionsController.reverse();
-        }
-
+      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:        
+        showReadTagsAnimationController.forward();
         break;
       default:
+        showReadTagsAnimationController.reverse();
+    }
+  }
+
+  void _handleShowInventoryOptionsAnimation(InventoryStatus status) {
+    switch (status) {      
+      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:      
+        showInventoryOptionsController.forward();
+        break;
+      default:
+        showInventoryOptionsController.reverse();
     }
   }
 }

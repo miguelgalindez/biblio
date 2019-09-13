@@ -4,7 +4,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.example.biblio.resources.EventCallback;
-import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,14 +84,16 @@ public abstract class Reader {
 
 
 
-    public Reader(@NotNull EventCallback<List<Map<String, String>>> onDataCallback, EventCallback<Integer> onStatusChangedCallback, Double rssiAtOneMeter, Integer sendingCapacity, Integer triggerKeyCode) {
+    public Reader(EventCallback<List<Map<String, String>>> onDataCallback, EventCallback<Integer> onStatusChangedCallback, Double rssiAtOneMeter, Integer sendingCapacity, Integer triggerKeyCode) {
         this.onDataCallback=onDataCallback;
         this.onStatusChangedCallback =onStatusChangedCallback;
-        this.rssiAtOneMeter=rssiAtOneMeter;
-        this.sendingCapacity=sendingCapacity;
-        this.triggerKeyCode=triggerKeyCode;
-        readTags=new HashMap<>();
-        changeStatus(Status.CLOSED);
+        this.rssiAtOneMeter = rssiAtOneMeter;
+        this.sendingCapacity = sendingCapacity;
+        this.triggerKeyCode = triggerKeyCode;
+        if(this.onDataCallback!=null && this.onStatusChangedCallback!=null) {
+            readTags = new HashMap<>();
+            changeStatus(Status.CLOSED);
+        }
     }
 
 

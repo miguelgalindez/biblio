@@ -237,22 +237,11 @@ class _StatusDescription extends StatelessWidget {
 class _Actions extends StatelessWidget {
   final InventoryScreenBloc screenBloc;
   final AnimationController animationController;
-  final Widget openButton;
   final Widget startButton;
   final Widget continueButton;
   final Widget stopButton;
   _Actions({@required this.screenBloc, @required this.animationController})
-      : openButton = OutlinedButton(
-          text: "ABRIR",
-          textStyle: whiteLabelTextStyle,
-          color: white,
-          onPressed: () async {
-            screenBloc.events.add(
-              BlocEvent(action: InventoryAction.OPEN_READER),
-            );
-          },
-        ),
-        startButton = OutlinedButton(
+      : startButton = OutlinedButton(
           text: "INICIAR",
           textStyle: greenLabelTextStyle,
           color: green,
@@ -283,10 +272,6 @@ class _Actions extends StatelessWidget {
           },
         );
 
-  bool _showOpenButton(InventoryStatus status) {
-    return status == InventoryStatus.CLOSED;
-  }
-
   bool _showStartButton(InventoryStatus status) {
     return status == InventoryStatus.OPENED ||
         status == InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS;
@@ -310,14 +295,15 @@ class _Actions extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<InventoryStatus> snapshot) {
         if (!snapshot.hasError) {
           if (snapshot.hasData) {
-            if (_showStartButton(snapshot.data)) {
+            InventoryStatus status = snapshot.data;
+            if (status == InventoryStatus.CLOSED) {
+              return const Center(child: const CircularProgressIndicator());
+            } else if (_showStartButton(status)) {
               return startButton;
-            } else if (_showStopButton(snapshot.data)) {
+            } else if (_showStopButton(status)) {
               return stopButton;
-            } else if (_showContinueButton(snapshot.data)) {
+            } else if (_showContinueButton(status)) {
               return continueButton;
-            } else if (_showOpenButton(snapshot.data)) {
-              return openButton;
             } else {
               return const Text(
                 "No hay acciones disponibles",

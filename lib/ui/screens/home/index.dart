@@ -1,3 +1,4 @@
+import 'package:biblio/ui/screens/blocEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -100,6 +101,7 @@ class Body extends StatelessWidget {
                 )
               : screen.body;
         } else if (snapshot.hasError) {
+          print("[Home/Body] Error: ${snapshot.error.toString()}");
           return const Center(
             child: const Text("Error al intentar cargar la pantalla"),
           );
@@ -126,14 +128,19 @@ class BottomNavigationBar extends StatelessWidget {
           return CurvedNavigationBar(
             index: snapshot.data.currentScreen.index,
             onTap: (int index) {
-              homeScreenBloc.switchToScreen.add(index);
+              homeScreenBloc.eventsSink.add(BlocEvent(
+                action: HomeScreenActions.SWITCH_TO_SCREEN,
+                data: index,
+              ));
             },
             items: snapshot.data.availableScreens
-                .map((screen) => Icon(screen.icon,
-                    size: 30,
-                    color: snapshot.data.currentScreen.invertColors
-                        ? primaryColor
-                        : Colors.white))
+                .map((screen) => Icon(
+                      screen.icon,
+                      size: 30,
+                      color: snapshot.data.currentScreen.invertColors
+                          ? primaryColor
+                          : Colors.white,
+                    ))
                 .toList(),
             backgroundColor: snapshot.data.currentScreen.invertColors
                 ? primaryColor

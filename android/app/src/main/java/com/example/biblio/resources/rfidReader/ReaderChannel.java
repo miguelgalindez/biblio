@@ -84,7 +84,7 @@ public class ReaderChannel {
      */
 
     private void onDataCallback(List<Map<String, String>> tags){
-        methodChannel.invokeMethod("onData", tags);
+        methodChannel.invokeMethod("onTagsRead", tags);
     }
 
     /**

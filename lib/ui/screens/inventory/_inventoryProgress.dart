@@ -19,7 +19,8 @@ class _InventoryProgressState extends State<InventoryProgress>
     with TickerProviderStateMixin {
   AnimationController animationController;
   Animation growAnimation;
-  StreamSubscription<InventoryStatus> statusSubscription;
+  StreamSubscription<InventoryStatusWithReadTags>
+      inventoryStatusWithReadTagsSubscription;
 
   @override
   void initState() {
@@ -30,34 +31,33 @@ class _InventoryProgressState extends State<InventoryProgress>
     );
     growAnimation = Tween(begin: 0.0, end: 1.0).animate(animationController);
 
-    statusSubscription = inventoryScreenBloc.status.listen(_statusListener);
+    inventoryStatusWithReadTagsSubscription =
+        inventoryScreenBloc.statusWithReadTags.listen(_statusListener);
   }
 
   @override
   void dispose() {
-    statusSubscription.cancel();
+    inventoryStatusWithReadTagsSubscription.cancel();
     animationController.dispose();
     super.dispose();
   }
 
-  Future<void> _statusListener(InventoryStatus status) async {
-    switch (status) {
-      case InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS:
-        animationController.forward();
+  Future<void> _statusListener(
+      InventoryStatusWithReadTags inventoryStatusWithReadTags) async {
+    switch (inventoryStatusWithReadTags.status) {
+      case InventoryStatus.INVENTORY_STARTED:
+        if (inventoryStatusWithReadTags.readTags.isEmpty) {
+          animationController.forward();
+        }
         break;
 
-      case InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS:
-        animationController.reverse();
+      case InventoryStatus.INVENTORY_STOPPED:
+        if (inventoryStatusWithReadTags.readTags.isNotEmpty) {
+          animationController.forward();
+        } else {
+          animationController.reverse();
+        }
         break;
-
-      /**
-       * When the stop status is reported before the tags are processed the
-       * animation is required to take place (only if it is not already played)
-       */
-      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:
-        animationController.forward();
-        break;
-
       default:
         break;
     }
@@ -124,7 +124,7 @@ class _ReadTags extends StatelessWidget {
     print("[_ReadTags] Building widget...");
 
     return StreamBuilder(
-      stream: screnBloc.allTags,
+      stream: screnBloc.readTags,
       builder: (BuildContext context, AsyncSnapshot<List<Tag>> snapshot) {
         if (!snapshot.hasError) {
           int numberOfReadTags = 0;
@@ -194,16 +194,14 @@ class _StatusDescription extends StatelessWidget {
                       textAlign: TextAlign.center,
                     );
 
-                  case InventoryStatus.INVENTORY_STARTED_WITH_TAGS:
-                  case InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS:
+                  case InventoryStatus.INVENTORY_STARTED:
                     return const Text(
                       "Escaneando",
                       style: greenLabelTextStyle,
                       textAlign: TextAlign.center,
                     );
 
-                  case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:
-                  case InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS:
+                  case InventoryStatus.INVENTORY_STOPPED:
                     return const Text(
                       "Escaneo detenido",
                       style: yellowLabelTextStyle,
@@ -272,18 +270,19 @@ class _Actions extends StatelessWidget {
           },
         );
 
-  bool _showStartButton(InventoryStatus status) {
-    return status == InventoryStatus.OPENED ||
-        status == InventoryStatus.INVENTORY_STOPPED_WITHOUT_TAGS;
+  bool _showStartButton(InventoryStatusWithReadTags statusWithReadTags) {
+    return statusWithReadTags.status == InventoryStatus.OPENED ||
+        (statusWithReadTags.status == InventoryStatus.INVENTORY_STOPPED &&
+            statusWithReadTags.readTags.isEmpty);
   }
 
-  bool _showStopButton(InventoryStatus status) {
-    return status == InventoryStatus.INVENTORY_STARTED_WITHOUT_TAGS ||
-        status == InventoryStatus.INVENTORY_STARTED_WITH_TAGS;
+  bool _showStopButton(InventoryStatusWithReadTags statusWithReadTags) {
+    return statusWithReadTags.status == InventoryStatus.INVENTORY_STARTED;
   }
 
-  bool _showContinueButton(InventoryStatus status) {
-    return status == InventoryStatus.INVENTORY_STOPPED_WITH_TAGS;
+  bool _showContinueButton(InventoryStatusWithReadTags statusWithReadTags) {
+    return statusWithReadTags.status == InventoryStatus.INVENTORY_STOPPED &&
+        statusWithReadTags.readTags.isNotEmpty;
   }
 
   @override
@@ -291,18 +290,19 @@ class _Actions extends StatelessWidget {
     print("[_Actions] Building widget...");
 
     return StreamBuilder(
-      stream: screenBloc.status,
-      builder: (BuildContext context, AsyncSnapshot<InventoryStatus> snapshot) {
+      stream: screenBloc.statusWithReadTags,
+      builder: (BuildContext context,
+          AsyncSnapshot<InventoryStatusWithReadTags> snapshot) {
         if (!snapshot.hasError) {
           if (snapshot.hasData) {
-            InventoryStatus status = snapshot.data;
-            if (status == InventoryStatus.CLOSED) {
+            InventoryStatusWithReadTags statusWithReadTags = snapshot.data;
+            if (statusWithReadTags.status == InventoryStatus.CLOSED) {
               return const Center(child: const CircularProgressIndicator());
-            } else if (_showStartButton(status)) {
+            } else if (_showStartButton(statusWithReadTags)) {
               return startButton;
-            } else if (_showStopButton(status)) {
+            } else if (_showStopButton(statusWithReadTags)) {
               return stopButton;
-            } else if (_showContinueButton(status)) {
+            } else if (_showContinueButton(statusWithReadTags)) {
               return continueButton;
             } else {
               return const Text(

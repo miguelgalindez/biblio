@@ -16,7 +16,7 @@ class ReadTagslist extends StatelessWidget {
       decoration: BoxDecoration(
           color: backgroundColor, borderRadius: BorderRadius.circular(10)),
       child: StreamBuilder(
-        stream: screenBloc.allTags,
+        stream: screenBloc.readTags,
         builder: (BuildContext context, AsyncSnapshot<List<Tag>> snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
             if (snapshot.data.length > 0) {

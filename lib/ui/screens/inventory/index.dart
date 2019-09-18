@@ -17,7 +17,8 @@ class _InventoryScreenState extends State<InventoryScreen>
     with TickerProviderStateMixin {
   AnimationController showReadTagsAnimationController;
   AnimationController showInventoryOptionsController;
-  StreamSubscription<InventoryStatus> statusSubscription;
+  StreamSubscription<InventoryStatusWithReadTags>
+      inventoryStatusWithReadTagsSubscription;
   InventoryProgress inventoryProgressWidget;
   ReadTagslist readTagsListWidget;
   InventoryOptions inventoryOptionsWidget;
@@ -39,7 +40,8 @@ class _InventoryScreenState extends State<InventoryScreen>
     Tween(begin: 0.0, end: 1.0).animate(showReadTagsAnimationController);
     Tween(begin: 0.0, end: 1.0).animate(showInventoryOptionsController);
 
-    statusSubscription = inventoryScreenBloc.status.listen(_statusListener);
+    inventoryStatusWithReadTagsSubscription =
+        inventoryScreenBloc.statusWithReadTags.listen(_statusListener);
 
     inventoryProgressWidget =
         InventoryProgress(screenBloc: inventoryScreenBloc);
@@ -54,7 +56,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     _clearPreferredOrientations();
     showReadTagsAnimationController.dispose();
     showInventoryOptionsController.dispose();
-    statusSubscription.cancel();
+    inventoryStatusWithReadTagsSubscription.cancel();
     inventoryScreenBloc.onLeaveScreen();
     super.dispose();
   }
@@ -105,29 +107,30 @@ class _InventoryScreenState extends State<InventoryScreen>
     ]);
   }
 
-  void _statusListener(InventoryStatus status) {
-    _handleShowReadTagsAnimation(status);
-    _handleShowInventoryOptionsAnimation(status);
+  void _statusListener(
+      InventoryStatusWithReadTags inventoryStatusWithReadTags) {
+    _handleShowReadTagsAnimation(inventoryStatusWithReadTags);
+    _handleShowInventoryOptionsAnimation(inventoryStatusWithReadTags);
   }
 
-  void _handleShowReadTagsAnimation(InventoryStatus status) {
-    switch (status) {
-      case InventoryStatus.INVENTORY_STARTED_WITH_TAGS:
-      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:        
-        showReadTagsAnimationController.forward();
-        break;
-      default:
-        showReadTagsAnimationController.reverse();
+  void _handleShowReadTagsAnimation(
+      InventoryStatusWithReadTags inventoryStatusWithReadTags) {
+    //InventoryStatus currentStatus=inventoryStatusWithReadTags.status;
+    if (inventoryStatusWithReadTags.readTags.isNotEmpty) {
+      showReadTagsAnimationController.forward();
+    } else {
+      showReadTagsAnimationController.reverse();
     }
   }
 
-  void _handleShowInventoryOptionsAnimation(InventoryStatus status) {
-    switch (status) {      
-      case InventoryStatus.INVENTORY_STOPPED_WITH_TAGS:      
-        showInventoryOptionsController.forward();
-        break;
-      default:
-        showInventoryOptionsController.reverse();
+  void _handleShowInventoryOptionsAnimation(
+      InventoryStatusWithReadTags inventoryStatusWithReadTags) {
+    if (inventoryStatusWithReadTags.status ==
+            InventoryStatus.INVENTORY_STOPPED &&
+        inventoryStatusWithReadTags.readTags.isNotEmpty) {
+      showInventoryOptionsController.forward();
+    } else {
+      showInventoryOptionsController.reverse();
     }
   }
 }

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:biblio/ui/screens/home/homeScreenBloc.dart';
+import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:biblio/models/deviceCapabilities.dart';
 import 'package:biblio/resources/repositories/rfidReaderRepository.dart';
@@ -45,7 +47,7 @@ class InventoryScreenBloc implements BlocBase {
       );
       _rfidReaderRepository.init();
       _reportTags();
-      _rfidReaderRepository.requestReaderStatus(onError);
+      _rfidReaderRepository.requestReaderStatus(_reportError);
     }
   }
 
@@ -54,6 +56,7 @@ class InventoryScreenBloc implements BlocBase {
     // todo: should i drain streams?
     print("[InventoryScreenBloc] Disposing...");
     if (deviceCapabilities.rfidTagsReading) {
+      _rfidReaderRepository.closeReader(_reportError);
       _actionSubscription.cancel();
       _actionReporter.close();
       _tagsReporter.drain();
@@ -61,7 +64,6 @@ class InventoryScreenBloc implements BlocBase {
       _statusReporter.drain();
       _statusReporter.close();
       _rfidReaderRepository.dispose();
-      _rfidReaderRepository.closeReader(onError);
     }
   }
 
@@ -81,7 +83,7 @@ class InventoryScreenBloc implements BlocBase {
     if (deviceCapabilities.rfidTagsReading) {
       InventoryStatus currentStatus = _statusReporter.value;
       if (currentStatus == null || currentStatus == InventoryStatus.CLOSED) {
-        _rfidReaderRepository.openReader(onError);
+        events.add(BlocEvent(action: InventoryAction.OPEN_READER));
       }
     }
   }
@@ -90,37 +92,37 @@ class InventoryScreenBloc implements BlocBase {
     if (deviceCapabilities.rfidTagsReading) {
       InventoryStatus currentStatus = _statusReporter.value;
       if (currentStatus == InventoryStatus.INVENTORY_STARTED) {
-        _rfidReaderRepository.stopInventory(onError);
+        events.add(BlocEvent(action: InventoryAction.STOP_INVENTORY));
       } else if (currentStatus != InventoryStatus.INVENTORY_STOPPED &&
           currentStatus != InventoryStatus.CLOSED) {
-        _rfidReaderRepository.closeReader(onError);
+        events.add(BlocEvent(action: InventoryAction.CLOSE_READER));
       }
     }
-  }
-
-  void onError(String message) {
-    print("OnError invoked. Message: $message");
   }
 
   /// Handles the action required for the user
   Future<void> _actionHandler(BlocEvent event) async {
     switch (event.action) {
       case InventoryAction.OPEN_READER:
-        _rfidReaderRepository.openReader(onError);
+        _rfidReaderRepository.openReader((String message) async {
+          _reportStatus(null);
+          _reportError(message);
+        });
         break;
       case InventoryAction.START_INVENTORY:
-        _rfidReaderRepository.startInventory(onError);
+        _rfidReaderRepository.startInventory(_reportError);
         break;
       case InventoryAction.STOP_INVENTORY:
-        _rfidReaderRepository.stopInventory(onError);
+        _rfidReaderRepository.stopInventory(_reportError);
         break;
       case InventoryAction.CLOSE_READER:
+        _rfidReaderRepository.closeReader(_reportError);
         break;
       case InventoryAction.DISCARD_TAG:
-        _rfidReaderRepository.discardTag(event.data, null, onError);
+        _rfidReaderRepository.discardTag(event.data, _reportTags, _reportError);
         break;
       case InventoryAction.DISCARD_ALL_TAGS:
-        _rfidReaderRepository.clear(_reportTags, onError);
+        _rfidReaderRepository.clear(_reportTags, _reportError);
         break;
     }
   }
@@ -143,6 +145,13 @@ class InventoryScreenBloc implements BlocBase {
   Future<void> _reportStatus(InventoryStatus status) async {
     print("Reporting status $status");
     _statusReporter.sink.add(status);
+  }
+
+  Future<void> _reportError(String message) async {
+    homeScreenBloc.addSnackBar(SnackBar(
+      content: Text(message),
+      elevation: 16,
+    ));
   }
 
   Future<void> _reportTags() async {

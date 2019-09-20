@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:biblio/ui/screens/blocEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,16 +14,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  StreamSubscription snackBarsSubscription;
+
   @override
   void initState() {
     homeScreenBloc.init();
+    snackBarsSubscription =
+        homeScreenBloc.snackBars.listen(_snackBarsListener);
     super.initState();
   }
 
   @override
   void dispose() {
+    snackBarsSubscription.cancel();
     homeScreenBloc.dispose();
     super.dispose();
+  }
+
+  Future<void> _snackBarsListener(BlocEvent event) async {
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+    _scaffoldKey.currentState.showSnackBar(event.data);
   }
 
   @override
@@ -33,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: Header(primaryColor: primaryColor),
         bottomNavigationBar: BottomNavigationBar(primaryColor: primaryColor),
         body: Body(primaryColor: primaryColor),
+        key: _scaffoldKey,
       ),
       onWillPop: () => _showExitConfirmation(context),
     );
@@ -170,18 +184,24 @@ class ExitConfirmation extends StatelessWidget {
   Widget build(BuildContext context) {
     print("[Home/ExitConfirmation] Building widget...");
     return AlertDialog(
-      content: Text('¿Desea salir de la aplicación?'),
+      content: const Text('¿Desea salir de la aplicación?'),
       actions: <Widget>[
         FlatButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text('No'),
+          child: const Text(
+            'No',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
         FlatButton(
           onPressed: () {
             Navigator.of(context).pop(true);
             SystemChannels.platform.invokeMethod('SystemNavigator.pop');
           },
-          child: Text('Si'),
+          child: const Text(
+            'Si',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );

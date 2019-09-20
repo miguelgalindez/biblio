@@ -65,41 +65,77 @@ class RfidReaderRepository {
   }
 
   Future<void> requestReaderStatus(Function onError) async {
-    _platformApi.invokeMethodWithCallbacks('reportCurrentStatus', null, onError);
+    Function newOnError;
+    if(onError!=null){
+      newOnError=(String error){
+        onError('No se pudo obtener el estado actual del lector.');
+      };
+    }
+    _platformApi.invokeMethodWithCallbacks('reportCurrentStatus', null, newOnError);
   }
 
   Future<void> openReader(Function onError) async {
-    _platformApi.invokeMethodWithCallbacks('open', null, onError);
+    Function newOnError;
+    if(onError!=null){
+      newOnError=(String error){
+        onError('No se pudo abrir el lector.');
+      };
+    }
+    _platformApi.invokeMethodWithCallbacks('open', null, newOnError);
   }
 
   Future<void> closeReader(Function onError) async {
-    _platformApi.invokeMethodWithCallbacks('close', null, onError);
+    Function newOnError;
+    if(onError!=null){
+      newOnError=(String message){
+        onError('No se pudo cerrar el lector.');
+      };
+    }
+    _platformApi.invokeMethodWithCallbacks('close', null, newOnError);
   }
 
   Future<void> startInventory(Function onError) async {
-    _platformApi.invokeMethodWithCallbacks('startInventory', null, onError);
+    Function newOnError;
+    if(onError!=null){
+      newOnError=(String message){
+        onError('No se pudo iniciar el inventario.');
+      };
+    }
+    _platformApi.invokeMethodWithCallbacks('startInventory', null, newOnError);
   }
 
   Future<void> stopInventory(Function onError) async {
-    _platformApi.invokeMethodWithCallbacks('stopInventory', null, onError);
+    Function newOnError;
+    if(onError!=null){
+      newOnError=(String message){
+        onError('No se pudo detener el inventario.');
+      };
+    }
+    _platformApi.invokeMethodWithCallbacks('stopInventory', null, newOnError);
   }
 
   Future<void> clear(Function onSuccess, Function onError) async {
-    Function newOnSuccess;
+    Function newOnSuccess, newOnError;
     if (onSuccess != null) {
       newOnSuccess = ([dynamic args]) {
         _tagsRepository.clear();
         onSuccess();
       };
     }
+    
+    if(onError!=null){
+      newOnError=(String message){
+        onError('No se pudo descartar todas las etiquetas leídas.');
+      };
+    }
 
-    _platformApi.invokeMethodWithCallbacks('clear', newOnSuccess, onError);
+    _platformApi.invokeMethodWithCallbacks('clear', newOnSuccess, newOnError);
   }
 
   Future<void> discardTag(
       String tagEpc, Function onSuccess, Function onError) async {
     
-    Function newOnSuccess;
+    Function newOnSuccess, newOnError;
 
     if (onSuccess != null) {
       newOnSuccess = ([dynamic args]) {
@@ -107,8 +143,14 @@ class RfidReaderRepository {
         onSuccess();
       };
     }
+    
+    if(onError!=null){
+      newOnError=(String message){
+        onError('No se pudo decartar la etiqueta $tagEpc.');
+      };
+    }
 
-    _platformApi.invokeMethodWithCallbacks('discardTag', newOnSuccess, onError, tagEpc);
+    _platformApi.invokeMethodWithCallbacks('discardTag', newOnSuccess, newOnError, tagEpc);
   }
 
   Future<void> requestReadTags() async {

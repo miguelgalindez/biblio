@@ -3,6 +3,7 @@ import 'package:biblio/models/deviceCapabilities.dart';
 import 'package:biblio/resources/repositories/screensRepository.dart';
 import 'package:biblio/ui/screens/blocEvent.dart';
 import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
@@ -10,10 +11,15 @@ import 'package:rxdart/subjects.dart';
 import 'package:biblio/models/screen.dart';
 import 'package:biblio/ui/screens/blocBase.dart';
 
-enum HomeScreenActions { LOAD_AVAILABLE_SCREENS, SWITCH_TO_SCREEN }
+enum HomeScreenActions {
+  LOAD_AVAILABLE_SCREENS,
+  SWITCH_TO_SCREEN,
+  ADD_SNACKBAR
+}
 
 class HomeScreenBloc extends BlocBase {
   MethodChannel _deviceUtilitiesChannel;
+  // TODO: delete this. and Handle as an event
   BehaviorSubject<List<Screen>> _availableScreensSubject;
   BehaviorSubject<BlocEvent> _eventSubject;
   ScreensRepository _screensRepository;
@@ -27,7 +33,7 @@ class HomeScreenBloc extends BlocBase {
     _screensRepository = ScreensRepository();
 
     _deviceCapabilities = await _getDeviceCapabilities();
-    await inventoryScreenBloc.init(_deviceCapabilities);    
+    await inventoryScreenBloc.init(_deviceCapabilities);
     await _loadScreens();
   }
 
@@ -46,8 +52,15 @@ class HomeScreenBloc extends BlocBase {
         .add(BlocEvent(action: HomeScreenActions.SWITCH_TO_SCREEN, data: 0));
   }
 
+  /// Stream for all events of any kind
   Sink<BlocEvent> get eventsSink => _eventSubject.sink;
 
+  /// Stream for snackbars. (It transmits only ADD_SNACKBAR events)
+  Observable<BlocEvent> get snackBars => _eventSubject
+      .where((event) => event.action == HomeScreenActions.ADD_SNACKBAR)
+      .distinct();  
+
+  /// Strem for available screens
   Observable<List<Screen>> get availableScreens =>
       _availableScreensSubject.stream.distinct();
 
@@ -76,10 +89,19 @@ class HomeScreenBloc extends BlocBase {
           screen.body = _screensRepository.getScreenWidget(screen.id);
         }
         sink.add(screen);
-      } else{
+      } else {
         // todo: build the NoScreensAvailable screen
       }
     });
+  }
+
+  /// Adds the snackbar to the screens that are listening
+  /// To do that, it push a new ADD_SNACKBAR event
+  Future<void> addSnackBar(SnackBar snackBar) async {
+    eventsSink.add(BlocEvent(
+      action: HomeScreenActions.ADD_SNACKBAR,
+      data: snackBar,
+    ));
   }
 
   // todo: move this to Session Repository

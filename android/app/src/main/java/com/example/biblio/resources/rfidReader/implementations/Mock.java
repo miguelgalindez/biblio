@@ -34,8 +34,8 @@ public class Mock extends Reader {
      * It is specific to each RFID reader model
      */
     @Override
-    protected void initReader() {
-
+    protected void initReader() throws Exception{
+        throw new Exception("Testing exception...");
     }
 
     /**

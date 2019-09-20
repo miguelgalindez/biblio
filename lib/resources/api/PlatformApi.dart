@@ -18,13 +18,14 @@ class PlatformApi {
       Object result = await methodChannel.invokeMethod(methodName, arguments);
       return ApiResponse(hasError: false, content: result);
     } on Exception catch (e) {
+      print(
+          '[PlatformApi] Error invoking RFID reader method: $methodName. Error description: ${e.toString()}');
       return ApiResponse(hasError: true, content: e.toString());
     }
   }
 
   Future<Object> invokeMethodAnGetResult(String methodName,
       [dynamic arguments]) async {
-
     ApiResponse response = await _invokeMethod(methodName, arguments);
 
     if (!response.hasError) {
@@ -41,8 +42,6 @@ class PlatformApi {
     if (!response.hasError && onSuccess != null) {
       onSuccess(response.content);
     } else if (response.hasError && onError != null) {
-      print(
-          '[RfidReaderRepository] Error invoking RFID reader method: $methodName. Error description: ${response.content}');
       onError(response.content);
     }
   }

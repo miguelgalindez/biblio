@@ -44,22 +44,10 @@ class _InventoryProgressState extends State<InventoryProgress>
 
   Future<void> _statusListener(
       InventoryStatusWithReadTags inventoryStatusWithReadTags) async {
-    switch (inventoryStatusWithReadTags.status) {
-      case InventoryStatus.INVENTORY_STARTED:
-        if (inventoryStatusWithReadTags.readTags.isEmpty) {
-          animationController.forward();
-        }
-        break;
-
-      case InventoryStatus.INVENTORY_STOPPED:
-        if (inventoryStatusWithReadTags.readTags.isNotEmpty) {
-          animationController.forward();
-        } else {
-          animationController.reverse();
-        }
-        break;
-      default:
-        break;
+    if (inventoryStatusWithReadTags.readTags.isNotEmpty) {
+      animationController.forward();
+    } else {
+      animationController.reverse();
     }
   }
 
@@ -238,6 +226,7 @@ class _Actions extends StatelessWidget {
   final Widget startButton;
   final Widget continueButton;
   final Widget stopButton;
+  final Widget readerError;
   _Actions({@required this.screenBloc, @required this.animationController})
       : startButton = OutlinedButton(
           text: "INICIAR",
@@ -268,6 +257,10 @@ class _Actions extends StatelessWidget {
               BlocEvent(action: InventoryAction.START_INVENTORY),
             );
           },
+        ),
+        readerError = ReaderError(
+          message:
+              'Ocurrió un error con el lector RFID. Contacte a soporte técnico.',
         );
 
   bool _showStartButton(InventoryStatusWithReadTags statusWithReadTags) {
@@ -296,7 +289,9 @@ class _Actions extends StatelessWidget {
         if (!snapshot.hasError) {
           if (snapshot.hasData) {
             InventoryStatusWithReadTags statusWithReadTags = snapshot.data;
-            if (statusWithReadTags.status == InventoryStatus.CLOSED) {
+            if (statusWithReadTags.status == null) {
+              return readerError;
+            } else if (statusWithReadTags.status == InventoryStatus.CLOSED) {
               return const Center(child: const CircularProgressIndicator());
             } else if (_showStartButton(statusWithReadTags)) {
               return startButton;
@@ -317,9 +312,39 @@ class _Actions extends StatelessWidget {
             return const Center(child: const CircularProgressIndicator());
           }
         } else {
-          return const Text("Error", style: redLabelTextStyle);
+          return readerError;
         }
       },
+    );
+  }
+}
+
+class ReaderError extends StatelessWidget {
+  final String message;
+  ReaderError({@required this.message});
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        const Icon(
+          Icons.report,
+          color: yellow,
+          size: 50.0,
+        ),
+        Flexible(
+          child: SizedBox(
+            width: 200.0,
+            child: Text(
+              message,
+              style: whiteLabelTextStyle,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.justify,
+            ),
+          ),
+        )
+      ],
     );
   }
 }

@@ -2,7 +2,7 @@ package com.example.biblio.resources.utilities;
 
 import android.content.Context;
 
-import com.example.biblio.resources.rfidReader.ImplementationSelector;
+import com.example.biblio.resources.rfidReader.RfidReaderImplementationSelector;
 
 import java.util.ArrayList;
 
@@ -19,7 +19,7 @@ public class DeviceCapabilities {
     private static void lookUpCapabilities(Context context){
         capabilities=new ArrayList<>();
 
-        if(ImplementationSelector.isDeviceCapable()){
+        if(RfidReaderImplementationSelector.isDeviceCapable()){
             capabilities.add("rfidTagsReading");
         }
 

@@ -1,14 +1,24 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:biblio/ui/components/changeSizeAnimation.dart';
 import 'package:biblio/ui/components/showAnimation.dart';
 import 'package:biblio/ui/screens/inventory/_readTagsList.dart';
-import 'package:biblio/ui/screens/inventory/inventoryScreenBloc.dart';
+import 'package:biblio/blocs/inventoryScreenBloc.dart';
 import 'package:biblio/ui/screens/inventory/_inventoryProgress.dart';
 import 'package:biblio/ui/screens/inventory/_inventoryOptions.dart';
 
 class InventoryScreen extends StatefulWidget {
+  final Widget inventoryProgressWidget;
+  final Widget readTagsListWidget;
+  final Widget inventoryOptionsWidget;
+
+  InventoryScreen()
+      : inventoryProgressWidget =
+            InventoryProgress(screenBloc: inventoryScreenBloc),
+        readTagsListWidget = ReadTagslist(screenBloc: inventoryScreenBloc),
+        inventoryOptionsWidget =
+            InventoryOptions(screenBloc: inventoryScreenBloc);
+
   @override
   _InventoryScreenState createState() => _InventoryScreenState();
 }
@@ -19,13 +29,9 @@ class _InventoryScreenState extends State<InventoryScreen>
   AnimationController showInventoryOptionsController;
   StreamSubscription<InventoryStatusWithReadTags>
       inventoryStatusWithReadTagsSubscription;
-  InventoryProgress inventoryProgressWidget;
-  ReadTagslist readTagsListWidget;
-  InventoryOptions inventoryOptionsWidget;
 
   @override
   void initState() {
-    _setPreferredOrientations();
     inventoryScreenBloc.onShowScreen();
     showReadTagsAnimationController = AnimationController(
       vsync: this,
@@ -43,17 +49,11 @@ class _InventoryScreenState extends State<InventoryScreen>
     inventoryStatusWithReadTagsSubscription =
         inventoryScreenBloc.statusWithReadTags.listen(_statusListener);
 
-    inventoryProgressWidget =
-        InventoryProgress(screenBloc: inventoryScreenBloc);
-    readTagsListWidget = ReadTagslist(screenBloc: inventoryScreenBloc);
-    inventoryOptionsWidget = InventoryOptions();
-
     super.initState();
   }
 
   @override
   void dispose() {
-    _clearPreferredOrientations();
     showReadTagsAnimationController.dispose();
     showInventoryOptionsController.dispose();
     inventoryStatusWithReadTagsSubscription.cancel();
@@ -73,17 +73,17 @@ class _InventoryScreenState extends State<InventoryScreen>
             children: <Widget>[
               ChangeSizeAnimation(
                 animationController: showReadTagsAnimationController,
-                child: inventoryProgressWidget,
+                child: widget.inventoryProgressWidget,
                 initialSize: Size(constraints.maxWidth, constraints.maxHeight),
                 finalSize: Size(constraints.maxWidth, 125.0),
               ),
               ShowAnimation(
                 animationController: showReadTagsAnimationController,
-                child: Expanded(child: readTagsListWidget),
+                child: Expanded(child: widget.readTagsListWidget),
               ),
               ShowAnimation(
                 animationController: showInventoryOptionsController,
-                child: inventoryOptionsWidget,
+                child: widget.inventoryOptionsWidget,
                 height: 70,
                 backgroundColor: Theme.of(context).primaryColor,
               ),
@@ -94,18 +94,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
-  Future<void> _setPreferredOrientations() async {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  }
-
-  Future<void> _clearPreferredOrientations() async {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-  }
+  
 
   void _statusListener(
       InventoryStatusWithReadTags inventoryStatusWithReadTags) {
@@ -115,7 +104,6 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   void _handleShowReadTagsAnimation(
       InventoryStatusWithReadTags inventoryStatusWithReadTags) {
-    //InventoryStatus currentStatus=inventoryStatusWithReadTags.status;
     if (inventoryStatusWithReadTags.readTags.isNotEmpty) {
       showReadTagsAnimationController.forward();
     } else {

@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:biblio/components/underConstruction.dart';
 import 'package:biblio/models/category.dart';
 import 'package:biblio/models/deviceCapabilities.dart';
@@ -6,10 +9,7 @@ import 'package:biblio/resources/api/mockApi.dart';
 import 'package:biblio/screens/bookScan/index.dart';
 import 'package:biblio/screens/searchBook/index.dart';
 import 'package:biblio/ui/screens/inventory/index.dart';
-import 'package:flutter/material.dart';
 import 'package:biblio/services/categories-mock-data.dart';
-import 'package:flutter/widgets.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 // todo: create a repository base with destroy
 // todo: Find out how to make IDE warns for closing this
@@ -24,28 +24,42 @@ class ScreensRepository {
     });
   }
 
+  void init() { }
+
+  void dispose() {
+    screens.clear();
+    bookCategories.clear();
+  }
+
   Future<List<Screen>> loadAvailableScreens(
       DeviceCapabilities deviceCapabilities) async {
     if (screens == null || screens.isEmpty) {
       screens = await MockApi.getAvailableScreens();
       if (screens != null && screens.isNotEmpty) {
-        int index = 0;
         screens.sort((a, b) => a.priority.compareTo(b.priority));
-        screens = screens
-            .map((Screen screen) {
-              if (screen.isSupported(deviceCapabilities)) {
-                screen.index = index++;
-                screen.icon = getScreenIcon(screen.id);
-                screen.invertColors = getScreenInvertColors(screen.id);
-                return screen;
-              }
-              return null;
-            })
-            .where((screen) => screen != null)
-            .toList();
+        screens =
+            _filterScreensByDeviceCapabilities(screens, deviceCapabilities);
       }
     }
     return screens;
+  }
+
+  List<Screen> _filterScreensByDeviceCapabilities(
+      List<Screen> screens, DeviceCapabilities deviceCapabilities) {
+    int index = 0;
+    return screens
+        .map((Screen screen) {
+          if (screen.isSupported(deviceCapabilities)) {
+            screen.index = index++;
+            screen.icon = getScreenIcon(screen.id);
+            screen.body = getScreenWidget(screen.id);
+            screen.invertColors = getScreenInvertColors(screen.id);
+            return screen;
+          }
+          return null;
+        })
+        .where((screen) => screen != null)
+        .toList();
   }
 
   bool getScreenInvertColors(ScreenId screenId) {
@@ -83,10 +97,5 @@ class ScreensRepository {
       default:
         return UnderConstructionScreen();
     }
-  }
-
-  void dispose() {
-    screens.clear();
-    bookCategories.clear();
   }
 }

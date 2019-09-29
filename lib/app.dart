@@ -1,3 +1,4 @@
+import 'package:biblio/blocs/deviceUtilititesBloc.dart';
 import 'package:flutter/material.dart';
 import 'package:biblio/screens/login.dart';
 import 'package:biblio/models/appConfig.dart';
@@ -13,7 +14,25 @@ ThemeData buildTheme(BuildContext context, AppConfig appConfig) {
   );
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+
+  @override
+  void initState() {    
+    super.initState();
+    deviceUtilitiesBloc.init();
+  }
+
+  @override
+  void dispose() {
+    deviceUtilitiesBloc.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var appConfig = AppConfig.of(context);

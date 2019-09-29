@@ -1,9 +1,8 @@
 import 'dart:async';
-
+import 'package:flutter/services.dart';
 import 'package:biblio/models/tag.dart';
 import 'package:biblio/resources/api/PlatformApi.dart';
 import 'package:biblio/resources/repositories/tagsRepository.dart';
-import 'package:flutter/services.dart';
 
 class RfidReaderRepository {
   PlatformApi _platformApi;
@@ -24,7 +23,6 @@ class RfidReaderRepository {
 
   dispose() {
     _tagsRepository.dispose();
-    // Dispose this
   }
 
   /// Handles the method calls made by the reader (native code).
@@ -66,18 +64,19 @@ class RfidReaderRepository {
 
   Future<void> requestReaderStatus(Function onError) async {
     Function newOnError;
-    if(onError!=null){
-      newOnError=(String error){
+    if (onError != null) {
+      newOnError = (String error) {
         onError('No se pudo obtener el estado actual del lector.');
       };
     }
-    _platformApi.invokeMethodWithCallbacks('reportCurrentStatus', null, newOnError);
+    _platformApi.invokeMethodWithCallbacks(
+        'reportCurrentStatus', null, newOnError);
   }
 
   Future<void> openReader(Function onError) async {
     Function newOnError;
-    if(onError!=null){
-      newOnError=(String error){
+    if (onError != null) {
+      newOnError = (String error) {
         onError('No se pudo abrir el lector.');
       };
     }
@@ -86,8 +85,8 @@ class RfidReaderRepository {
 
   Future<void> closeReader(Function onError) async {
     Function newOnError;
-    if(onError!=null){
-      newOnError=(String message){
+    if (onError != null) {
+      newOnError = (String message) {
         onError('No se pudo cerrar el lector.');
       };
     }
@@ -96,8 +95,8 @@ class RfidReaderRepository {
 
   Future<void> startInventory(Function onError) async {
     Function newOnError;
-    if(onError!=null){
-      newOnError=(String message){
+    if (onError != null) {
+      newOnError = (String message) {
         onError('No se pudo iniciar el inventario.');
       };
     }
@@ -106,8 +105,8 @@ class RfidReaderRepository {
 
   Future<void> stopInventory(Function onError) async {
     Function newOnError;
-    if(onError!=null){
-      newOnError=(String message){
+    if (onError != null) {
+      newOnError = (String message) {
         onError('No se pudo detener el inventario.');
       };
     }
@@ -122,9 +121,9 @@ class RfidReaderRepository {
         onSuccess();
       };
     }
-    
-    if(onError!=null){
-      newOnError=(String message){
+
+    if (onError != null) {
+      newOnError = (String message) {
         onError('No se pudo descartar todas las etiquetas leídas.');
       };
     }
@@ -134,7 +133,6 @@ class RfidReaderRepository {
 
   Future<void> discardTag(
       String tagEpc, Function onSuccess, Function onError) async {
-    
     Function newOnSuccess, newOnError;
 
     if (onSuccess != null) {
@@ -143,14 +141,15 @@ class RfidReaderRepository {
         onSuccess();
       };
     }
-    
-    if(onError!=null){
-      newOnError=(String message){
+
+    if (onError != null) {
+      newOnError = (String message) {
         onError('No se pudo decartar la etiqueta $tagEpc.');
       };
     }
 
-    _platformApi.invokeMethodWithCallbacks('discardTag', newOnSuccess, newOnError, tagEpc);
+    _platformApi.invokeMethodWithCallbacks(
+        'discardTag', newOnSuccess, newOnError, tagEpc);
   }
 
   Future<void> requestReadTags() async {
@@ -158,11 +157,11 @@ class RfidReaderRepository {
   }
 
   Future<double> getRssiAtOneMeter() async {
-    return await _platformApi.invokeMethodAnGetResult('getRssiAtOneMeter') as double;
+    return await _platformApi.invokeMethodAndGetResult('getRssiAtOneMeter')
+        as double;
   }
 
   List<Tag> getReadTags() {
     return _tagsRepository.getTagsAsCollection();
   }
-
 }

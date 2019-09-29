@@ -3,15 +3,15 @@ package com.example.biblio;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
-import com.example.biblio.resources.rfidReader.ImplementationSelector;
-import com.example.biblio.resources.rfidReader.ReaderChannel;
+import com.example.biblio.resources.rfidReader.RfidReaderImplementationSelector;
+import com.example.biblio.resources.rfidReader.RfidReaderChannel;
 import com.example.biblio.resources.utilities.UtilitiesChannel;
 
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
-  ReaderChannel rfidReaderChannel;
+  RfidReaderChannel rfidReaderChannel;
   UtilitiesChannel utilitiesChannel;
 
   @Override
@@ -20,9 +20,9 @@ public class MainActivity extends FlutterActivity {
     GeneratedPluginRegistrant.registerWith(this);
 
     // Comment the following line on production
-    ImplementationSelector.PROJECT_STAGE="development";
+    RfidReaderImplementationSelector.PROJECT_STAGE="development";
 
-    rfidReaderChannel= new ReaderChannel(getFlutterView());
+    rfidReaderChannel= new RfidReaderChannel(getFlutterView());
     utilitiesChannel=new UtilitiesChannel(getFlutterView());
   }
 

@@ -24,7 +24,7 @@ class PlatformApi {
     }
   }
 
-  Future<Object> invokeMethodAnGetResult(String methodName,
+  Future<Object> invokeMethodAndGetResult(String methodName,
       [dynamic arguments]) async {
     ApiResponse response = await _invokeMethod(methodName, arguments);
 

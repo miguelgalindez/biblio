@@ -1,10 +1,10 @@
 package com.example.biblio.resources.rfidReader;
 
-public class Tag {
+public class RfidTag {
     private String epc;
     private Double rssi;
 
-    public Tag(String epc, Double rssi) {
+    public RfidTag(String epc, Double rssi) {
         this.epc = epc;
         this.rssi = rssi;
     }

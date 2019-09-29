@@ -3,16 +3,17 @@ package com.example.biblio.resources.rfidReader.implementations;
 import com.alien.common.KeyCode;
 import com.alien.rfid.RFID;
 import com.alien.rfid.RFIDReader;
+import com.alien.rfid.Tag;
 import com.example.biblio.resources.EventCallback;
-import com.example.biblio.resources.rfidReader.Reader;
-import com.example.biblio.resources.rfidReader.Tag;
+import com.example.biblio.resources.rfidReader.RfidReader;
+import com.example.biblio.resources.rfidReader.RfidTag;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 
-public class AlienH450 extends Reader {
+public class AlienH450 extends RfidReader {
 
     private static final Double RSSI_AT_ONE_METER=-67.5;
     private static final int SENDING_CAPACITY=50;
@@ -34,9 +35,7 @@ public class AlienH450 extends Reader {
      *      readTags.clear();
      */
     @Override
-    protected void cleanReaderSession() {
-        // TODO: how to clean session in this device
-    }
+    protected void cleanReaderSession() {}
 
     /**
      * Tries to initialize the RFID reader.
@@ -75,9 +74,9 @@ public class AlienH450 extends Reader {
      *                          every time a tag is read
      */
     @Override
-    protected void runScanning(EventCallback<Tag> onTagReadCallback) throws Exception {
+    protected void runScanning(EventCallback<RfidTag> onTagReadCallback) throws Exception {
         if(rfidReader !=null && !rfidReader.isRunning()) {
-            rfidReader.inventory((com.alien.rfid.Tag tag) -> onTagReadCallback.trigger(new Tag(tag.getEPC(), tag.getRSSI())));
+            rfidReader.inventory((Tag tag) -> onTagReadCallback.trigger(new RfidTag(tag.getEPC(), tag.getRSSI())));
         } else if (rfidReader ==null){
             throw new Exception("The inventory scanning couldn't be started because the rfidReader is null.");
         } else {
@@ -86,7 +85,7 @@ public class AlienH450 extends Reader {
     }
 
     /**
-     * Asks the RFID Reader to stop the continuous tags scanning
+     * Asks the RFID RfidReader to stop the continuous tags scanning
      */
     @Override
     protected void stopScanning() throws Exception {

@@ -1,26 +1,26 @@
 package com.example.biblio.resources.rfidReader.implementations;
 
 import com.example.biblio.resources.EventCallback;
-import com.example.biblio.resources.rfidReader.Reader;
-import com.example.biblio.resources.rfidReader.Tag;
+import com.example.biblio.resources.rfidReader.RfidReader;
+import com.example.biblio.resources.rfidReader.RfidTag;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Mock extends Reader {
+public class Mock extends RfidReader {
     private static final Double RSSI_AT_ONE_METER=-30.0;
     private static final int SENDING_CAPACITY=50;
 
     /**
      * Initializing mock data
      */
-    private static final ArrayList<Tag> mockReadTags=new ArrayList<>();
+    private static final ArrayList<RfidTag> mockReadTags=new ArrayList<>();
     static{
         for(int i=0; i<SENDING_CAPACITY; i++){
             String mockEpc="Test-EPC-"+i;
             Double mockRssi=-60.0+i;
-            mockReadTags.add(new Tag(mockEpc, mockRssi));
+            mockReadTags.add(new RfidTag(mockEpc, mockRssi));
         }
     }
 
@@ -54,8 +54,8 @@ public class Mock extends Reader {
      *                          every time a tag is read
      */
     @Override
-    protected void runScanning(EventCallback<Tag> onTagReadCallback){
-        for(Tag tag : mockReadTags){
+    protected void runScanning(EventCallback<RfidTag> onTagReadCallback){
+        for(RfidTag tag : mockReadTags){
             onTagReadCallback.trigger(tag);
         }
     }

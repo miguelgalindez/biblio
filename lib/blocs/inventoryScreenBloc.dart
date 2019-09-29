@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:biblio/ui/screens/home/homeScreenBloc.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:biblio/blocs/deviceUtilititesBloc.dart';
+import 'package:biblio/blocs/homeScreenBloc.dart';
 import 'package:biblio/models/deviceCapabilities.dart';
 import 'package:biblio/resources/repositories/rfidReaderRepository.dart';
 import 'package:biblio/ui/screens/blocBase.dart';
@@ -19,58 +20,63 @@ enum InventoryAction {
 }
 
 class InventoryScreenBloc implements BlocBase {
+  StreamSubscription<DeviceCapabilities> _deviceCapabilitiesSubscription;
+  bool deviceCanReadRfidTags;
   RfidReaderRepository _rfidReaderRepository;
-  DeviceCapabilities deviceCapabilities;
-  StreamController<BlocEvent> _actionReporter;
-  StreamSubscription<BlocEvent> _actionSubscription;
-  BehaviorSubject<List<Tag>> _tagsReporter;
-  BehaviorSubject<InventoryStatus> _statusReporter;
+  StreamController<BlocEvent> _eventsController;
+  StreamSubscription<BlocEvent> _eventsSubscription;
+  BehaviorSubject<List<Tag>> _readTagsController;
+  BehaviorSubject<InventoryStatus> _statusController;
   Timer _fetchTagsTimer;
 
   InventoryScreenBloc() {
     print("[InventoryScreenBloc] New instance created");
   }
 
-  // todo: inject capabilities
-  Future<void> init(DeviceCapabilities capabilities) async {
+  Future<void> init() async {
     print("[InventoryScreenBloc] Initializing bloc...");
-    deviceCapabilities = capabilities;
-    if (deviceCapabilities.rfidTagsReading) {
-      _actionReporter = StreamController<BlocEvent>();
-      _tagsReporter = BehaviorSubject<List<Tag>>();
-      _statusReporter = BehaviorSubject<InventoryStatus>();
-      _actionSubscription = _actionReporter.stream.listen(_actionHandler);
+    deviceCanReadRfidTags = false;
+    _deviceCapabilitiesSubscription =
+        deviceUtilitiesBloc.deviceCapabilities.listen((deviceCapabilities) {
+      
+      /// Ensures that the bloc won't be initialized twice or more times in a row.
+      if (deviceCapabilities.rfidTagsReading &&
+          deviceCanReadRfidTags == false) {
+        deviceCanReadRfidTags = true;
+        _eventsController = StreamController<BlocEvent>();
+        _readTagsController = BehaviorSubject<List<Tag>>();
+        _statusController = BehaviorSubject<InventoryStatus>();
+        _eventsSubscription = _eventsController.stream.listen(_actionHandler);
 
-      _rfidReaderRepository = RfidReaderRepository(
-        onTagsRead: _reportTags,
-        onStatusChanged: _handleStatusChanged,
-      );
-      _rfidReaderRepository.init();
-      _reportTags();
-      _rfidReaderRepository.requestReaderStatus(_reportError);
-    }
+        _rfidReaderRepository = RfidReaderRepository(
+          onTagsRead: _reportTags,
+          onStatusChanged: _handleStatusChanged,
+        );
+        _rfidReaderRepository.init();
+        _reportTags();
+        _rfidReaderRepository.requestReaderStatus(_reportError);
+      }
+    });
   }
 
   @override
   void dispose() {
-    // todo: should i drain streams?
     print("[InventoryScreenBloc] Disposing...");
-    if (deviceCapabilities.rfidTagsReading) {
-      _rfidReaderRepository.closeReader(_reportError);
-      _actionSubscription.cancel();
-      _actionReporter.close();
-      _tagsReporter.drain();
-      _tagsReporter.close();
-      _statusReporter.drain();
-      _statusReporter.close();
+    _deviceCapabilitiesSubscription.cancel();
+    if (deviceCanReadRfidTags) {
+      onLeaveScreen();
+      _eventsSubscription.cancel();
+      _eventsController.close();
+      _readTagsController.close();
+      _statusController.close();
       _rfidReaderRepository.dispose();
     }
   }
 
   /// Bloc endpoints for the UI
-  Sink<BlocEvent> get events => _actionReporter.sink;
-  Observable<List<Tag>> get readTags => _tagsReporter.stream.distinct();
-  Observable<InventoryStatus> get status => _statusReporter.stream.distinct();
+  Sink<BlocEvent> get events => _eventsController.sink;
+  Observable<List<Tag>> get readTags => _readTagsController.stream.distinct();
+  Observable<InventoryStatus> get status => _statusController.stream.distinct();
   Observable<InventoryStatusWithReadTags> get statusWithReadTags =>
       Observable.combineLatest2(
         status,
@@ -80,23 +86,33 @@ class InventoryScreenBloc implements BlocBase {
       );
 
   Future<void> onShowScreen() async {
-    if (deviceCapabilities.rfidTagsReading) {
-      InventoryStatus currentStatus = _statusReporter.value;
+    if (deviceCanReadRfidTags) {
+      InventoryStatus currentStatus = _statusController.value;
       if (currentStatus == null || currentStatus == InventoryStatus.CLOSED) {
         events.add(BlocEvent(action: InventoryAction.OPEN_READER));
       }
+
+      deviceUtilitiesBloc.eventsSink.add(BlocEvent(
+        action: DeviceUtilitiesActions.ORIENTATION_SET_ONLY_PORTRAIT_UP,
+      ));
     }
   }
 
   Future<void> onLeaveScreen() async {
-    if (deviceCapabilities.rfidTagsReading) {
-      InventoryStatus currentStatus = _statusReporter.value;
-      if (currentStatus == InventoryStatus.INVENTORY_STARTED) {
-        events.add(BlocEvent(action: InventoryAction.STOP_INVENTORY));
-      } else if (currentStatus != InventoryStatus.INVENTORY_STOPPED &&
-          currentStatus != InventoryStatus.CLOSED) {
+    if (deviceCanReadRfidTags) {
+      InventoryStatus currentStatus = _statusController.value;
+      List<Tag> readTags = _readTagsController.value;
+
+      /// If there are no read tags, then close the reader
+      if (readTags.isEmpty && currentStatus != InventoryStatus.CLOSED) {
         events.add(BlocEvent(action: InventoryAction.CLOSE_READER));
+      } else if (currentStatus == InventoryStatus.INVENTORY_STARTED) {
+        events.add(BlocEvent(action: InventoryAction.STOP_INVENTORY));
       }
+
+      deviceUtilitiesBloc.eventsSink.add(BlocEvent(
+        action: DeviceUtilitiesActions.ORIENTATION_SET_ALL,
+      ));
     }
   }
 
@@ -144,18 +160,21 @@ class InventoryScreenBloc implements BlocBase {
   /// Broadcast, towards the UI, the status reported from the reader
   Future<void> _reportStatus(InventoryStatus status) async {
     print("Reporting status $status");
-    _statusReporter.sink.add(status);
+    _statusController.sink.add(status);
   }
 
   Future<void> _reportError(String message) async {
-    homeScreenBloc.addSnackBar(SnackBar(
-      content: Text(message),
-      elevation: 16,
+    homeScreenBloc.eventsSink.add(BlocEvent(
+      action: HomeScreenActions.ADD_SNACKBAR,
+      data: SnackBar(
+        content: Text(message),
+        elevation: 16,
+      ),
     ));
   }
 
   Future<void> _reportTags() async {
-    _tagsReporter.sink.add(_rfidReaderRepository.getReadTags());
+    _readTagsController.sink.add(_rfidReaderRepository.getReadTags());
   }
 
   /// Starts the periodic tags fetching, asking the reader

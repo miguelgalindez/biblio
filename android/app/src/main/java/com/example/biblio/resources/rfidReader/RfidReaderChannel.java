@@ -10,16 +10,16 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.view.FlutterView;
 
-public class ReaderChannel {
+public class RfidReaderChannel {
     private static final String CHANNEL_ID ="biblio/rfidReader";
 
     private MethodChannel methodChannel;
-    private Reader rfidReader;
+    private RfidReader rfidReader;
 
-    public ReaderChannel(FlutterView flutterView){
+    public RfidReaderChannel(FlutterView flutterView){
         methodChannel = new MethodChannel(flutterView, CHANNEL_ID);
         methodChannel.setMethodCallHandler(this::methodCallHandler);
-        rfidReader = ImplementationSelector.getImplementation(this::onDataCallback, this::onStatusChangedCallback);
+        rfidReader = RfidReaderImplementationSelector.getImplementation(this::onDataCallback, this::onStatusChangedCallback);
     }
 
     private void methodCallHandler(MethodCall methodCall, Result result){
@@ -100,7 +100,6 @@ public class ReaderChannel {
      * Destroys the method channel and releases resources
      */
     public void destroy(){
-        // TODO: should i destroy the method channel?
         if(rfidReader!=null) {
             try {
                 rfidReader.close();

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public abstract class Reader {
+public abstract class RfidReader {
     /**
      * Enumeration of well-known (standard) states for every reader
      */
@@ -84,7 +84,7 @@ public abstract class Reader {
 
 
 
-    public Reader(EventCallback<List<Map<String, String>>> onDataCallback, EventCallback<Integer> onStatusChangedCallback, Double rssiAtOneMeter, Integer sendingCapacity, Integer triggerKeyCode) {
+    public RfidReader(EventCallback<List<Map<String, String>>> onDataCallback, EventCallback<Integer> onStatusChangedCallback, Double rssiAtOneMeter, Integer sendingCapacity, Integer triggerKeyCode) {
         this.onDataCallback=onDataCallback;
         this.onStatusChangedCallback =onStatusChangedCallback;
         this.rssiAtOneMeter = rssiAtOneMeter;
@@ -114,7 +114,7 @@ public abstract class Reader {
      * @param onTagReadCallback Function that's gonna be executed
      *                          every time a tag is read
      */
-    protected abstract void runScanning(EventCallback<Tag> onTagReadCallback) throws Exception;
+    protected abstract void runScanning(EventCallback<RfidTag> onTagReadCallback) throws Exception;
 
     /**
      * Asks the RFID reader to stop the continuous tags scanning
@@ -196,10 +196,10 @@ public abstract class Reader {
      * update its previous rssi.
      * @param tag tag to be processed
      */
-    private void processReadTag(Tag tag){
+    private void processReadTag(RfidTag tag){
         Map<String, String> previouslyReadTag=readTags.get(tag.getEpc());
 
-        // Tag will be added only if it has not already been read
+        // RfidTag will be added only if it has not already been read
         if(tag.getEpc()!=null && !tag.getEpc().isEmpty() && previouslyReadTag==null) {
             HashMap<String, String> tagAsMap = new HashMap<>();
             tagAsMap.put("epc", tag.getEpc());

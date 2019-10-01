@@ -10,9 +10,9 @@ import 'package:biblio/models/appVariables.dart';
 import 'package:biblio/services/categories-mock-data.dart';
 
 class LoginScreen extends StatefulWidget {
-  static final AssetImage logoImage = const AssetImage("assets/appLogo.png");
+  static final AssetImage logoImage = const AssetImage("assets/img/appLogo.png");
   final AssetImage backgroundImage =
-      const AssetImage("assets/login-background.jpg");
+      const AssetImage("assets/img/login-background.jpg");
 
   final Logo logo = Logo(
     image: logoImage,
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen>
     MediaQueryData mediaQueryData = MediaQuery.of(context);
     Orientation orientation = mediaQueryData.orientation;
 
-    Widget formWidget = LoginForm(
+    Widget formWidget = LoginFormLegacy(
       onFormChange: handleFormChange,
       formKey: widget._formKey,
     );

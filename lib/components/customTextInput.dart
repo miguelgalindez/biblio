@@ -5,21 +5,25 @@ class CustomTextInput extends StatelessWidget {
   final FocusNode focusNode;
   final Function validator;
   final TextInputAction textInputAction;
+  final Function onChanged;
   final Function onFieldSubmitted;
   final TextInputType keyboardType;
   final bool obscureText;
   final IconData icon;
   final String label;
+  final String errorText;
 
   CustomTextInput(
       {Key key,
       this.keyboardType = TextInputType.text,
       @required this.obscureText,
       @required this.label,
+      this.errorText,
       this.icon,
       this.controller,
       this.validator,
       this.textInputAction,
+      this.onChanged,
       this.onFieldSubmitted,
       this.focusNode})
       : assert(obscureText != null),
@@ -37,6 +41,7 @@ class CustomTextInput extends StatelessWidget {
       validator: validator,
       textInputAction: textInputAction,
       focusNode: focusNode,
+      onChanged: onChanged,
       onFieldSubmitted: onFieldSubmitted,
       keyboardType: keyboardType,
       maxLines: 1,
@@ -51,6 +56,7 @@ class CustomTextInput extends StatelessWidget {
         labelStyle: textStyle,
         errorStyle: errorStyle,
         errorMaxLines: 2,
+        errorText: errorText,
       ),
     );
   }

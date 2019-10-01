@@ -14,14 +14,14 @@ import 'package:biblio/validators/userValidator.dart';
  * TOTO: remove username and password and put them into index.
  */
 
-class LoginForm extends StatefulWidget {
+class LoginFormLegacy extends StatefulWidget {
   final double horizontalPadding;
   final Function onFormChange;
   final GlobalKey<FormState> formKey;
   final FocusNode _usernameFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
-  LoginForm(
+  LoginFormLegacy(
       {Key key,
       @required this.onFormChange,
       this.formKey,
@@ -29,10 +29,10 @@ class LoginForm extends StatefulWidget {
       : super(key: key);
 
   @override
-  _LoginFormState createState() => _LoginFormState();
+  _LoginFormLegacyState createState() => _LoginFormLegacyState();
 }
 
-class _LoginFormState extends State<LoginForm> with WidgetsBindingObserver {
+class _LoginFormLegacyState extends State<LoginFormLegacy> with WidgetsBindingObserver {
   TextEditingController _usernameController;
   TextEditingController _passwordController;
 

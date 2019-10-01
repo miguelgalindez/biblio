@@ -1,6 +1,6 @@
 import 'package:biblio/blocs/deviceUtilititesBloc.dart';
 import 'package:flutter/material.dart';
-import 'package:biblio/screens/login.dart';
+import 'package:biblio/ui/screens/login/index.dart';
 import 'package:biblio/models/appConfig.dart';
 
 ThemeData buildTheme(BuildContext context, AppConfig appConfig) {

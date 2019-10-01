@@ -50,9 +50,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/login-background.jpg
-    - assets/login-background-2.jpg
-    - assets/appLogo.png
+    - assets/img/appLogo.png
+    - assets/img/login-background.jpg
     - assets/x.jpg
     - assets/books-mock-data.json
     - assets/avatar-1.png

@@ -82,7 +82,7 @@ class _LoginFormLegacyState extends State<LoginFormLegacy> with WidgetsBindingOb
         children: <Widget>[
           CustomTextInput(
             controller: _usernameController,
-            validator: validateUsername,
+            validator: UserValidator.validateUsername,
             focusNode: widget._usernameFocusNode,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (String value) {
@@ -97,7 +97,7 @@ class _LoginFormLegacyState extends State<LoginFormLegacy> with WidgetsBindingOb
           SizedBox(height: 10.0),
           CustomTextInput(
             controller: _passwordController,
-            validator: validatePassword,
+            validator: UserValidator.validatePassword,
             focusNode: widget._passwordFocusNode,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (String value) {

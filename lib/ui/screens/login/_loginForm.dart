@@ -19,16 +19,15 @@ class LoginForm extends StatelessWidget {
               return Text("Is valid: ${snapshot.data}",
                   style: TextStyle(color: Colors.white));
             else
-              return Text("Is valid: false",
-                  style: TextStyle(color: Colors.white));
+              return Text("Error", style: TextStyle(color: Colors.white));
           },
         ),
         StreamBuilder(
-            stream: loginScreenBloc.username,
+            stream: loginScreenBloc.usernameErrors,
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               return CustomTextInput(
                 onChanged: loginScreenBloc.usernameSink.add,
-                errorText: snapshot.error,
+                errorText: snapshot.data,
                 onFieldSubmitted: (String value) {
                   _usernameFocusNode.unfocus();
                   FocusScope.of(context).requestFocus(_passwordFocusNode);
@@ -43,11 +42,11 @@ class LoginForm extends StatelessWidget {
             }),
         SizedBox(height: 10.0),
         StreamBuilder(
-          stream: loginScreenBloc.password,
+          stream: loginScreenBloc.passwordErrors,
           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
             return CustomTextInput(
               onChanged: loginScreenBloc.passwordSink.add,
-              errorText: snapshot.error,
+              errorText: snapshot.data,
               onFieldSubmitted: (String value) {
                 _usernameFocusNode.unfocus();
                 // As the best option didn't work, i used the second one as stackoverflow's user suggest: https://stackoverflow.com/questions/44991968/how-can-i-dismiss-the-on-screen-keyboard

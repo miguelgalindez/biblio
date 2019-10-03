@@ -11,17 +11,7 @@ class LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        StreamBuilder(
-          stream: loginScreenBloc.formIsValid,
-          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-            if (snapshot.hasData)
-              return Text("Is valid: ${snapshot.data}",
-                  style: TextStyle(color: Colors.white));
-            else
-              return Text("Error", style: TextStyle(color: Colors.white));
-          },
-        ),
+      children: <Widget>[        
         StreamBuilder(
             stream: loginScreenBloc.usernameErrors,
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {

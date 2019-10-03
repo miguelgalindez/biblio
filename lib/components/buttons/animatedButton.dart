@@ -7,15 +7,11 @@ import 'package:biblio/models/User.dart';
 import 'package:biblio/models/appConfig.dart';
 
 class AnimatedButton extends StatefulWidget {
-  final double horizontalPadding;
+  final String text;
   final double width;
   final double widthAfterShrinking;
-  final String text;
-  final GlobalKey<FormState> formKey;
-  final Function onTap;
+  final double horizontalPadding;
   final bool enableZoomButtonAnimation;
-  final Function onAnimationCompleted;
-  final Size screenSize;
 
   AnimatedButton(
       {Key key,
@@ -23,11 +19,7 @@ class AnimatedButton extends StatefulWidget {
       this.width,
       this.widthAfterShrinking = 70.0,
       @required this.text,
-      this.formKey,
-      this.onTap,
-      this.enableZoomButtonAnimation = true,
-      this.onAnimationCompleted,
-      @required this.screenSize})
+      this.enableZoomButtonAnimation = true})
       : super(key: key);
 
   @override
@@ -83,8 +75,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
   }
 
   Future<void> _executeOnTapFunction(BuildContext context) async {
-    Scaffold.of(context).removeCurrentSnackBar();
-
+    Scaffold.of(context).removeCurrentSnackBar();    
     if (widget.formKey == null || widget.formKey.currentState.validate()) {
       await _playShrinkAnimation();
       try {

@@ -57,9 +57,7 @@ class LoginScreenBloc extends BlocBase {
 
   Observable<bool> get formIsValid => _errorsController.stream.transform(
         StreamTransformer<FormErrors, bool>.fromHandlers(
-          handleData: (formErrors, sink) => sink.add(
-              formErrors.usernameError == null &&
-                  formErrors.passwordError == null),
+          handleData: (formErrors, sink) => sink.add(_formIsValid()),
         ),
       );
 
@@ -78,6 +76,12 @@ class LoginScreenBloc extends BlocBase {
         }
         errorsSink.add(formErrors);
       };
+      
+  bool _formIsValid(){
+    FormErrors formErrors=_errorsController.value;
+    return formErrors.usernameError == null &&
+                  formErrors.passwordError == null;
+  }
 }
 
 class FormErrors {

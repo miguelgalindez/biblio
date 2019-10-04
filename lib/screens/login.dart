@@ -1,4 +1,4 @@
-import 'dart:async';
+/*import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:biblio/components/logo.dart';
 import 'package:biblio/components/forms/loginForm.dart';
@@ -84,11 +84,11 @@ class _LoginScreenState extends State<LoginScreen>
 
     Widget loginButton = AnimatedButton(
       text: "Iniciar sesión",
-      formKey: widget._formKey,
+      //formKey: widget._formKey,
       onTap: () async => _signIn(context),
       enableZoomButtonAnimation: orientation == Orientation.portrait,
-      onAnimationCompleted: _handleAnimationCompleted(context),
-      screenSize: mediaQueryData.size,
+      //onAnimationCompleted: _handleAnimationCompleted(context),
+      //screenSize: mediaQueryData.size,
       horizontalPadding:
           orientation == Orientation.portrait ? widget.horizontalPadding : 0,
     );
@@ -169,3 +169,4 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 }
+*/

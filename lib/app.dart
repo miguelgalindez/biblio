@@ -7,7 +7,7 @@ ThemeData buildTheme(BuildContext context, AppConfig appConfig) {
   final ThemeData base = Theme.of(context);
 
   return base.copyWith(
-    hintColor: Colors.white70,
+    //hintColor: Colors.white70,
     primaryColor: appConfig.primaryColor,
     primaryIconTheme: base.primaryIconTheme.copyWith(color: Colors.white),
     textTheme: base.textTheme.apply(fontFamily: 'Montserrat'),

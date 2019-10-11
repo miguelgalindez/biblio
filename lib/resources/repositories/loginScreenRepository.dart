@@ -6,6 +6,9 @@ class LoginScreenRepository {
   /// TODO: update this when create the rest api (follow the platform api)
   static Future<void> signIn(String username, String password,
       Function onSuccess, Function onError) async {
+
+    await Future.delayed(const Duration(seconds: 3), (){});
+
     ApiResponse response = await MockApi.signIn(username, password);
     if (!response.hasError) {
       User user = response.content;

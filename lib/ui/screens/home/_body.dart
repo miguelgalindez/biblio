@@ -22,7 +22,6 @@ class Body extends StatelessWidget {
                 )
               : screen.body;
         } else if (snapshot.hasError) {
-          print("[Home/Body] Error: ${snapshot.error.toString()}");
           return const Center(
             child: const Text("Error al intentar cargar la pantalla"),
           );

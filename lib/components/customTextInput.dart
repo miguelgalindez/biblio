@@ -33,8 +33,17 @@ class CustomTextInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    var textStyle = themeData.textTheme.subhead.copyWith(color: Colors.white);
-    var errorStyle = textStyle.copyWith(color: themeData.errorColor);
+    final TextStyle textStyle = themeData.textTheme.subhead.copyWith(color: Colors.white);
+    final TextStyle errorStyle = textStyle.copyWith(color: themeData.errorColor);
+    const OutlineInputBorder border = const OutlineInputBorder(
+      borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+      borderSide: const BorderSide(color: Colors.white60),
+    );
+
+    OutlineInputBorder errorBorder = OutlineInputBorder(
+      borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+      borderSide: BorderSide(color: themeData.errorColor),
+    );
 
     return TextFormField(
       controller: controller,
@@ -48,9 +57,10 @@ class CustomTextInput extends StatelessWidget {
       obscureText: obscureText,
       style: textStyle,
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        ),
+        enabledBorder: border,
+        focusedBorder: border,
+        errorBorder: errorBorder,
+        focusedErrorBorder: errorBorder,
         prefixIcon: Icon(icon, color: Colors.white),
         labelText: label,
         labelStyle: textStyle,

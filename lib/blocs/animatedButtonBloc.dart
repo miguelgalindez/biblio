@@ -20,10 +20,6 @@ enum Button { PLAIN_BUTTON, SHRINK_BUTTON, ZOOM_BUTTON }
 class AnimatedButtonBloc extends BlocBase {
   BehaviorSubject<BlocEvent> _eventsController;
 
-  AnimatedButtonBloc() {
-    print('[AnimatedButtonBloc] New instance created');
-  }
-
   void init() {
     _eventsController = BehaviorSubject();
   }
@@ -37,13 +33,14 @@ class AnimatedButtonBloc extends BlocBase {
 
   Observable<BlocEvent> get events => _eventsController.stream;
   Observable<Button> get buttons =>
-      events.distinct().transform(_getButtonsTransformer());
+      events.transform(_getButtonsTransformer()).distinct();
 
-  StreamTransformer _getButtonsTransformer() =>
+  StreamTransformer<BlocEvent, Button> _getButtonsTransformer() =>
       StreamTransformer<BlocEvent, Button>.fromHandlers(
         handleData: (event, sink) {
           if (event.action == AnimatedButtonAction.FORWARD_SHRINK_ANIMATION ||
-              event.action == AnimatedButtonAction.REWIND_SHRINK_ANIMATION) {
+              event.action == AnimatedButtonAction.REWIND_SHRINK_ANIMATION ||
+              event.action == AnimatedButtonAction.SHRINK_ANIMATION_COMPLETED) {
             sink.add(Button.SHRINK_BUTTON);
           } else if (event.action ==
                   AnimatedButtonAction.FORWARD_ZOOM_ANIMATION ||

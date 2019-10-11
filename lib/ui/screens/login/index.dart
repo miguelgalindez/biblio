@@ -44,9 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     Orientation orientation = MediaQuery.of(context).orientation;
-    print('Orientation $orientation');
-
-    /// TODO: how to prevent keyboard opening causes the widget to rebuild
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black.withOpacity(0.77),
@@ -149,12 +146,14 @@ class LoginButton extends StatelessWidget {
     return AnimatedButton(
       animatedButtonBloc: loginScreenBloc.animatedButtonBloc,
       text: 'Iniciar sesión',
+      width: 250.0,
       enableZoomButtonAnimation: enableZoomButtonAnimation,
       onTap: () async {
         loginScreenBloc.eventsSink.add(
           BlocEvent(action: LoginScreenAction.SIGN_IN),
         );
       },
+      onAnimationCompleted: () async => print('[Login/index] Redirecting...'),
     );
   }
 }

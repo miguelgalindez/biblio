@@ -28,18 +28,24 @@ class LoginScreenBloc extends BlocBase {
 
   void init() {
     animatedButtonBloc = AnimatedButtonBloc();
+    animatedButtonBloc.init();
     _eventsController = BehaviorSubject<BlocEvent>();
     _usernameController = BehaviorSubject<String>();
     _passwordController = BehaviorSubject<String>();
     _eventsSubscription = events.listen(_handleEvents);
-    _usernameSubscription = username.listen(_handleChange(FieldId.USERNAME));
-    _passwordSubscription = password.listen(_handleChange(FieldId.PASSWORD));
+
+    _usernameSubscription =
+        username.listen((value) => _validateField(FieldId.USERNAME));
+    _passwordSubscription =
+        password.listen((value) => _validateField(FieldId.PASSWORD));
+
     _errorsController = BehaviorSubject();
     _errorsController.add(FormErrors());
   }
 
   @override
   void dispose() {
+    animatedButtonBloc.dispose();
     _eventsSubscription.cancel();
     _usernameSubscription.cancel();
     _passwordSubscription.cancel();
@@ -52,11 +58,11 @@ class LoginScreenBloc extends BlocBase {
   StreamSink<BlocEvent> get eventsSink => _eventsController.sink;
   StreamSink<String> get usernameSink => _usernameController.sink;
   StreamSink<String> get passwordSink => _passwordController.sink;
-  StreamSink<FormErrors> get errorsSink => _errorsController.sink;
+  StreamSink<FormErrors> get _errorsSink => _errorsController.sink;
 
   Observable<BlocEvent> get events => _eventsController.stream.distinct();
-  Observable<String> get username => _usernameController.stream.distinct();
-  Observable<String> get password => _passwordController.stream.distinct();
+  ValueObservable<String> get username => _usernameController.stream;
+  ValueObservable<String> get password => _passwordController.stream;
 
   Observable<String> get usernameErrors => _errorsController.stream.transform(
         StreamTransformer<FormErrors, String>.fromHandlers(
@@ -79,38 +85,46 @@ class LoginScreenBloc extends BlocBase {
   Future<void> _handleEvents(BlocEvent event) async {
     switch (event.action) {
       case LoginScreenAction.SIGN_IN:
-        animatedButtonBloc.eventsSink.add(
-          BlocEvent(action: AnimatedButtonAction.FORWARD_SHRINK_ANIMATION),
-        );
-        if (_formIsValid()) {
-          LoginScreenRepository.signIn(
-            _usernameController.value,
-            _passwordController.value,
-            _handleSuccessfulSigning,
-            _handleUnsuccessfulSigning,
-          );
-        } else {
-         /* animatedButtonBloc.eventsSink.add(
-            BlocEvent(action: AnimatedButtonAction.REWIND_SHRINK_ANIMATION),
-          );*/
-        }
+        _signIn();
         break;
       default:
     }
   }
 
-  Function _handleChange(FieldId fieldId) => (String value) async {
-        FormErrors formErrors = _errorsController.value;
-        switch (fieldId) {
-          case FieldId.USERNAME:
-            formErrors.usernameError = UserValidator.validateUsername(value);
-            break;
-          case FieldId.PASSWORD:
-            formErrors.passwordError = UserValidator.validatePassword(value);
-            break;
-        }
-        errorsSink.add(formErrors);
-      };
+  Future<void> _signIn() async {
+    await Future.wait([
+      _validateField(FieldId.USERNAME),
+      _validateField(FieldId.PASSWORD),
+    ]);
+
+    if (_formIsValid()) {
+      animatedButtonBloc.eventsSink.add(
+        BlocEvent(action: AnimatedButtonAction.FORWARD_SHRINK_ANIMATION),
+      );
+
+      LoginScreenRepository.signIn(
+        _usernameController.value,
+        _passwordController.value,
+        _handleSuccessfulSigning,
+        _handleUnsuccessfulSigning,
+      );
+    }
+  }
+
+  Future<void> _validateField(FieldId fieldId) async {
+    FormErrors formErrors = _errorsController.value;
+    switch (fieldId) {
+      case FieldId.USERNAME:
+        formErrors.usernameError =
+            UserValidator.validateUsername(_usernameController.value);
+        break;
+      case FieldId.PASSWORD:
+        formErrors.passwordError =
+            UserValidator.validatePassword(_passwordController.value);
+        break;
+    }
+    _errorsSink.add(formErrors);
+  }
 
   bool _formIsValid() {
     FormErrors formErrors = _errorsController.value;
@@ -118,16 +132,12 @@ class LoginScreenBloc extends BlocBase {
   }
 
   Future<void> _handleSuccessfulSigning(User user) async {
-    print(
-        '[LoginScreenBloc] The user: ${user.username} is signed in. Redirecting...');
     animatedButtonBloc.eventsSink.add(
       BlocEvent(action: AnimatedButtonAction.FORWARD_ZOOM_ANIMATION),
     );
   }
 
   Future<void> _handleUnsuccessfulSigning(String error) async {
-    print(
-        '[LoginScreenBloc] Error trying to authenticate the user. Description: $error');
     animatedButtonBloc.eventsSink.add(
       BlocEvent(action: AnimatedButtonAction.REWIND_SHRINK_ANIMATION),
     );

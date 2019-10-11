@@ -9,7 +9,12 @@ import 'package:biblio/components/buttons/zoomButtonAnimation.dart';
 class AnimatedButton extends StatefulWidget {
   final AnimatedButtonBloc animatedButtonBloc;
   final String text;
+
+  /// Function that will be executed once the plain button is clicked
   final Function onTap;
+
+  /// Function that will be executed once the animation is completed
+  final Function onAnimationCompleted;
   final double width;
   final double widthAfterShrinking;
   final bool enableZoomButtonAnimation;
@@ -20,8 +25,9 @@ class AnimatedButton extends StatefulWidget {
       @required this.animatedButtonBloc,
       @required this.text,
       @required this.onTap,
+      this.onAnimationCompleted,
       this.horizontalPadding = 0,
-      this.width,
+      @required this.width,
       this.widthAfterShrinking = 70.0,
       this.enableZoomButtonAnimation = true})
       : super(key: key);
@@ -38,8 +44,6 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   void initState() {
-    super.initState();
-    widget.animatedButtonBloc.init();
     _eventsSubscription =
         widget.animatedButtonBloc.events.listen(_handleEvents);
     shrinkButtonAnimationController =
@@ -51,17 +55,16 @@ class _AnimatedButtonState extends State<AnimatedButton>
         .addStatusListener(_handleShrinkAnimationStatus);
 
     zoomButtonAnimationController.addStatusListener(_handleZoomAnimationStatus);
+    super.initState();
   }
 
   @override
   void dispose() {
-    print('[AnimatedButton] Disposing...');
     _eventsSubscription.cancel();
     shrinkButtonAnimationController
         .removeStatusListener(_handleShrinkAnimationStatus);
     zoomButtonAnimationController
         .removeStatusListener(_handleZoomAnimationStatus);
-    widget.animatedButtonBloc.dispose();
     zoomButtonAnimationController.dispose();
     shrinkButtonAnimationController.dispose();
     super.dispose();
@@ -70,37 +73,51 @@ class _AnimatedButtonState extends State<AnimatedButton>
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints boxConstraints) {
-        return AnimationWidget(
-          animatedButtonBloc: widget.animatedButtonBloc,
-          text: widget.text,
-          onTap: widget.onTap,
-          initialWidth: _getInitialWidth(boxConstraints),
-          widthAfterShrinking: widget.widthAfterShrinking,
-          shrinkButtonAnimationController: shrinkButtonAnimationController,
-          zoomButtonAnimationController: zoomButtonAnimationController,
-          horizontalPadding: widget.horizontalPadding,
-          screenSize: screenSize,
-        );
-      },
+    return AnimationWidget(
+      animatedButtonBloc: widget.animatedButtonBloc,
+      text: widget.text,
+      onTap: widget.onTap,
+      initialWidth: widget.width,
+      widthAfterShrinking: widget.widthAfterShrinking,
+      shrinkButtonAnimationController: shrinkButtonAnimationController,
+      zoomButtonAnimationController: zoomButtonAnimationController,
+      horizontalPadding: widget.horizontalPadding,
+      screenSize: screenSize,
     );
   }
 
   Future<void> _handleEvents(BlocEvent event) async {
     switch (event.action) {
       case AnimatedButtonAction.FORWARD_SHRINK_ANIMATION:
-        print('await shrinkButtonAnimationController.forward();');
         await shrinkButtonAnimationController.forward();
         break;
+
       case AnimatedButtonAction.REWIND_SHRINK_ANIMATION:
         await shrinkButtonAnimationController.reverse();
         break;
+
       case AnimatedButtonAction.FORWARD_ZOOM_ANIMATION:
-        await zoomButtonAnimationController.forward();
+        if (widget.enableZoomButtonAnimation) {
+          await zoomButtonAnimationController.forward();
+        } else {
+          widget.animatedButtonBloc.eventsSink.add(BlocEvent(
+            action: AnimatedButtonAction.ZOOM_ANIMATION_COMPLETED,
+          ));
+        }
         break;
+
       case AnimatedButtonAction.REWIND_ZOOM_ANIMATION:
-        await zoomButtonAnimationController.reverse();
+        if (widget.enableZoomButtonAnimation) {
+          await zoomButtonAnimationController.reverse();
+        }
+        break;
+
+      case AnimatedButtonAction.ZOOM_ANIMATION_COMPLETED:
+        if (widget.onAnimationCompleted != null) {
+          await widget.onAnimationCompleted();
+        }
+        zoomButtonAnimationController.reset();
+        shrinkButtonAnimationController.reset();
         break;
     }
   }
@@ -127,12 +144,6 @@ class _AnimatedButtonState extends State<AnimatedButton>
         action: AnimatedButtonAction.ZOOM_ANIMATION_DISMISSED,
       ));
     }
-  }
-
-  double _getInitialWidth(BoxConstraints boxConstraints) {
-    return widget.width != null && widget.width > 0
-        ? widget.width
-        : boxConstraints.maxWidth;
   }
 }
 
@@ -188,11 +199,7 @@ class AnimationWidget extends StatelessWidget {
   Widget _getWidget(BuildContext context, AsyncSnapshot<Button> snapshot) {
     if (!snapshot.hasError) {
       if (snapshot.hasData) {
-        print('[AnimatedButton] Button to display ${snapshot.data}' );
         switch (snapshot.data) {
-
-          /// Nuevo stream para botón. Para evitar renderizado múltiple del mismo componente
-          /// cuando se retrocede la animación
           case Button.ZOOM_BUTTON:
             return enableZoomButtonAnimation
                 ? zoomAnimatedButton
